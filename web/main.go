@@ -26,6 +26,7 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"mime"
 	"net/http"
 	"os"
 	"strings"
@@ -123,7 +124,6 @@ func StaticHandler(next http.Handler) http.Handler {
 		if strings.HasPrefix(path, "/data/") {
 			r.URL.Path += ".gz"
 			w.Header().Set("Content-Encoding", "gzip")
-			w.Header().Set("Content-Type", "application/json")
 		}
 		next.ServeHTTP(w, r)
 	})
@@ -207,6 +207,10 @@ func main() {
 		log.Println("error:", err)
 		panic(err)
 	}
+
+	// Add exeption
+	// not set header for json files (data/*.json.gz, map.json)
+	mime.AddExtensionType(".json", "application/json")
 
 	// Create router
 	mux := http.NewServeMux()
