@@ -158,13 +158,11 @@
   <ItemGroup>
     <ClCompile Include="SRC\\easylogging++.cc" />
     <ClCompile Include="SRC\\OcapReplaySaver2.cpp" />
-    <ClCompile Include="SRC\\utf8totranslit.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="INCLUDE\\easylogging++.h" />
     <ClInclude Include="INCLUDE\\easylogging_setup.h" />
     <ClInclude Include="INCLUDE\\json.hpp" />
-    <ClInclude Include="INCLUDE\\utf8totranslit.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

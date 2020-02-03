@@ -21,9 +21,6 @@
     <ClCompile Include="SRC\\OcapReplaySaver2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="utf8totranslit.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="INCLUDE\\easylogging++.h">
@@ -33,9 +30,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="INCLUDE\\json.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="utf8totranslit.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
