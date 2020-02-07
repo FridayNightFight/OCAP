@@ -41,6 +41,7 @@ v 4.1.0.4 2020-01-26 Zealot small fixes and optimizations
 v 4.1.1.0 2020-01-26 Zealot Actually working )
 v 4.1.1.1 2020-01-26 Zealot Fixed bug with buffer overflow
 v 4.1.1.2 2020-01-26 Zealot Utf8 string to ASCII updated
+v 4.1.1.3 2020-01-26 Zealot Fix with mission datetime
 
 TODO:
 - чтение запись настроек
@@ -48,7 +49,7 @@ TODO:
 
 */
 
-#define CURRENT_VERSION "4.1.1.2"
+#define CURRENT_VERSION "4.1.1.3"
 
 #pragma endregion
 
@@ -453,7 +454,7 @@ std::string& utf8to_translit(const std::string& in, std::string& out) {
 	string out_r; out_r.reserve(out.size());
 
 	for (const char& c : out) {
-		if (c >= 'A' && c <= 'Z' || c >= 'a' && c <= 'z' || c == '_' || c == '-') {
+		if (c >= 'A' && c <= 'Z' || c >= 'a' && c <= 'z' || c == '_' || c == '-' || c >= '0' && c <= '9' ) {
 			out_r += c;
 		}
 	}
