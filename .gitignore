@@ -5,6 +5,10 @@ releases/
 *.dll
 *.exe
 *.zip
+*.exp
+*.iobj
+*.ipdb
+*.lib
 web/.vscode/
 web2/
 build/
