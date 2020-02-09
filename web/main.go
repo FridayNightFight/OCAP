@@ -124,6 +124,8 @@ func StaticHandler(next http.Handler) http.Handler {
 		if strings.HasPrefix(path, "/data/") {
 			r.URL.Path += ".gz"
 			w.Header().Set("Content-Encoding", "gzip")
+			// Support mozilla
+			w.Header().Set("Content-Type", "application/json")
 		}
 		next.ServeHTTP(w, r)
 	})
@@ -209,7 +211,7 @@ func main() {
 	}
 
 	// Add exeption
-	// not set header for json files (data/*.json.gz, map.json)
+	// not set header for json files (map.json)
 	mime.AddExtensionType(".json", "application/json")
 
 	// Create router
