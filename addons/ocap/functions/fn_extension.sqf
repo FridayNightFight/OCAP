@@ -1,7 +1,8 @@
-#define DLL_NAME "OcapReplaySaver2"
 params ["_command","_args"];
 
-private _res = DLL_NAME callExtension [_command, _args];
+private _dllName = "OcapReplaySaver2";
+
+private _res = _dllName callExtension [_command, _args];
 
 _res params ["_result","_returnCode","_errorCode"];
 
