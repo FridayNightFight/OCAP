@@ -5,6 +5,10 @@ releases/
 *.dll
 *.exe
 *.zip
+*.exp
+*.iobj
+*.ipdb
+*.lib
 web/.vscode/
 web2/
 build/
@@ -12,6 +16,17 @@ web/data/data.db
 web/data/*.json
 web/data/*.gz
 web/images/maps/*
+*.exp
+*.la
+*.lib
+*.lo
+*.o
+*.obj
+*.pdb
+*.pyc
+*.iobj
+*.ipdb
+
 
 # User-specific files
 *.suo
@@ -313,6 +328,4 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
-*.json
 *.exe
-
