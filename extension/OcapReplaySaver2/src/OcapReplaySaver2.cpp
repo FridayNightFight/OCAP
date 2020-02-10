@@ -476,6 +476,23 @@ std::string generateResultFileName(const std::string &name) {
 }
 
 #pragma region Вычитка конфига
+
+template <typename T>
+T& read_config(const json& js, const char* name, T &set_to) {
+	if (js[name].is_null()) {
+		LOG(WARNING) << name << "is missing in config file!";
+		return set_to;
+	}
+	json tst = T();
+	if (js[name].type_name() != tst.type_name()) {
+		LOG(WARNING) << name << "have type:" << js[name].type_name() << " but expected:" << tst.type_name();
+		return set_to;
+	}
+	set_to = js[name].get<T>();
+	LOG(INFO) << "Config parameter [" << name << ":" << set_to << "]";
+	return set_to;
+}
+
 void readWriteConfig(HMODULE hModule) {
 	wchar_t szPath[MAX_PATH], szDirPath[_MAX_DIR];
 	GetModuleFileNameW(hModule, szPath, MAX_PATH);
@@ -500,7 +517,6 @@ void readWriteConfig(HMODULE hModule) {
 		out << j.dump(4) << endl;
 	}
 	LOG(INFO) << "Trying to read config file:" << converter.to_bytes(path);
-	bool cfgOpened = false;
 	ifstream cfg(path, ifstream::in | ifstream::binary);
 
 	json jcfg;
@@ -509,69 +525,16 @@ void readWriteConfig(HMODULE hModule) {
 		return;
 	}
 	cfg >> jcfg;
-	if (!jcfg["addFileUrl"].is_null() && jcfg["addFileUrl"].is_string()) {
-		config.addFileUrl = jcfg["addFileUrl"].get<string>();
-		LOG(TRACE) << "Read addFileUrl=" << config.addFileUrl;
-	}
-	else {
-		LOG(WARNING) << "addFileUrl should be string!";
-	}
+	
+	read_config(jcfg, "addFileUrl", config.addFileUrl);
+	read_config(jcfg, "dbInsertUrl", config.dbInsertUrl);
+	read_config(jcfg, "httpRequestTimeout", config.httpRequestTimeout);
+	read_config(jcfg, "traceLog", config.traceLog);
+	read_config(jcfg, "newMode", config.newMode);
+	read_config(jcfg, "newUrl", config.newUrl);
+	read_config(jcfg, "newServerGameType", config.newServerGameType);
+	read_config(jcfg, "newUrlRequestSecret", config.newUrlRequestSecret);
 
-	if (!jcfg["dbInsertUrl"].is_null() && jcfg["dbInsertUrl"].is_string()) {
-		config.dbInsertUrl = jcfg["dbInsertUrl"].get<string>();
-		LOG(TRACE) << "Read dbInsertUrl=" << config.dbInsertUrl;
-	}
-	else {
-		LOG(WARNING) << "dbInsertUrl should be string!";
-	}
-
-	if (!jcfg["httpRequestTimeout"].is_null() && jcfg["httpRequestTimeout"].is_number_integer()) {
-		config.httpRequestTimeout = jcfg["httpRequestTimeout"].get<int>();
-		LOG(TRACE) << "Read httpRequestTimeout=" << config.httpRequestTimeout;
-	}
-	else {
-		LOG(WARNING) << "httpRequestTimeout should be integer!";
-	}
-
-	if (!jcfg["traceLog"].is_null() && jcfg["traceLog"].is_number_integer()) {
-		config.traceLog = jcfg["traceLog"].get<int>();
-		LOG(TRACE) << "Read traceLog=" << config.traceLog;
-	}
-	else {
-		LOG(WARNING) << "traceLog should be integer!";
-	}
-
-	if (!jcfg["newMode"].is_null() && jcfg["newMode"].is_number_integer()) {
-		config.newMode = jcfg["newMode"].get<int>();
-		LOG(TRACE) << "Read newMode=" << config.newMode;
-	}
-	else {
-		LOG(WARNING) << "newMode should be integer!";
-	}
-
-	if (!jcfg["newUrl"].is_null() && jcfg["newUrl"].is_string()) {
-		config.newUrl = jcfg["newUrl"].get<string>();
-		LOG(TRACE) << "Read newUrl=" << config.newUrl;
-	}
-	else {
-		LOG(WARNING) << "newUrl should be string!";
-	}
-
-	if (!jcfg["newServerGameType"].is_null() && jcfg["newServerGameType"].is_string()) {
-		config.newServerGameType = jcfg["newServerGameType"].get<string>();
-		LOG(TRACE) << "Read newServerGameType=" << config.newServerGameType;
-	}
-	else {
-		LOG(WARNING) << "newServerGameType should be string!";
-	}
-
-	if (!jcfg["newUrlRequestSecret"].is_null() && jcfg["newUrlRequestSecret"].is_string()) {
-		config.newUrlRequestSecret = jcfg["newUrlRequestSecret"].get<string>();
-		LOG(TRACE) << "Read newUrlRequestSecret=" << config.newUrlRequestSecret;
-	}
-	else {
-		LOG(WARNING) << "newUrlRequestSecret should be string!";
-	}
 
 	if (config.traceLog) {
 		el::Configurations defaultConf(*el::Loggers::getLogger("default")->configurations());
