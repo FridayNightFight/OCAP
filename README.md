@@ -17,7 +17,7 @@ Use it simply for fun or as a training tool to see how well your group performs 
 
 ## What is the difference from the original?
 Speed! Our version is many times faster due to a new dll and a more rigid handling of the game engine. We can write and send to the dll more than 250 objects in ~0.2 seconds. Due to the streaming in dll during the recording of the game process itself, we do not need to export information at the end of the mission, which eliminates the delay at the end of the mission.
-But! We designed it for our project, there are many nuances in it. If you want to use it for yourself, then let us know, we will try to make it universal.
+But! We designed it for our community(Red Bear Comunity) mod set, there are many nuances in it. If you want to use it for yourself, then let us know, we will try to make it universal.
 
 ## Overview
 
