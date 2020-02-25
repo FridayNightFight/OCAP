@@ -42,6 +42,7 @@ v 4.1.1.0 2020-01-26 Zealot Actually working )
 v 4.1.1.1 2020-01-26 Zealot Fixed bug with buffer overflow
 v 4.1.1.2 2020-01-26 Zealot Utf8 string to ASCII updated
 v 4.1.1.3 2020-01-26 Zealot Fix with mission datetime
+v 4.1.1.4 2020-02-25 Zealot Remove uncompressed data if compressed successfully, slightly improved parameters checking
 
 TODO:
 - чтение запись настроек
@@ -49,7 +50,7 @@ TODO:
 
 */
 
-#define CURRENT_VERSION "4.1.1.3"
+#define CURRENT_VERSION "4.1.1.4"
 
 #pragma endregion
 
@@ -167,6 +168,7 @@ namespace {
 #define JSON_STR_FROM_ARG(N) (json::string_t(filterSqfString(args[N])))
 #define JSON_INT_FROM_ARG(N) (json::number_integer_t(stoi(args[N])))
 #define JSON_FLOAT_FROM_ARG(N) (json::number_float_t(stod(args[N])))
+#define JSON_PARSE_FROM_ARG(N) (json::parse(escapeArma3ToJson(args[N])))
 	
 	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
 
@@ -176,14 +178,15 @@ namespace {
 	atomic<bool> is_writing(false);
 
 	struct {
-		std::string dbInsertUrl = "http://ocap.red-bear.ru/data/receive.php?option=dbInsert";
-		std::string addFileUrl = "http://ocap.red-bear.ru/data/receive.php?option=addFile";
-		std::string newUrl = "https://ocap.red-bear.ru/api/v1/operations/add";
+		std::string dbInsertUrl = "http://127.0.0.1/data/receive.php?option=dbInsert";
+		std::string addFileUrl = "http://127.0.0.1/data/receive.php?option=addFile";
+		std::string newUrl = "https://127.0.0.1/api/v1/operations/add";
 		std::string newServerGameType = "tvt";
 		std::string newUrlRequestSecret = "pwd1234";
 		int newMode = 0;
 		int httpRequestTimeout = 120;
 		int traceLog = 0;
+		// TODO: new names and comments, logs dir, change types accordingly, chenage default values
 	} config;
 }
 
@@ -291,6 +294,48 @@ string removeHash(const string & c) {
 	std::string r(c);
 	r.erase(remove(r.begin(), r.end(), '#'), r.end());
 	return r;
+}
+
+
+// escapes arma3 parameter string to JSON, "" to \", \ to \\ and all control characters to appropriate \u00xx sequences
+std::string escapeArma3ToJson(const std::string& in) {
+	std::string out;
+	out.reserve(in.size() * 2);
+	bool was_quote = false;
+	for (size_t i = 0; i < in.size(); ++i) {
+		char in_char = in[i];
+		std::string app_str;  app_str.reserve(2);
+		app_str = in_char;
+
+		if (was_quote && in_char != '\"') {
+			was_quote = false;
+			out += "\"";
+		}
+		if (in_char >= '\u0000' && in_char <= '\u001f')
+		{
+			char buff[16];
+			snprintf(buff, 16, "\\u00%02x", in_char);
+			app_str = buff;
+		}
+		switch (in_char)
+		{
+		case '\"':
+			if (was_quote)
+				app_str = "\\\"";
+			else
+				app_str = "";
+			was_quote = !was_quote;
+			break;
+		case '\\':
+			app_str = "\\\\";
+			break;
+		default:
+			break;
+		}
+		out += app_str;
+	}
+
+	return out;
 }
 
 // убирает начальные и конечные кавычки в текстк, сдвоенные кавычки превращает в одинарные
@@ -402,7 +447,8 @@ pair<string, string> saveCurrentReplayToTempFile() {
 	if (true) {
 		archive_name = string(tName) + ".gz";
 		if (write_compressed_data(archive_name.c_str(), all_replay.c_str(), all_replay.size())) {
-			LOG(INFO) << "Archive saved:" << archive_name;
+			LOG(INFO) << "Archive saved:" << archive_name << " Removing uncompressed file.";
+			remove(tName);
 		}
 		else {
 			LOG(WARNING) << "Archive not saved! " << archive_name;
@@ -765,7 +811,7 @@ void commandMarkerCreate(const vector<string> &args) {
 	if (clr == "any") {
 		clr = "000000";
 	}
-	json frameNo = json::parse(args[4].c_str());
+	json frameNo = JSON_PARSE_FROM_ARG(4);
 	json a = json::array({
 		JSON_STR_FROM_ARG(0),
 		JSON_INT_FROM_ARG(1),
@@ -775,10 +821,10 @@ void commandMarkerCreate(const vector<string> &args) {
 		JSON_INT_FROM_ARG(5),
 		JSON_INT_FROM_ARG(6),
 		clr, // Color
-		json::parse(args[8]), // Marker size, always [1,1]
-		json::parse(args[9]), //
+		JSON_PARSE_FROM_ARG(8), // Marker size, always [1,1]
+		JSON_PARSE_FROM_ARG(9), //
 		json::array() }); // Marker pos
-	json coordRecord = json::array({ frameNo, json::parse(args[10].c_str()), JSON_INT_FROM_ARG(1)});
+	json coordRecord = json::array({ frameNo, JSON_PARSE_FROM_ARG(10), JSON_INT_FROM_ARG(1)});
 	a[10].push_back(coordRecord);
 	j["Markers"].push_back(a);
 }
@@ -809,7 +855,7 @@ void commandMarkerMove(const vector<string> &args) {
 		LOG(ERROR) << "No such marker" << args[0];
 		throw ocapException("No such marker!");
 	}
-	json coordRecord = json::array({ JSON_INT_FROM_ARG(1), json::parse(args[2]), 0 });
+	json coordRecord = json::array({ JSON_INT_FROM_ARG(1), JSON_PARSE_FROM_ARG(2), 0 });
 	// ищем последнюю запись с таким же фреймом
 	int frame = coordRecord[0];
 	auto coord = find_if((*it)[10].rbegin(), (*it)[10].rend(), [&](const auto & i) { return i[0] == frame; });
@@ -842,7 +888,7 @@ void commandFired(const vector<string> &args)
 	if (!j["entities"][id].is_null()) {
 		j["entities"][id]["framesFired"].push_back(json::array({
 			JSON_INT_FROM_ARG(1),
-			json::parse(args[2])
+			JSON_PARSE_FROM_ARG(2)
 		}));
 	}
 	else {
@@ -958,7 +1004,7 @@ void commandUpdateUnit(const vector<string> &args)
 		int id = stoi(args[0]);
 	if (!j["entities"][id].is_null()) {
 		j["entities"][id]["positions"].push_back(json::array({ 
-			json::parse(args[1]),
+			JSON_PARSE_FROM_ARG(1),
 			JSON_INT_FROM_ARG(2),
 			JSON_INT_FROM_ARG(3),
 			JSON_INT_FROM_ARG(4),
@@ -981,10 +1027,11 @@ void commandUpdateVeh(const vector<string> &args)
 	if (!j["entities"][id].is_null()) {
 		j["entities"][id]["positions"].push_back(
 			json::array({
-				json::parse(args[1]),
+				JSON_PARSE_FROM_ARG(1),
 				JSON_INT_FROM_ARG(2),
 				JSON_INT_FROM_ARG(3),
-				json::parse(args[4]) }));
+				JSON_PARSE_FROM_ARG(4)
+			}));
 	}
 	else {
 		LOG(ERROR) << "Incorrect params, no" << id << "entity!";
@@ -1002,7 +1049,7 @@ void commandEvent(const vector<string> &args)
 	}
 	json arr = json::array();
 	for (int i = 0; i < args.size(); i++) {
-		arr.push_back(json::parse(args[i]));
+		arr.push_back(JSON_PARSE_FROM_ARG(i));
 	}
 	j["events"].push_back(arr);
 }
