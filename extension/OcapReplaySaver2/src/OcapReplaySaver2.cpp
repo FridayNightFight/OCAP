@@ -311,9 +311,24 @@ std::string escapeArma3ToJson(const std::string& in) {
 		}
 		if (in_char >= '\u0000' && in_char <= '\u001f')
 		{
-			char buff[16];
-			snprintf(buff, 16, "\\u00%02x", in_char);
-			app_str = buff;
+			switch (in_char)
+			{
+			case '\r':
+				app_str = "\\r"; break;
+			case '\b':
+				app_str = "\\b"; break;
+			case '\n':
+				app_str = "\\n"; break;
+			case '\t':
+				app_str = "\\t"; break;
+			case '\f':
+				app_str = "\\f"; break;
+			default:
+				char buff[16];
+				snprintf(buff, 16, "\\u00%02x", in_char);
+				app_str = buff;
+				break;
+			}
 		}
 		if (in_char == '\\') {
 			app_str = "\\\\";
