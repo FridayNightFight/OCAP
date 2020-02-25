@@ -301,14 +301,24 @@ string removeHash(const string & c) {
 std::string escapeArma3ToJson(const std::string& in) {
 	std::string out;
 	out.reserve(in.size() * 2);
+	bool instr = false;
 	for (auto it = in.cbegin(); it != in.cend(); ++it) {
 		char in_char = *it;
 		std::string app_str;
 		app_str = in_char;
 
-		if (in_char == '\"' && std::next(it) != in.cend() && *std::next(it) == '\"') {
-			app_str = "\\\""; it++;
+		if (instr && in_char == '\"') {
+			if (std::next(it) != in.cend() && *std::next(it) == '\"') {
+				app_str = "\\\""; it++;
+			}
+			else {
+				instr = false;
+			}
 		}
+
+		if (!instr && in_char == '\"')
+			instr = true;
+
 		if (in_char >= '\u0000' && in_char <= '\u001f')
 		{
 			switch (in_char)
