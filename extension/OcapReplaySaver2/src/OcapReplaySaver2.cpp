@@ -301,15 +301,13 @@ string removeHash(const string & c) {
 std::string escapeArma3ToJson(const std::string& in) {
 	std::string out;
 	out.reserve(in.size() * 2);
-	bool was_quote = false;
-	for (size_t i = 0; i < in.size(); ++i) {
-		char in_char = in[i];
-		std::string app_str;  app_str.reserve(2);
+	for (auto it = in.cbegin(); it != in.cend(); ++it) {
+		char in_char = *it;
+		std::string app_str;
 		app_str = in_char;
 
-		if (was_quote && in_char != '\"') {
-			was_quote = false;
-			out += "\"";
+		if (in_char == '\"' && std::next(it) != in.cend() && *std::next(it) == '\"') {
+			app_str = "\\\""; it++;
 		}
 		if (in_char >= '\u0000' && in_char <= '\u001f')
 		{
@@ -317,24 +315,11 @@ std::string escapeArma3ToJson(const std::string& in) {
 			snprintf(buff, 16, "\\u00%02x", in_char);
 			app_str = buff;
 		}
-		switch (in_char)
-		{
-		case '\"':
-			if (was_quote)
-				app_str = "\\\"";
-			else
-				app_str = "";
-			was_quote = !was_quote;
-			break;
-		case '\\':
+		if (in_char == '\\') {
 			app_str = "\\\\";
-			break;
-		default:
-			break;
 		}
 		out += app_str;
 	}
-
 	return out;
 }
 
