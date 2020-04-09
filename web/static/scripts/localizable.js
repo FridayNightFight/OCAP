@@ -13,7 +13,7 @@ let _localizable = {
 	},
 	"by_killer": {
 		"ru": " был убит ",
-		"en": " by killed "
+		"en": " killed by "
 	},
 	"connected": {
 		"ru": "подключился",
@@ -25,7 +25,7 @@ let _localizable = {
 	},
 	"by_injured": {
 		"ru": " был ранен ",
-		"en": " was injured "
+		"en": " injured by "
 	},
 	"shared": {
 		"ru": "Поделиться",
@@ -57,7 +57,7 @@ let _localizable = {
 	},
 	"nickname": {
 		"ru": "Никнеймы игроков и название техники ",
-		"en": "Player nicknames and name of vehicle"
+		"en": "Player nicknames and vehicle names"
 	},
 	"markers": {
 		"ru": "Маркеры",
@@ -65,15 +65,15 @@ let _localizable = {
 	},
 	"event_fire": {
 		"ru": "Эвенты попадания",
-		"en": "Event events"
+		"en": "Hit events"
 	},
 	"event_dis-connected": {
 		"ru": "Эвенты подключения/отключения",
-		"en": "Event Connections / Disconnections"
+		"en": "Connects / Disconnects"
 	},
 	"name_missions": {
 		"ru": "Название миссии",
-		"en": "Name mission"
+		"en": "Mission name"
 	},
 	"something": {
 		"ru": "кто-то",
@@ -93,11 +93,11 @@ let _localizable = {
 	},
 	"data": {
 		"ru": "Дата",
-		"en": "Data"
+		"en": "Date"
 	},
 	"durability": {
 		"ru": "Длительность",
-		"en": "Durability"
+		"en": "Duration"
 	},
 	"list_compilation": {
 		"ru": "Составления списка...",
@@ -117,11 +117,11 @@ let _localizable = {
 	},
 	"show-hide-left-panel": {
 		"ru": "Показать/скрыть левую панель: E",
-		"en": "Show/Hidde left panel: E"
+		"en": "Show/Hide left panel: E"
 	},
 	"show-hide-right-panel": {
 		"ru": "Показать/скрыть правую панель: R",
-		"en": "Show/Hidde left panel: R"
+		"en": "Show/Hide left panel: R"
 	},
 	"language": {
 		"ru": "Язык:",
