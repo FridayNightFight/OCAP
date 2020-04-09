@@ -699,7 +699,7 @@ function startPlaybackLoop() {
 							var killer = event.causedBy;
 
 							// Draw kill line
-							if (killer.id != null) {
+							if (killer.id) {
 								//console.log(victim);
 								//console.log(killer);
 								var victimPos = victim.getLatLng();
