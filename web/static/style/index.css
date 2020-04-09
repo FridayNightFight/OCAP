@@ -470,7 +470,7 @@ input[type=range]::-webkit-slider-runnable-track {
 	margin: auto;
 	margin-top: 10%;
 /*	border: 1px solid black;*/
-	width: 700px;
+	width: 800px;
     height: 65%;
 }
 .modalHeader {
