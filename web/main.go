@@ -56,6 +56,7 @@ type Options struct {
 	Version     string      `json:"version"`
 	Listen      string      `json:"listen"`
 	Secret      string      `json:"secret"`
+	Logger      bool        `json:"logger"`
 	ClassesGame []ClassGame `json:"classes-game"`
 }
 
@@ -173,13 +174,15 @@ func init() {
 func main() {
 	var err error
 	// Connecting logger file
-	filelog, err := os.OpenFile("ocap.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	if err != nil {
-		panic(err)
+	if options.Logger {
+		filelog, err := os.OpenFile("ocap.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+		if err != nil {
+			panic(err)
+		}
+		defer filelog.Close()
+		wrt := io.MultiWriter(os.Stdout, filelog)
+		log.SetOutput(wrt)
 	}
-	defer filelog.Close()
-	wrt := io.MultiWriter(os.Stdout, filelog)
-	log.SetOutput(wrt)
 	log.Println("=== Starting server ===")
 
 	// Create home page
