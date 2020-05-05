@@ -4,23 +4,23 @@
 	<title>{{.Title}}</title>
 	<meta charset="utf-8"/>
 	<meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
-	<link rel="stylesheet" href="leaflet/leaflet.css" />
-	<link rel="stylesheet" href="style/common.css" />
-	<link rel="stylesheet" href="style/index.css" />
-	<link rel="icon" type="img/png" href="images/favicon.png">
-	<script src="leaflet/leaflet.js"></script>
-	<script src="leaflet/leaflet.rotatedMarker.js"></script>
-	<script src="leaflet/leaflet.svgIcon.js"></script>
-	<script src="scripts/jquery.min.js"></script>
-	<script src="scripts/ocap.marker.js"></script>
-	<script src="scripts/ocap.entity.js"></script>
-	<script src="scripts/ocap.event.js"></script>
-	<script src="scripts/ocap.group.js"></script>
-	<script src="scripts/ocap.groups.js"></script>
-	<script src="scripts/ocap.vehicle.js"></script>
-	<script src="scripts/ocap.unit.js"></script>
-	<script src="scripts/ocap.ui.js"></script>
-	<script src="scripts/ocap.js"></script>
+	<link rel="stylesheet" href="leaflet/leaflet.css?v={{.Version}}" />
+	<link rel="stylesheet" href="style/common.css?v={{.Version}}" />
+	<link rel="stylesheet" href="style/index.css?v={{.Version}}" />
+	<link rel="icon" type="img/png" href="images/favicon.png?v={{.Version}}">
+	<script src="leaflet/leaflet.js?v={{.Version}}"></script>
+	<script src="leaflet/leaflet.rotatedMarker.js?v={{.Version}}"></script>
+	<script src="leaflet/leaflet.svgIcon.js?v={{.Version}}"></script>
+	<script src="scripts/jquery.min.js?v={{.Version}}"></script>
+	<script src="scripts/ocap.marker.js?v={{.Version}}"></script>
+	<script src="scripts/ocap.entity.js?v={{.Version}}"></script>
+	<script src="scripts/ocap.event.js?v={{.Version}}"></script>
+	<script src="scripts/ocap.group.js?v={{.Version}}"></script>
+	<script src="scripts/ocap.groups.js?v={{.Version}}"></script>
+	<script src="scripts/ocap.vehicle.js?v={{.Version}}"></script>
+	<script src="scripts/ocap.unit.js?v={{.Version}}"></script>
+	<script src="scripts/ocap.ui.js?v={{.Version}}"></script>
+	<script src="scripts/ocap.js?v={{.Version}}"></script>
 </head>
 <body>
 
@@ -114,7 +114,7 @@
 
 <div id="hint" class="hint">Test popup</div>
 
-	<script src="scripts/localizable.js"></script>
+	<script src="scripts/localizable.js?v={{.Version}}"></script>
 <script>
 
 let appVersion = "{{.Version}}";

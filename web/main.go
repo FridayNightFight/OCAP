@@ -120,6 +120,8 @@ func StaticHandler(next http.Handler) http.Handler {
 			w.Write(indexHTML)
 			return
 		}
+		// Add Expiration cache 90 days (with code 404, the cache does not work [tested on Google Chrome])
+		w.Header().Set("Cache-Control", "public, max-age=7776000")
 		// disable directory listings
 		if strings.HasSuffix(r.URL.Path, "/") {
 			w.WriteHeader(http.StatusNotFound)
