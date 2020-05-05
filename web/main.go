@@ -115,14 +115,18 @@ func OperationAdd(w http.ResponseWriter, r *http.Request) {
 // StaticHandler write index.html (buffer) or send static file
 func StaticHandler(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		path := r.URL.Path
-		// if it is index.html
-		if path == "/" {
+		// send home page
+		if r.URL.Path == "/" {
 			w.Write(indexHTML)
 			return
 		}
+		// disable directory listings
+		if strings.HasSuffix(r.URL.Path, "/") {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
 		// json data already compressed
-		if strings.HasPrefix(path, "/data/") {
+		if strings.HasPrefix(r.URL.Path, "/data/") {
 			r.URL.Path += ".gz"
 			w.Header().Set("Content-Encoding", "gzip")
 			// Support mozilla
