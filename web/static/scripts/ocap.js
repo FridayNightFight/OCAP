@@ -53,9 +53,9 @@ class Entities {
 var imageSize = null;
 var multiplier = null;
 var trim = 0; // Number of pixels that were trimmed when cropping image (used to correct unit placement)
-var mapMinZoom = 1;
-var mapMaxNativeZoom = 6;
-var mapMaxZoom = mapMaxNativeZoom + 3;
+var mapMinZoom = null;
+var mapMaxNativeZoom = null;
+var mapMaxZoom = null; // mapMaxNativeZoom + 3;
 var map = null;
 var mapDiv = null;
 var mapPanes = null;
@@ -143,23 +143,36 @@ function setWorld() {
 
 function getWorldByName(worldName) {
 	console.log("Getting world " + worldName);
-	let result;
+	let map = {};
+	let defaultMap = {
+		"name": "NOT FOUND",
+		"worldname": "NOT FOUND",
+		"worldSize": 16384,
+		"imageSize": 16384,
+		"multiplier": 1,
+		"maxZoom": 6,
+		"minZoom": 0,
+	};
 
 	$.ajax({
 		url: "images/maps/" + worldName + "/map.json",
 		async: false,
 		success: function (data) {
-			result = data;
+			map = data;
 		},
 		error: function () {
-			result = {"name": "NOT FOUND", "worldname": "NOT FOUND", "worldSize": 16384, "imageSize": 16384, "multiplier": 1};
 			ui.showHint(`Error: Map "${worldName}" is not installed`);
 		}
 	});
-	return result;
+	
+	return Object.assign(defaultMap, map);
 };
 
 function initMap() {
+	var world = getWorldByName(worldName);
+	// Bad 
+	mapMaxNativeZoom = world.maxZoom
+	mapMaxZoom = mapMaxNativeZoom + 3
 	// Create map
 	map = L.map('map', {
 		//maxZoom: mapMaxZoom,
@@ -184,7 +197,6 @@ function initMap() {
 			ui.hideMarkerPopups = false;
 		};
 	});
-	var world = getWorldByName(worldName);
 	console.log("Got world: ");
 	console.log(world);
 
