@@ -33,13 +33,15 @@ Capture automatically begins when server becomes populated (see userconfig for s
 
 To end and export capture data, call the following (server-side):
 
-`[] call ocap_fnc_exportData;`
+`["OPFOR Wins. Their enemies suffered heavy losses!"] call ocap_fnc_exportData;`
+or
+`[east, "OPFOR Wins. Their enemies suffered heavy losses!"] call ocap_fnc_exportData;`
 
 **Tip:** You can use the above function in a trigger.
 e.g. Create a trigger that activates once all objectives complete. Then on activiation:
 ```
 if (isServer) then {
-    [] call ocap_fnc_exportData;
+    ["OPFOR Wins. Their enemies suffered heavy losses!"] call ocap_fnc_exportData;
 };
 
 "end1" call BIS_fnc_endMission; // Ends mission for everyone
