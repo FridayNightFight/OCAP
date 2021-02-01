@@ -43,6 +43,9 @@ v 4.1.1.1 2020-01-26 Zealot Fixed bug with buffer overflow
 v 4.1.1.2 2020-01-26 Zealot Utf8 string to ASCII updated
 v 4.1.1.3 2020-01-26 Zealot Fix with mission datetime
 v 4.1.1.4 2020-02-25 Zealot Remove uncompressed data if compressed successfully, slightly improved parameters checking
+v 4.1.1.5 2021-01-17 Zealot Debug output
+v 4.1.1.6 2021-01-31 Zealot EscapeArma3ToJson function disabled, suspected bugs in escapeArma3ToJson implementation
+v 4.1.1.7 2021-02-01 Zealot Additional debug info
 
 TODO:
 - чтение запись настроек
@@ -50,7 +53,7 @@ TODO:
 
 */
 
-#define CURRENT_VERSION "4.1.1.4"
+#define CURRENT_VERSION "4.1.1.7"
 
 #pragma endregion
 
@@ -169,14 +172,14 @@ namespace {
 #define JSON_INT_FROM_ARG(N) (json::number_integer_t(stoi(args[N])))
 #define JSON_FLOAT_FROM_ARG(N) (json::number_float_t(stod(args[N])))
 #define JSON_PARSE_FROM_ARG(N) (json::parse(escapeArma3ToJson(args[N])))
-	
+
+#define DUMP_ARGS_TO_LOG if(true){stringstream ss;ss<<args.size()<<"[";for(int i=0;i<args.size();i++){if(i>0)ss<<"::";ss<<args[i];}ss<<"]";LOG(WARNING)<<"ARG DUMP:"<<ss.str();}
+
 	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
 
 	json j;
 	bool curl_init = false;
-
 	atomic<bool> is_writing(false);
-
 	struct {
 		std::string dbInsertUrl = "http://127.0.0.1/data/receive.php?option=dbInsert";
 		std::string addFileUrl = "http://127.0.0.1/data/receive.php?option=addFile";
@@ -188,6 +191,58 @@ namespace {
 		int traceLog = 0;
 		// TODO: new names and comments, logs dir, change types accordingly, chenage default values
 	} config;
+}
+
+bool checkUTF8Bytes(std::string& in) {
+	int pattern_length = 0;
+	const char* in_cstr = in.c_str();
+	const char* c_ptr = in_cstr;
+	for (; *c_ptr != '\0'; ++c_ptr) {
+		char in_char = *c_ptr;
+		if (!pattern_length) {
+			if (in_char >= '\0' && in_char <= '\x7F') // 1-byte sequence
+				continue;
+			if (in_char >= '\xC0' && in_char <= '\xDF') { // 2-byte sequence 
+				pattern_length = 2;
+				continue;
+			}
+			if (in_char >= '\xE0' && in_char <= '\xEF') { // 3-byte sequence 
+				pattern_length = 3;
+				continue;
+			}
+			if (in_char >= '\xF0' && in_char <= '\xF7') { // 4-byte sequence 
+				pattern_length = 4;
+				continue;
+			}
+			if (in_char >= '\xF8' && in_char <= '\xFB') { // 5-byte sequence 
+				pattern_length = 5;
+				continue;
+			}
+			if (in_char >= '\xFC' && in_char <= '\xFD') { // 6-byte sequence 
+				pattern_length = 6;
+				continue;
+			}
+			// error, incorrect symbol
+			goto err;
+		}
+		else {
+			if (in_char >= '\x80' && in_char <= '\xBF') {
+				--pattern_length;
+				continue;
+			}
+			// error, incorrect symbol
+			goto err;
+		}
+	}
+	return false;
+err:
+	std::ostringstream ss;
+	ss << "Unexpected symbol #" << c_ptr - in_cstr << ":" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << (int)((unsigned char)*c_ptr);
+	ss << " in text:" << in << ":";
+	for (unsigned char c : in) ss << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << static_cast<int>(c) << " ";
+	ss << endl;
+	LOG(WARNING) << ss.str();
+	return true;
 }
 
 bool write_compressed_data(const char* filename, const char* buffer, size_t buff_len) {
@@ -209,6 +264,11 @@ void perform_command(tuple<string, vector<string> > &command) {
 	string function(std::move(std::get<0>(command)));
 	vector<string> args(std::move(std::get<1>(command)));
 	bool error = false;
+
+	for (auto& str : args) {
+		error = checkUTF8Bytes(str);
+		if (error) break;
+	}
 
 	if (config.traceLog) {
 		stringstream ss;
@@ -426,7 +486,6 @@ void prepareMarkerFrames(int frames) {
 
 }
 
-
 pair<string, string> saveCurrentReplayToTempFile() {
 	char tPath[MAX_PATH] = { 0 };
 	char tName[MAX_PATH] = { 0 };
@@ -441,10 +500,16 @@ pair<string, string> saveCurrentReplayToTempFile() {
 
 	string all_replay;
 
-	if (config.traceLog) 
-		all_replay = j.dump(4);
-	else 
-		all_replay = j.dump();
+	try {
+		if (config.traceLog)
+			all_replay = j.dump(4, ' ', false, json::error_handler_t::ignore);
+		else
+			all_replay = j.dump(-1, ' ',false, json::error_handler_t::ignore);
+	}
+	catch (exception & e) {
+		LOG(ERROR) << "Error happens while JSON dumping:" << e.what();
+		throw;
+	}
 
 	currentReplay << all_replay;
 	currentReplay.flush();
@@ -978,6 +1043,7 @@ void commandNewVeh(const vector<string> &args) {
 void commandSave(const vector<string> &args) {
 	COMMAND_CHECK_INPUT_PARAMETERS(5)
 	COMMAND_CHECK_WRITING_STATE
+
 	LOG(INFO) << args[0] << args[1] << args[2] << args[3] << args[4];
 
 	j["worldName"] = JSON_STR_FROM_ARG(0);
@@ -987,9 +1053,9 @@ void commandSave(const vector<string> &args) {
 	j["endFrame"] = JSON_INT_FROM_ARG(4);
 
 	prepareMarkerFrames(j["endFrame"]);
-
 	pair<string, string> fnames = saveCurrentReplayToTempFile();
 	LOG(INFO) << "TMP:" << fnames.first;
+		
 	string fname = generateResultFileName(j["missionName"]);
 	curlActions(j["worldName"], j["missionName"], to_string(stod(args[3]) * stod(args[4])), fname, fnames);
 	
@@ -1049,8 +1115,10 @@ void commandUpdateVeh(const vector<string> &args)
 }
 
 // :EVENT: 3:[0::"connected"::"[RMC] DoS"] 
-// :EVENT: 5 : [404::"killed"::84::[83, "AKS-74N"]::10]
-// 
+// :EVENT: 5:[404::"killed"::84::[83, "AKS-74N"]::10]
+// :EVENT: 3:[3312::"disconnected"::"[VRG] mEss1a"] 
+// :EVENT: 5:[3652::"killed"::160::[83, "ПКП ""Печенег"""]::80]
+// :EVENT: 3:[4939::"endMission"::["EAST","OPFOR Wins. Their enemies suffered heavy losses!"]] 
 void commandEvent(const vector<string> &args)
 {
 	COMMAND_CHECK_WRITING_STATE
