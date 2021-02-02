@@ -1,4 +1,4 @@
-#include "\ocap\script_macros.hpp"
+#include "script_macros.hpp"
 
 class CfgPatches
 {

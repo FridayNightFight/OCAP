@@ -1,4 +1,4 @@
-#include "\ocap\script_macros.hpp"
+#include "script_macros.hpp"
 if (!ocap_capture) exitWith {LOG(["fnc_exportData.sqf called! OCAP don't start."]);};
 
 [] spawn {

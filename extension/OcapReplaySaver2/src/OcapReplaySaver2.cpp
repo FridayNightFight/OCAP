@@ -203,23 +203,23 @@ bool checkUTF8Bytes(std::string& in) {
 			if (in_char >= '\0' && in_char <= '\x7F') // 1-byte sequence
 				continue;
 			if (in_char >= '\xC0' && in_char <= '\xDF') { // 2-byte sequence 
-				pattern_length = 2;
+				pattern_length = 1;
 				continue;
 			}
 			if (in_char >= '\xE0' && in_char <= '\xEF') { // 3-byte sequence 
-				pattern_length = 3;
+				pattern_length = 2;
 				continue;
 			}
 			if (in_char >= '\xF0' && in_char <= '\xF7') { // 4-byte sequence 
-				pattern_length = 4;
+				pattern_length = 3;
 				continue;
 			}
 			if (in_char >= '\xF8' && in_char <= '\xFB') { // 5-byte sequence 
-				pattern_length = 5;
+				pattern_length = 4;
 				continue;
 			}
 			if (in_char >= '\xFC' && in_char <= '\xFD') { // 6-byte sequence 
-				pattern_length = 6;
+				pattern_length = 5;
 				continue;
 			}
 			// error, incorrect symbol

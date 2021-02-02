@@ -1,4 +1,4 @@
-#include "\ocap\script_macros.hpp"
+#include "script_macros.hpp"
 private _isKindOfApc = {
 	_bool = false;
 	{
@@ -56,7 +56,12 @@ while {ocap_capture} do {
 					_pos,  //2
 					round getDir _x,  //3
 					if (alive _x) then {
-						BOOL(_x getVariable ["ACE_isUnconscious", false]) + 1
+						// BOOL(_x getVariable ["ACE_isUnconscious", false]) + 1
+						if (isNil "ace_common_fnc_isAwake") then {
+							1
+						} else {
+							if ([_x] call ace_common_fnc_isAwake) then {1} else {2}
+						}
 					} else {
 						0
 					},  //4

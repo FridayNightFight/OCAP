@@ -10,6 +10,10 @@ addMissionEventHandler ["EntityKilled", {
 	_this call ocap_fnc_eh_killed;
 }];
 
+addMissionEventHandler ["MPEnded", {
+	["Mission ended automatically"] call ocap_fnc_exportData;
+}];
+
 // Add event saving markers
 ["INIT"] call ocap_fnc_handleMarkers;
 

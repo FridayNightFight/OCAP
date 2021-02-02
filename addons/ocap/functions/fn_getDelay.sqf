@@ -5,7 +5,7 @@
 	Return: number
 	Syntax: call ocap_fnc_getDelay
 */
-#include "\ocap\script_macros.hpp"
+#include "script_macros.hpp"
 private "_sleep";
 isNil {
 	_relativelyTime = time - ocap_startTime;
