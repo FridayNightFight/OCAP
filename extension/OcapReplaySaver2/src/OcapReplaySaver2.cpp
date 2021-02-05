@@ -240,7 +240,6 @@ err:
 	ss << "Unexpected symbol #" << c_ptr - in_cstr << ":" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << (int)((unsigned char)*c_ptr);
 	ss << " in text:" << in << ":";
 	for (unsigned char c : in) ss << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << static_cast<int>(c) << " ";
-	ss << endl;
 	LOG(WARNING) << ss.str();
 	return true;
 }
