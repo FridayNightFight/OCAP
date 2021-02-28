@@ -87,7 +87,7 @@ func (o *Operation) SaveFileAsGZIP(dir string, r *http.Request) (err error) {
 // Insert new row in db
 func (o *Operation) Insert(db *sql.DB) (sql.Result, error) {
 	return db.Exec(
-		`insert into operations 
+		`insert into operations
 			(world_name, mission_name, mission_duration, filename, date, type)
 		values
 			($1, $2, $3, $4, $5, $6)
@@ -99,11 +99,11 @@ func (o *Operation) Insert(db *sql.DB) (sql.Result, error) {
 // GetByFilter get all operations matching the filter
 func (o *OperationFilter) GetByFilter(db *sql.DB) (operations []Operation, err error) {
 	rows, err := db.Query(
-		`select * from operations where 
+		`select * from operations where
 			mission_name LIKE "%" || $2 || "%" AND
 			date <= $3 AND
 			date >= $4 AND
-			type LIKE "%" || $1 || "%"`,
+			type LIKE "%" || $1`,
 		o.MissionName,
 		o.DateOlder,
 		o.DateNewer,
