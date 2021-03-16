@@ -18,4 +18,8 @@ if (count _this == 1) then {
 };
 [":EVENT:", [ocap_endFrameNo, "endMission", _wmt_info]] call ocap_fnc_extension;
 
-[":SAVE:", [worldName, briefingName, getMissionConfigValue ["author", ""], ocap_frameCaptureDelay, ocap_endFrameNo]] call ocap_fnc_extension;
+if (ocap_needToSave) then {
+	[":SAVE:", [worldName, briefingName, getMissionConfigValue ["author", ""], ocap_frameCaptureDelay, ocap_endFrameNo]] call ocap_fnc_extension;
+} else {
+	LOG(["ocap_needToSave is set to false. Not saving"]);
+};
