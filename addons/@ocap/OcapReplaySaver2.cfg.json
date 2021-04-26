@@ -1,0 +1,10 @@
+{
+    "addFileUrl": "http://127.0.0.1:5000/data/receive.php?option=addFile",
+    "dbInsertUrl": "http://127.0.0.1:5000/data/receive.php?option=dbInsert",
+    "httpRequestTimeout": 120,
+    "newMode": 1,
+    "newServerGameType": "pve",
+    "newUrl": "http://127.0.0.1:5000/api/v1/operations/add",
+    "newUrlRequestSecret": "temp123",
+    "traceLog": 0
+}

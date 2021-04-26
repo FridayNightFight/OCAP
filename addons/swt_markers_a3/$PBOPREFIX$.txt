@@ -1,6 +1,0 @@
-///'swt_markers_a3.pbo' from Mikero's dos tools, dll version 5.58///
-mikero=DePbo.dll.6.08
-prefix=swt_markers_a3
-Pbo Type is: Arma Addon
-Sha: '3062AE87238C315E7865A863D2C47DBA550C5E77'
-//////</HEADER>//////

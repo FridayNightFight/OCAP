@@ -1,0 +1,10 @@
+{
+    "addFileUrl": "http://127.0.0.1/data/receive.php?option=addFile",
+    "dbInsertUrl": "http://127.0.0.1/data/receive.php?option=dbInsert",
+    "httpRequestTimeout": 120,
+    "newMode": 0,
+    "newServerGameType": "tvt",
+    "newUrl": "https://127.0.0.1/api/v1/operations/add",
+    "newUrlRequestSecret": "pwd1234",
+    "traceLog": 0
+}

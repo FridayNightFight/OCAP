@@ -1,0 +1,15 @@
+{
+	"title": "OCAP",
+	"description": "Operation Capture And Playback",
+	"author": "Frontend: MisterGoodson (aka Goodson [3CB]), Backend: Dell",
+	"language": "en",
+	"version": "3.2.0",
+	"listen": "127.0.0.1:5000",
+	"secret": "temp123",
+	"logger": true,
+	"classes-game": [
+		{"key": "", "name": "All"},
+		{"key": "tvt", "name": "TvT"},
+		{"key": "pve", "name": "PvE"}
+	]
+}
