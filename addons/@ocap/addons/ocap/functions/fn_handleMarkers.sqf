@@ -96,7 +96,7 @@ _ocap_markers_handle = ["fnf_ocap_handleMarker", {
 		};
 
 		case "UPDATED": {
-			// diag_log format ["OCAPLOG: SERVER: Enter UPDATED process of %1 from %2 -- 
+// 			diag_log format ["OCAPLOG: SERVER: Enter UPDATED process of %1 from %2 -- 
 // %3", _mrk, _mrk_owner, _mrk call BIS_fnc_markerToString];
 
 			if (_mrk in ocap_markers_tracked) then {
@@ -107,11 +107,11 @@ _ocap_markers_handle = ["fnf_ocap_handleMarker", {
 		};
 
 		case "DELETED": {
-// 			diag_log format ["OCAPLOG: SERVER: Enter DELETED process of %1 from %2 -- 
+// diag_log format ["OCAPLOG: SERVER: Enter DELETED process of %1 from %2 -- 
 // %3", _mrk_info, _mrk_owner, _mrk call BIS_fnc_markerToString];
 
 			if (_mrk_info in ocap_markers_tracked) then {
-				// diag_log format ["OCAPLOG: SERVER: Valid DELETED process of %1, sending to extension -- 
+// 				diag_log format ["OCAPLOG: SERVER: Valid DELETED process of %1, sending to extension -- 
 // %2", _mrk_info, _mrk call BIS_fnc_markerToString];
 				[":MARKER:DELETE:", [_mrk_info, ocap_captureFrameNo]] call ocap_fnc_extension;
 				ocap_markers_tracked = ocap_markers_tracked - [_mrk_info];
