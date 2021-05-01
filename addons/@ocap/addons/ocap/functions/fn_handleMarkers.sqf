@@ -76,7 +76,7 @@ _ocap_markers_handle = ["fnf_ocap_handleMarker", {
 			ocap_markers_tracked pushBack _mrk;
 			_mrk_color = getarray (configfile >> "CfgMarkerColors" >> _mrk_color_str >> "color") call bis_fnc_colorRGBtoHTML;
 
-			_ignoreColorMrkTypes = ["hd_objective","mil_objective","hd_flag","mil_flag","mil_triangle","hd_triangle"];
+			_ignoreColorMrkTypes = ["hd_objective","mil_objective","hd_flag","mil_flag","mil_triangle","hd_triangle","hd_start","hd_arrow"];
 			if (isNil "_mrk_color" || _mrk_type in _ignoreColorMrkTypes ) then {
 				_mrk_color = "#000000";
 			};
