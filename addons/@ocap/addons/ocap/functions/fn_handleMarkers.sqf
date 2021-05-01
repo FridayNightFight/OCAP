@@ -1,186 +1,122 @@
 // params ["_function",["_params",[],[[]]]];
-params ["_function","_params"];
-
-switch (_function) do {
-	case "INIT": {
-		// diag_log ["INIT"];
-		
-		ocap_markers_tracked = []; // Markers which we saves into replay
-
-		// ["SWT_fnc_createMarker", { ["CREATE",_this] call ocap_fnc_handleMarkers; }] call CBA_fnc_addEventHandler;
-		// ["SWT_fnc_removeMarker", { ["DELETE",_this] call ocap_fnc_handleMarkers; }] call CBA_fnc_addEventHandler;
-		// ["SWT_fnc_moveMarker", { ["MOVE",_this] call ocap_fnc_handleMarkers; }] call CBA_fnc_addEventHandler;
 
 
-		// handle all markers from editor, created on init
-		{
-			_mrk_name = _x;
-			_marker = _x;
-			_mrk_color_str = markerColor _marker;
-			_mrk_color = getarray (configfile >> "CfgMarkerColors" >> _mrk_color_str >> "color") call bis_fnc_colorRGBtoHTML;
-			_mrk_type = markerType _marker;
-			_mrk_text = markerText _marker;
-			_mrk_pos = markerPos _marker;
-			_mrk_owner = allPlayers select 0;
+params ["_function"];
 
-			_createdMarker = [
-				_mrk_name,
-				_mrk_color_str,
-				_mrk_color,
-				_mrk_type,
-				_mrk_text,
-				_mrk_pos,
-				_mrk_owner
-				];
+if (_function == "INIT") then {
+	// diag_log ["INIT"];
+	
+	ocap_markers_tracked = []; // Markers which we saves into replay
 
-			["CREATE", _createdMarker] call ocap_fnc_handleMarkers;
+	{
+		["fnf_ocap_handleMarker", ["CREATED", _x call BIS_fnc_markerToString, objNull]] call CBA_fnc_serverEvent;
+	} forEach allMapMarkers;
 
-		} forEach allMapMarkers;
-		
-		// handle server-side created markers
+	{
+		// handle created markers
 		addMissionEventHandler ["MarkerCreated", {
 			params ["_marker", "_channelNumber", "_owner", "_local"];
-			_mrk_name = _marker;
-			_mrk_color_str = markerColor _marker;
-			_mrk_color = getarray (configfile >> "CfgMarkerColors" >> _mrk_color_str >> "color") call bis_fnc_colorRGBtoHTML;
-			_mrk_type = markerType _marker;
-			_mrk_text = markerText _marker;
-			_mrk_pos = markerPos _marker;
-			_mrk_owner = _owner;
 
-			_createdMarker = [
-				_mrk_name,
-				_mrk_color_str,
-				_mrk_color,
-				_mrk_type,
-				_mrk_text,
-				_mrk_pos,
-				_mrk_owner
-				];
-			
-			["CREATE", _createdMarker] call ocap_fnc_handleMarkers;
+			if (!_local) exitWith {};
+// 			diag_log format ["OCAPLOG: Sent data from %1 with param CREATED -- 
+// %2", player, _marker call BIS_fnc_markerToString];
+			["fnf_ocap_handleMarker", ["CREATED", _marker call BIS_fnc_markerToString, player]] call CBA_fnc_serverEvent;
 		}];
 
 		// handle marker moves/updates
 		addMissionEventHandler ["MarkerUpdated", {
 			params ["_marker", "_local"];
-			_mrk_name = _marker;
-			_mrk_color_str = markerColor _marker;
-			_mrk_color = getarray (configfile >> "CfgMarkerColors" >> _mrk_color_str >> "color") call bis_fnc_colorRGBtoHTML;
-			_mrk_type = markerType _marker;
-			_mrk_text = markerText _marker;
-			_mrk_pos = markerPos _marker;
 
-			_createdMarker = [
-				_mrk_name,
-				_mrk_color_str,
-				_mrk_color,
-				_mrk_type,
-				_mrk_text,
-				_mrk_pos
-				];
-			
-			["MOVE", _createdMarker] call ocap_fnc_handleMarkers;
+			if (!_local) exitWith {};
+// 			diag_log format ["OCAPLOG: Sent data from %1 with param UPDATED -- 
+// %2", player, _marker call BIS_fnc_markerToString];
+			["fnf_ocap_handleMarker", ["UPDATED", _marker call BIS_fnc_markerToString, player]] call CBA_fnc_serverEvent;
 		}];
-		
+
 		// handle marker deletions
 		addMissionEventHandler ["MarkerDeleted", {
 			params ["_marker", "_local"];
-			_mrk_name = _marker;
-			_mrk_color_str = markerColor _marker;
-			_mrk_color = getarray (configfile >> "CfgMarkerColors" >> _mrk_color_str >> "color") call bis_fnc_colorRGBtoHTML;
-			_mrk_type = markerType _marker;
-			_mrk_text = markerText _marker;
-			_mrk_pos = markerPos _marker;
 
-			_createdMarker = [
-				_mrk_name,
-				_mrk_color_str,
-				_mrk_color,
-				_mrk_type,
-				_mrk_text,
-				_mrk_pos
-				];
-			
-			["DELETE", _createdMarker] call ocap_fnc_handleMarkers;
+			if (!_local) exitWith {};
+// 			diag_log format ["OCAPLOG: Sent data from %1 with param DELETED -- 
+// %2", player, _marker call BIS_fnc_markerToString];
+			["fnf_ocap_handleMarker", ["DELETED", _marker, player]] call CBA_fnc_serverEvent;
 		}];
+	} remoteExec ["call", 0, true];
 
-		diag_log ["initialized marker system"];
-
-
-	};
-	case "CREATE" : {
-		// handle SWT_fnc_createMarker
-		// _params params ["_pl","_arr"];
-		// _arr params ["_mname", "_side", "_mtext", "_mpos","_type","_color","_dir","","_author"];
-		// if (_type >= 0 && _side == "S") then {
-		// 	ocap_markers_tracked pushBack _mname;
-		// 		private _mrk_color = getarray (configfile >> "CfgMarkerColors" >> (swt_cfgMarkerColors_names select _color) >> "color") call bis_fnc_colorRGBtoHTML;
-		// 		if !(_mrk_color isEqualType "") then {
-		// 			[":LOG:", ["ERROR",__FILE__, _color, swt_cfgMarkerColors_names select _color,getarray (configfile >> "CfgMarkerColors" >> (swt_cfgMarkerColors_names select _color) >> "color")]] call ocap_fnc_extension;
-		// 			_mrk_color = "#000000";
-		// 		};
-		// 	[":MARKER:CREATE:", [_mname, 0, swt_cfgMarkers_names select _type, _mtext, ocap_captureFrameNo, -1, _pl getVariable ["ocap_id", 0],
-		// 		_mrk_color, [1,1], side _pl call BIS_fnc_sideID, _mpos]] call ocap_fnc_extension;
-		// };
-
-		_params params ["_mrk_name","_mrk_color_str","_mrk_color","_mrk_type","_mrk_text","_mrk_pos","_mrk_owner"];
-		if (_mrk_name in ocap_markers_tracked || _mrk_type == "Empty" || _mrk_type == "") exitWith {};
-		ocap_markers_tracked pushBack _mrk_name;
-
-		if (isNil "_mrk_color" || _mrk_type == "hd_objective" || _mrk_type == "mil_objective") then {
-			_mrk_color = "#000000";
-		};
-
-		// diag_log "Processing marker details marker creation";
-
-		// diag_log "Processing extension marker creation";
-		// diag_log str _mrk_type;
-		[":MARKER:CREATE:", [_mrk_name, 0, _mrk_type, _mrk_text, ocap_captureFrameNo, -1, _mrk_owner getVariable ["ocap_id", 0], _mrk_color, [1,1], side _mrk_owner call BIS_fnc_sideID, _mrk_pos]] call ocap_fnc_extension;
-
-		// ["Processed marker creation on server"] remoteExec ["hint", _mrk_owner];
-
-		// diag_log "Processed marker creation";
-		// diag_log str _params;
-
-	};
-	case "DELETE" : {
-		// _params params ["_mname","_pl"];
-		_params params ["_mrk_name","_mrk_color_str","_mrk_color","_mrk_type","_mrk_text","_mrk_pos"];
-
-		// handle SWT_fnc_removeMarker
-		// if (_mname in ocap_markers_tracked) then {
-		// 	[":MARKER:DELETE:", [_mname, ocap_captureFrameNo]] call ocap_fnc_extension;
-		// 	ocap_markers_tracked = ocap_markers_tracked - [_mname];
-		// };
-
-		if (_mrk_name in ocap_markers_tracked) then {
-			[":MARKER:DELETE:", [_mrk_name, ocap_captureFrameNo]] call ocap_fnc_extension;
-			ocap_markers_tracked = ocap_markers_tracked - [_mrk_name];
-		};
-
-		// diag_log "Processed marker deletion";
-		// diag_log str _params;
-
-	};
-	case "MOVE" : {
-		// _params params ["_mname", "_coord"];
-		_params params ["_mrk_name","_mrk_color_str","_mrk_color","_mrk_type","_mrk_text","_mrk_pos"];
-		if (_mrk_type == "Empty") exitWith {};
-		_newCoord = _mrk_pos;
-
-		// if (_mname in ocap_markers_tracked) then {
-		// 	[":MARKER:MOVE:", [_mname, ocap_captureFrameNo, _coord]] call ocap_fnc_extension;
-		// };
-
-		if (_mrk_name in ocap_markers_tracked) then {
-			[":MARKER:MOVE:", [_mrk_name, ocap_captureFrameNo, _newCoord]] call ocap_fnc_extension;
-		};
-
-		// diag_log "Processed marker move";
-		// diag_log str _params;
-	};
-	default {
-		diag_log [__FILE__,"unknown function",_function, _params];
-	 };
 };
+
+
+
+
+
+_ocap_markers_handle = ["fnf_ocap_handleMarker", {
+
+	params ["_eventType","_mrk_info","_mrk_owner"];
+
+	_mrk = _mrk_info call BIS_fnc_stringToMarkerLocal;
+	_mrk_color_str = markerColor _mrk;
+	_mrk_color = getarray (configfile >> "CfgMarkerColors" >> _mrk_color_str >> "color") call bis_fnc_colorRGBtoHTML;
+	_mrk_type = markerType _mrk;
+	_mrk_text = markerText _mrk;
+	_mrk_pos = markerPos _mrk;
+
+// 	diag_log format ["OCAPLOG: SERVER: Received data from %1 with param %2 -- 
+// %3", _mrk_owner, _eventType, _this];
+	switch (_eventType) do {
+
+		case "CREATED": {
+			
+// 			diag_log format ["OCAPLOG: SERVER: Enter CREATED process of %1 from %2 -- 
+// %3", _mrk, _mrk_owner, _mrk call BIS_fnc_markerToString];
+			if (_mrk in ocap_markers_tracked || _mrk_type == "Empty" || _mrk_type == "") exitWith {};
+// 			diag_log format ["OCAPLOG: SERVER: Valid CREATED process of marker from %1, continuing -- 
+// %2", _mrk_owner, _mrk call BIS_fnc_markerToString];
+
+			ocap_markers_tracked pushBack _mrk;
+			_mrk_color = getarray (configfile >> "CfgMarkerColors" >> _mrk_color_str >> "color") call bis_fnc_colorRGBtoHTML;
+
+			_ignoreColorMrkTypes = ["hd_objective","mil_objective","hd_flag","mil_flag","mil_triangle","hd_triangle","hd_start","hd_arrow"];
+			if (isNil "_mrk_color" || _mrk_type in _ignoreColorMrkTypes ) then {
+				_mrk_color = "#000000";
+			};
+
+			if ((side _mrk_owner) call BIS_fnc_sideID == 4) then {
+				diag_log format["Side ID was unknown for %1", _mrk];
+			};
+// 			diag_log format ["OCAPLOG: SERVER: Valid CREATED process of %1, sending to extension -- 
+// %2", _mrk, _mrk call BIS_fnc_markerToString];
+			[":MARKER:CREATE:", [_mrk, 0, _mrk_type, _mrk_text, ocap_captureFrameNo, -1, _mrk_owner getVariable ["ocap_id", 0], _mrk_color, [1,1], (side _mrk_owner) call BIS_fnc_sideID, _mrk_pos]] call ocap_fnc_extension;
+
+
+
+			// if (isNull _mrk_owner) then {
+			// 	[":MARKER:CREATE:", [_mrk, 0, _mrk_type, _mrk_text, ocap_captureFrameNo, -1, 0, _mrk_color, [1,1], 7, _mrk_pos]] call ocap_fnc_extension;
+			// };
+		};
+
+		case "UPDATED": {
+// 			diag_log format ["OCAPLOG: SERVER: Enter UPDATED process of %1 from %2 -- 
+// %3", _mrk, _mrk_owner, _mrk call BIS_fnc_markerToString];
+
+			if (_mrk in ocap_markers_tracked) then {
+// 				diag_log format ["OCAPLOG: SERVER: Valid UPDATED process of %1, sending to extension -- 
+// %2", _mrk, _mrk call BIS_fnc_markerToString];
+				[":MARKER:MOVE:", [_mrk, ocap_captureFrameNo, _mrk_pos]] call ocap_fnc_extension;
+			};
+		};
+
+		case "DELETED": {
+// diag_log format ["OCAPLOG: SERVER: Enter DELETED process of %1 from %2 -- 
+// %3", _mrk_info, _mrk_owner, _mrk call BIS_fnc_markerToString];
+
+			if (_mrk_info in ocap_markers_tracked) then {
+// 				diag_log format ["OCAPLOG: SERVER: Valid DELETED process of %1, sending to extension -- 
+// %2", _mrk_info, _mrk call BIS_fnc_markerToString];
+				[":MARKER:DELETE:", [_mrk_info, ocap_captureFrameNo]] call ocap_fnc_extension;
+				ocap_markers_tracked = ocap_markers_tracked - [_mrk_info];
+			};
+			deleteMarkerLocal _mrk;
+		};
+	};
+}] call CBA_fnc_addEventHandler;
