@@ -412,7 +412,7 @@ class UI {
 		var table = document.createElement("table");
 		var headerRow = document.createElement("tr");
 
-		var columnNames = ["mission", "map", "data", "durability"];
+		var columnNames = ["mission", "map", "data", "durability", "tag"];
 		columnNames.forEach(function(name) {
 			var th = document.createElement("th");
 			localizable(th, name);
@@ -429,7 +429,8 @@ class UI {
 				op.mission_name,
 				op.world_name,
 				dateToLittleEndianString(new Date(op.date)),
-				secondsToTimeString(op.mission_duration)
+				secondsToTimeString(op.mission_duration),
+				op.type
 			];
 			vals.forEach(function(val) {
 				var cell = document.createElement("td");
@@ -470,6 +471,11 @@ class UI {
 			<br/>
 			Modified: Dell, Zealot, Kurt<br/>
 			<a href="https://github.com/Zealot111/OCAP" target="_blank">GitHub Link</a>
+			<br/>
+			<br/>
+			Modified: IndigoFox (Friday Night Fight)<br/>
+			<a href="https://github.com/FridayNightFight/OCAP" target="_blank">GitHub Link</a>
+			<br/>
 			<br/>
 			<span id="keyControl-playPause"></span><br/>
 			<span id="keyControl-leftPanel"></span><br/>

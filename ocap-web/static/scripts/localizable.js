@@ -99,6 +99,10 @@ let _localizable = {
 		"ru": "Длительность",
 		"en": "Duration"
 	},
+	"tag": {
+		"ru": "Type",
+		"en": "Tag"
+	},
 	"list_compilation": {
 		"ru": "Составления списка...",
 		"en": "List compilation..."
