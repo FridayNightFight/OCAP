@@ -50,6 +50,19 @@ if (_ammoSimType isEqualTo "shotBullet") then {
 	// non-bullet handling
 	_markTextLocal = format["%1 - %2", _muzzleDisp, _magDisp];
 	_markName = format["Projectile#%1", _int];
+	_markColor = "ColorRed";
+	_markerType = "";
+	_magPic = (getText(configfile >> "CfgMagazines" >> _magazine >> "picture"));
+	if (_magPic == "") then {
+		_markerType = "mil_triangle";
+	} else {
+		_magPicSplit = _magPic splitString "\";
+		_magPic = _magPicSplit # ((count _magPicSplit) -1);
+		_markerType = format["magIcons/%1", _magPic];
+		_markColor = "ColorWhite";
+	};
+
+
 	// _markStr = format["|%1|%2|%3|%4|%5|%6|%7|%8|%9|%10",
 	// 	_markName,
 	// 	getPos _firer,
@@ -76,12 +89,11 @@ if (_ammoSimType isEqualTo "shotBullet") then {
 
 	_firerPosRaw = getPosATL _firer;
 	_firerPos = parseSimpleArray (format["[%1,%2]", _firerPosRaw # 0, _firerPosRaw # 1]);
-	["fnf_ocap_handleMarker", ["CREATED", _markName, _firer, _firerPos, "mil_triangle", "ICON", [1,1], 0, "Solid", "ColorRed", 1, _markTextLocal]] call CBA_fnc_serverEvent;
+	["fnf_ocap_handleMarker", ["CREATED", _markName, _firer, _firerPos, _markerType, "ICON", [1,1], 0, "Solid", _markColor, 1, _markTextLocal]] call CBA_fnc_serverEvent;
 
 	if (isNull _projectile) then {
 		_projectile = nearestObject [_firer, _ammo];
 	};
-
 
 	private _lastPos = [];
 	waitUntil {
