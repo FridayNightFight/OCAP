@@ -1,22 +1,15 @@
-_projectile = _this select 6;
-_firer = _this select 7;
-_frame = ocap_captureFrameNo;
+params ["_firer", "_weapon", "_muzzle", "_mode", "_ammo", "_magazine", "_projectile", "_gunner"];
 
+_frame = ocap_captureFrameNo;
 
 // if (!isServer) exitWith {};
 
-_muzzle = _this select 2;
-_ammo = _this select 4;
-_mag = _this select 5;
-_magDisp = getText(configFile >> "CfgMagazines" >> _mag >> "displayNameShort");
 _ammoSimType = getText(configFile >> "CfgAmmo" >> _ammo >> "simulation");
-_int = random 2000;
-
 
 // bullet handling, cut short
 if (_ammoSimType isEqualTo "shotBullet") then {
-	[_projectile, _firer, _frame] spawn {
-		params["_projectile", "_firer", "_frame"];
+	[_projectile, _firer, _frame, _ammoSimType] spawn {
+		params["_projectile", "_firer", "_frame", "_ammoSimType"];
 		private _lastPos = [];
 		waitUntil {
 			_pos = getPosATL _projectile;
@@ -45,16 +38,23 @@ if (_ammoSimType isEqualTo "shotBullet") then {
 	// "ShotIlluminating" // 40mm_green Flare
 	// "ShotMine" // Satchel remote
 
+	_int = random 2000;
+	_muzzleDisp = getText(configFile >> "CfgWeapons" >> _weapon >> _muzzle >> "displayName");
+	if (_muzzleDisp == "") then {_muzzleDisp = getText(configFile >> "CfgWeapons" >> _weapon >> "displayNameShort")};
+	if (_muzzleDisp == "") then {_muzzleDisp = getText(configFile >> "CfgWeapons" >> _weapon >> "displayName")};
+	_magDisp = getText(configFile >> "CfgMagazines" >> _magazine >> "displayNameShort");
+	if (_magDisp == "") then {_magDisp = getText(configFile >> "CfgMagazines" >> _magazine >> "displayName")};
+	if (_magDisp == "") then {_magDisp = getText(configFile >> "CfgAmmo" >> _ammo >> "displayNameShort")};
+	if (_magDisp == "") then {_magDisp = getText(configFile >> "CfgAmmo" >> _ammo >> "displayName")};
 
 	// non-bullet handling
-	_markTextLocal = format["%1 - %2", _ammoSimType, _magDisp];
-	// _markTextLocal = _magDisp;
+	_markTextLocal = format["%1 - %2", _muzzleDisp, _magDisp];
 	_markName = format["Projectile#%1", _int];
 	// _markStr = format["|%1|%2|%3|%4|%5|%6|%7|%8|%9|%10",
 	// 	_markName,
 	// 	getPos _firer,
 	// 	"mil_triangle",
-	// 	"ICON", 
+	// 	"ICON",
 	// 	[1, 1],
 	// 	0,
 	// 	"Solid",
@@ -78,32 +78,29 @@ if (_ammoSimType isEqualTo "shotBullet") then {
 	_firerPos = parseSimpleArray (format["[%1,%2]", _firerPosRaw # 0, _firerPosRaw # 1]);
 	["fnf_ocap_handleMarker", ["CREATED", _markName, _firer, _firerPos, "mil_triangle", "ICON", [1,1], 0, "Solid", "ColorRed", 1, _markTextLocal]] call CBA_fnc_serverEvent;
 
+	if (isNull _projectile) then {
+		_projectile = nearestObject [_firer, _ammo];
+	};
 
 
-	
-	// ["fnf_ocap_handleMarker", ["CREATED", _markStr, _firer]] call CBA_fnc_serverEvent;
-
-	_lastPos = [];
+	private _lastPos = [];
 	waitUntil {
 		_pos = getPosATL _projectile;
-		if (((_pos select 0) isEqualTo 0) || (!alive _projectile)) exitWith {
+		if (((_pos select 0) isEqualTo 0) || isNull _projectile) exitWith {
 			true
 		};
-		
-		if (!(_lastPos isEqualTo _pos)) then {
-			_projPos = parseSimpleArray (format["[%1,%2]", _pos # 0, _pos # 1]);
-			// _markName setMarkerPosLocal _lastPos;
-			["fnf_ocap_handleMarker", ["UPDATED", _markName, _firer, _projPos]] call CBA_fnc_serverEvent;
-		};
-
 		_lastPos = _pos;
+		["fnf_ocap_handleMarker", ["UPDATED", _markName, _firer, [_pos # 0, _pos # 1]]] call CBA_fnc_serverEvent;
 		false;
 	};
-	if (!(count _lastPos == 0)) then {
-		_finalPos = parseSimpleArray (format["[%1,%2]", _lastPos # 0, _lastPos # 1]);
-		["fnf_ocap_handleMarker", ["UPDATED", _markName, _firer, _finalPos]] call CBA_fnc_serverEvent;
-	};
+
+	// if !((count _lastPos) isEqualTo 0) then {
+	// if (count _lastPos == 3) then {
+	// 	_finalPos = parseSimpleArray (format["[%1,%2]", _lastPos # 0, _lastPos # 1]);
+	// 	["fnf_ocap_handleMarker", ["UPDATED", _markName, _firer, _finalPos]] call CBA_fnc_serverEvent;
+	// };
 	sleep 5;
 	// deleteMarkerLocal _markName;
+	// };
 	["fnf_ocap_handleMarker", ["DELETED", _markName]] call CBA_fnc_serverEvent;
 };
