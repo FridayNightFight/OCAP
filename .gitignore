@@ -1,9 +1,6 @@
 
 releases/
-*.pbo
 *.bak
-*.dll
-*.exe
 *.zip
 *.exp
 *.iobj
@@ -12,10 +9,10 @@ releases/
 web/.vscode/
 web2/
 build/
-web/data/data.db
-web/data/*.json
-web/data/*.gz
-web/images/maps/*
+ocap-web/data/data.db
+ocap-web/data/*.json
+ocap-web/data/*.gz
+ocap-web/images/maps/*
 *.exp
 *.la
 *.lib
@@ -328,5 +325,4 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
-*.exe
 
