@@ -38,6 +38,7 @@ addMissionEventHandler ["EntityKilled", {
 		// systemChat format['["fnf_ocap_handleMarker", ["DELETED", %1]] call CBA_fnc_serverEvent;', _markName];
 		["fnf_ocap_handleMarker", ["DELETED", _markName]] call CBA_fnc_localEvent;
 	};
+	true;
 
 }] call ace_explosives_fnc_addDetonateHandler;
 

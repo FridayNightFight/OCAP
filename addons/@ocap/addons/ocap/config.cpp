@@ -42,6 +42,8 @@ class CfgFunctions
 			class exportData{};
 			class extension{};
 			class handleMarkers{};
+			class trackAceThrowing{};
+			class trackAceExplPlace{};
 		};
 	};
 };

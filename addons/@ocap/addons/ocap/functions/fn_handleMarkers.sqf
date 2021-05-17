@@ -98,7 +98,7 @@ _pos
 			// if (_mrk_owner isEqualTo "") then {
 			// } else {
 			_sideOfMarker = (side _mrk_owner) call BIS_fnc_sideID;
-			if (_sideOfMarker isEqualTo 4 || (["Projectile#", _mrk_name] call BIS_fnc_inString) || (["Detonation#", _mrk_name] call BIS_fnc_inString)) then {_sideOfMarker = -1};
+			if (_sideOfMarker isEqualTo 4 || (["Projectile#", _mrk_name] call BIS_fnc_inString) || (["Detonation#", _mrk_name] call BIS_fnc_inString) || (["Mine#", _mrk_name] call BIS_fnc_inString)) then {_sideOfMarker = -1};
 			// };
 
 			diag_log text format["OCAPLOG: SERVER: Valid CREATED process of %1, sending to extension --
