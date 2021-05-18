@@ -103,6 +103,7 @@ if (_ammoSimType isEqualTo "shotBullet") then {
 		};
 		_lastPos = _pos;
 		["fnf_ocap_handleMarker", ["UPDATED", _markName, _firer, [_pos # 0, _pos # 1]]] call CBA_fnc_localEvent;
+		sleep 0.2;
 		false;
 	};
 

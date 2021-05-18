@@ -5,13 +5,9 @@ trackThrows = ["ace_throwableThrown", {
 
         // systemChat str _this;
 
-        // limits trigger to only thrown short-fuse ACE explosives, instead of also counting chemlights/frags/smokes
         // note that thrown objects outside of ACE explosives do not include a "default magazine" property in their config.
         // this script will attempt to find a matching classname in CfgMagazines, as some chemlights and smokes are built this way.
         // if not found, a default magazine value will be assigned (m67 frag, white smoke, green chemlight)
-
-        // systemChat str call compile "_projectile isKindOf ""ACE_SatchelCharge_Remote_Ammo_Thrown""";
-        // if (!(_projectile isKindOf "ACE_SatchelCharge_Remote_Ammo_Thrown")) exitWith {};
 
         _projType = typeOf _projectile;
         _projConfig = configOf _projectile;
@@ -90,26 +86,13 @@ trackThrows = ["ace_throwableThrown", {
 
 			_int = random 2000;
 			
-            // non-bullet handling
             _markTextLocal = format["%1", _magDisp];
             _markName = format["Projectile#%1", _int];
-            _markStr = format["|%1|%2|%3|%4|%5|%6|%7|%8|%9|%10",
-                _markName,
-                _throwerPosRaw,
-                "mil_triangle",
-                "ICON", [1, 1],
-                0,
-                "Solid",
-                _markColor,
-                1,
-                _markTextLocal
-            ];
-            _markStr call BIS_fnc_stringToMarker;
 
 			_throwerPosRaw = getPos _unit;
 			_throwerPos = parseSimpleArray (format["[%1,%2]", _throwerPosRaw # 0, _throwerPosRaw # 1]);
 			
-			["fnf_ocap_handleMarker", ["CREATED", _markName, _unit, _throwerPos, _markerType, "ICON", [1,1], 0, "Solid", _markColor, 1, _markTextLocal]] call CBA_fnc_localEvent;
+			["fnf_ocap_handleMarker", ["CREATED", _markName, _unit, _throwerPos, _markerType, "ICON", [1,1], 0, "Solid", _markColor, 1, _markTextLocal]] call CBA_fnc_serverEvent;
 
             private _lastPos = [];
 			waitUntil {
@@ -119,8 +102,12 @@ trackThrows = ["ace_throwableThrown", {
 				};
 				_lastPos = _pos;
 				["fnf_ocap_handleMarker", ["UPDATED", _markName, _unit, [_pos # 0, _pos # 1]]] call CBA_fnc_localEvent;
-				false;
+                sleep 0.2;
+                false;
 			};
+
+            sleep 5;
+            ["fnf_ocap_handleMarker", ["DELETED", _markName]] call CBA_fnc_localEvent;
         };
     };
 }] call CBA_fnc_addEventHandler;

@@ -3,9 +3,9 @@ if !(_victim getvariable ["ocapIsKilled",false]) then {
     _victim setvariable ["ocapIsKilled",true];
 
     [_victim, _killer, _instigator] spawn {
-          params ["_victim", "_killer", "_instigator"];
-          private _frame = ocap_captureFrameNo;
-          if (_killer == _victim) then {
+        params ["_victim", "_killer", "_instigator"];
+        private _frame = ocap_captureFrameNo;
+        if (_killer == _victim) then {
             private _time = diag_tickTime;
             [_victim, {
                 _this setVariable ["ace_medical_lastDamageSource", (_this getVariable "ace_medical_lastDamageSource"), 2];
@@ -62,7 +62,6 @@ if !(_victim getvariable ["ocapIsKilled",false]) then {
             };
         };
 
-          [":EVENT:", _eventData] call ocap_fnc_extension;
+        [":EVENT:", _eventData] call ocap_fnc_extension;
     };
-
 };
