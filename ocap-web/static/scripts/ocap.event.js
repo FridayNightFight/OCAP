@@ -52,9 +52,20 @@ class HitKilledEvent {
 
 		// CausedBy
 		var causedBySpan = document.createElement("span");
-		if ((causedBy instanceof Unit) && (causedBy.getId() != null)) { causedBySpan.className = this.causedBy.getSideClass() };
+		if ((causedBy instanceof Unit) && (causedBy.getId() != null)) {
+			causedBySpan.className = this.causedBy.getSideClass()
+			switch (this.type) {
+				case "killed":
+					causedBySpan.textContent = this.causedBy.getName() + " (" + (causedBy.killCount + 1) + " kills)";
+					break;
+				case "hit":
+					causedBySpan.textContent = this.causedBy.getName() + " (" + (causedBy.killCount) + " kills)";
+					break;
+			};
+		} else {
+			causedBySpan.textContent = this.causedBy.getName()
+		};
 		causedBySpan.className += " medium";
-		causedBySpan.textContent = this.causedBy.getName();
 
 		var textSpan = document.createElement("span");
 		switch (this.type) {
