@@ -16,7 +16,7 @@ class Marker {
 	};
 
 	manageFrame(f) {
-		if (this._side !== ui.currentSide) {
+		if (this._side !== ui.currentSide && this._side !== "GLOBAL") {
 			// console.log(this._side, ui.currentSide);
 			this.hide();
 			return;

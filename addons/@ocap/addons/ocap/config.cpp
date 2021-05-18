@@ -12,7 +12,7 @@ class CfgPatches
 	class OCAP
 	{
 		name = "OCAP";
-		author = "Dell, Zealot, Kurt";
+		author = "Dell, Zealot, Kurt, IndigoFox";
 		requiredAddons[] = {"A3_Functions_F","cba_main"};
 		requiredVersion = 2.0;
 		units[] = {};
@@ -42,6 +42,10 @@ class CfgFunctions
 			class exportData{};
 			class extension{};
 			class handleMarkers{};
+			class trackAceThrowing{};
+			class trackAceExplPlace{};
+			class trackAceExplLife{};
+			class trackAceRemoteDet{};
 		};
 	};
 };
@@ -53,6 +57,9 @@ class CfgRemoteExec
 		class ocap_fnc_handleMarkers
 		{
 			allowedTargets = 2;
+		};
+		class trackAceThrowing{
+			allowedTargets = 0;
 		};
 	};
 };
