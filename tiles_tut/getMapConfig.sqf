@@ -30,4 +30,4 @@ worldArray = [];
 	_x = configFile >> "CfgWorlds" >> (configName _x);
 	worldArray pushBack ([configName _x, getText (_x >> "description")] call _newMap);
 } forEach _worlds;
-copyToClipBoard str worldArray;
+copyToClipBoard ([worldArray] call CBA_fnc_encodeJSON);
