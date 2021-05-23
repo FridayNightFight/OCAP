@@ -30,41 +30,39 @@
 
 
 Write-Warning "Please open this file in a text editor and read the instructions on how to use it."
-pause
+Pause
 exit
 
 
+$ParentPath = (Get-Location).Path
+ForEach ($Folder in (Get-ChildItem -Directory | ForEach-Object FullName)) {
+	Set-Location $Folder
+	$TargetColors = @(
+		"000000",
+		"0000FF",
+		"004C99",
+		"008000",
+		"00CC00",
+		"660080",
+		"678B9B",
+		"800000",
+		"804000",
+		"808080",
+		"809966",
+		"ADBF83",
+		"B040A7",
+		"B13339",
+		"B29900",
+		"D96600",
+		"D9D900",
+		"E60000",
+		"F08231",
+		"FF4C66",
+		"FFFFFF"
+	)
 
-$TargetColors = @(
-	"000000",
-	"0000FF",
-	"004C99",
-	"008000",
-	"00CC00",
-	"660080",
-	"678B9B",
-	"800000",
-	"804000",
-	"808080",
-	"809966",
-	"ADBF83",
-	"B040A7",
-	"B13339",
-	"B29900",
-	"D96600",
-	"D9D900",
-	"E60000",
-	"F08231",
-	"FF4C66",
-	"FFFFFF"
-)
-
-$ThisPath = (Get-Location).Path
-# ForEach ($ColorHex in $TargetColors) {
-# 	Copy-Item -Path ".\FFFFFF.png" -Destination ".\test\$ColorHex.png" -Force
-# }
-# Set-Location "$ThisPath\test"
-ForEach ($ColorHex in $TargetColors) {
-	magick convert "$ThisPath\FFFFFF.png" -fuzz 75% -fill "#$ColorHex" -opaque "#FFFFFF" "$ColorHex.png"
+	$ThisPath = (Get-Location).Path
+	ForEach ($ColorHex in $TargetColors) {
+		magick convert "$ThisPath\FFFFFF.png" -fuzz 75% -fill "#$ColorHex" -opaque "#FFFFFF" "$ColorHex.png"
+	}
 }
-# Set-Location "$ThisPath"

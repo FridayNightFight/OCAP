@@ -9,8 +9,16 @@ if (_function == "INIT") then {
 	ocap_markers_tracked = []; // Markers which we saves into replay
 
 	{
-		["fnf_ocap_handleMarker", ["CREATED", _x call BIS_fnc_markerToString, _x, objNull]] call CBA_fnc_localEvent;
-	} forEach allMapMarkers;
+		// get rectangle object markers
+		("marker_1" call BIS_fnc_markerParams) params ["_nameArray", "_position", "_size", "_colour", "_type", "_brush", "_shape", "_alpha", "_text"];
+		_position params ["_posX", "_posY"];
+		_nameArray params ["_marker"];
+		_size params ["_a", "_b"];
+
+		_dir = markerDir _x;
+
+		["fnf_ocap_handleMarker", ["CREATED", _marker, objNull, _pos, _type, _shape, [1,1], _dir, _brush, _colour, 1, _text]] call CBA_fnc_localEvent;
+	} forEach (["ObjectMarker"] call BIS_fnc_getMarkers);
 
 	{
 		// handle created markers
