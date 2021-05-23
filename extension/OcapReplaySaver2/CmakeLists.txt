@@ -1,0 +1,48 @@
+cmake_minimum_required(VERSION 2.8)	 
+
+include(${CMAKE_ROOT}/Modules/ExternalProject.cmake)
+
+#---------------------------------------------------------------------------------------
+# Set default build to release
+#---------------------------------------------------------------------------------------
+project(OcapReplaySaver2)
+
+#---------------------------------------------------------------------------------------
+# Compiler config
+#---------------------------------------------------------------------------------------
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS ON)
+
+set(OCAP_SRC_DIR "./src/")
+set(OCAP_INC_DIR "./include/")
+
+set(SOURCE_LIB "${OCAP_SRC_DIR}/OcapReplaySaver2.cpp"
+               "${OCAP_SRC_DIR}/easylogging++.cc"
+               "${OCAP_INC_DIR}/easylogging_setup.h"
+               "${OCAP_INC_DIR}/easylogging++.h"
+               "${OCAP_INC_DIR}/json.hpp"
+)			
+#add_dependencies(OcapReplaySaver2 curl)
+
+include_directories(${OCAP_INC_DIR})
+
+add_definitions(-DCURL_STATICLIB)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/external/curl/include)
+link_directories(${CMAKE_CURRENT_SOURCE_DIR}/external/curl/lib)
+
+add_library(OcapReplaySaver2 SHARED ${SOURCE_LIB})
+target_link_libraries(OcapReplaySaver2 libcurl crypt32 winmm wldap32 ws2_32)	
+	
+
+
+# FIND_PACKAGE(CURL PATHS "C:/Users/User/OCAP/extension/OcapReplaySaver2/curl")
+# IF(CURL_FOUND)
+#   INCLUDE_DIRECTORIES(${CURL_INCLUDE_DIR})
+#   #SET(requiredlibs ${requiredlibs} ${CURL_LIBRARIES} )
+# ELSE(CURL_FOUND)
+#   MESSAGE(FATAL_ERROR "Could not find the CURL library and development files.")
+# ENDIF(CURL_FOUND)
+
+
+#target_link_libraries(main foo)	
