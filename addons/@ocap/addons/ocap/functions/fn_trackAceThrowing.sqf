@@ -3,6 +3,10 @@ trackThrows = ["ace_throwableThrown", {
 
         params["_unit", "_projectile"];
 
+        if (isNull _projectile) then {
+            _projectile = nearestObject [_unit, "CA_Magazine"];
+        };
+
         // systemChat str _this;
 
         // note that thrown objects outside of ACE explosives do not include a "default magazine" property in their config.
@@ -13,10 +17,10 @@ trackThrows = ["ace_throwableThrown", {
         _projConfig = configOf _projectile;
         _projName = getText(configFile >> "CfgAmmo" >> _projType >> "displayName");
 
-        systemChat format["Config name: %1", configOf _projectile];
+        // systemChat format["Config name: %1", configOf _projectile];
 
         _ammoSimType = getText(configFile >> "CfgAmmo" >> _projType >> "simulation");
-        systemChat format["Projectile type: %1", _ammoSimType];
+        // systemChat format["Projectile type: %1", _ammoSimType];
 
         _markerType = "";
         _markColor = "";
@@ -29,7 +33,7 @@ trackThrows = ["ace_throwableThrown", {
         };
 
         if (!(_magType isEqualTo "")) then {
-            systemChat format["Mag type: %1", _magType];
+            // systemChat format["Mag type: %1", _magType];
 
             _magDisp = getText(configFile >> "CfgMagazines" >> _magType >> "displayNameShort");
             if (_magDisp == "") then {
@@ -40,7 +44,7 @@ trackThrows = ["ace_throwableThrown", {
             };
 
             _magPic = (getText(configfile >> "CfgMagazines" >> _magType >> "picture"));
-            hint parseText format["Projectile fired:<br/><img image='%1'/>", _magPic];
+            // hint parseText format["Projectile fired:<br/><img image='%1'/>", _magPic];
             if (_magPic == "") then {
                 _markerType = "mil_triangle";
                 _markColor = "ColorRed";
@@ -72,7 +76,7 @@ trackThrows = ["ace_throwableThrown", {
                     _magDisp = "Frag";
                 };
             };
-            hint parseText format["Projectile fired:<br/><img image='%1'/>", _magPic];
+            // hint parseText format["Projectile fired:<br/><img image='%1'/>", _magPic];
             _magPicSplit = _magPic splitString "\";
             _magPic = _magPicSplit#((count _magPicSplit) - 1);
             _markerType = format["magIcons/%1", _magPic];
@@ -101,13 +105,13 @@ trackThrows = ["ace_throwableThrown", {
 					true
 				};
 				_lastPos = _pos;
-				["fnf_ocap_handleMarker", ["UPDATED", _markName, _unit, [_pos # 0, _pos # 1]]] call CBA_fnc_localEvent;
+				["fnf_ocap_handleMarker", ["UPDATED", _markName, _unit, [_pos # 0, _pos # 1]]] call CBA_fnc_serverEvent;
                 sleep 0.2;
                 false;
 			};
 
-            sleep 5;
-            ["fnf_ocap_handleMarker", ["DELETED", _markName]] call CBA_fnc_localEvent;
+            sleep 7;
+            ["fnf_ocap_handleMarker", ["DELETED", _markName]] call CBA_fnc_serverEvent;
         };
     };
 }] call CBA_fnc_addEventHandler;

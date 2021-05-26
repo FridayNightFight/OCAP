@@ -8,17 +8,57 @@ if (_function == "INIT") then {
 
 	ocap_markers_tracked = []; // Markers which we saves into replay
 
-	{
-		// get rectangle object markers
-		("marker_1" call BIS_fnc_markerParams) params ["_nameArray", "_position", "_size", "_colour", "_type", "_brush", "_shape", "_alpha", "_text"];
-		_position params ["_posX", "_posY"];
-		_nameArray params ["_marker"];
-		_size params ["_a", "_b"];
 
-		_dir = markerDir _x;
+	[] spawn {
 
-		["fnf_ocap_handleMarker", ["CREATED", _marker, objNull, _pos, _type, _shape, [1,1], _dir, _brush, _colour, 1, _text]] call CBA_fnc_localEvent;
-	} forEach (["ObjectMarker"] call BIS_fnc_getMarkers);
+		[
+			{!isNil {missionNamespace getVariable "ocap_markers_handle"} && count allPlayers > 0},
+			{
+				{
+					// "Started polling starting markers" remoteExec ["hint", 0];
+					// get intro object markers
+					(_x call BIS_fnc_markerParams) params ["_nameArray", "_position", "_size", "_colour", "_type", "_brush", "_shape", "_alpha", "_text"];
+					_position params ["_posX", "_posY"];
+					_nameArray params ["_marker"];
+					_size params ["_a", "_b"];
+
+					_dir = 0;
+					_shape = "ICON";
+					if (_type == "") then {_type = "mil_dot"};
+
+					if (["ObjectMarker", _marker] call BIS_fnc_inString) then {
+						_type = "ObjectMarker";
+						_colour = "ColorBlack";
+					};
+					if (["moduleCoverMap_dot", _marker] call BIS_fnc_inString) then {
+						_type = "moduleCoverMap";
+						_colour = "ColorBlack";
+					};
+
+					_exclude = [
+						"bis_fnc_moduleCoverMap_0",
+						"bis_fnc_moduleCoverMap_90",
+						"bis_fnc_moduleCoverMap_180",
+						"bis_fnc_moduleCoverMap_270",
+						"bis_fnc_moduleCoverMap_border",
+						"respawn",
+						"respawn_west",
+						"respawn_east",
+						"respawn_guerrila",
+						"respawn_civilian"
+					];
+
+					if (!(_marker in _exclude)) then {
+						_randomizedOwner = allPlayers # 0;
+						["fnf_ocap_handleMarker", ["CREATED", _marker, _randomizedOwner, _position, _type, _shape, [1,1], _dir, _brush, _colour, 1, _text]] call CBA_fnc_localEvent;
+						"debug_console" callExtension (str [_marker, _randomizedOwner, _position, _type, _shape, [1,1], _dir, _brush, _colour, 1, _text] + "#0100");
+					};
+
+				} forEach allMapMarkers;
+			}
+		] call CBA_fnc_waitUntilAndExecute;
+	};
+	
 
 	{
 		// handle created markers
@@ -67,7 +107,7 @@ if (_function == "INIT") then {
 
 
 
-_ocap_markers_handle = ["fnf_ocap_handleMarker", {
+ocap_markers_handle = ["fnf_ocap_handleMarker", {
 
 	params["_eventType", "_mrk_name", "_mrk_owner","_pos", "_type", "_shape", "_size", "_dir", "_brush", "_color", "_alpha", "_text"];
 
@@ -106,7 +146,12 @@ _pos
 			// if (_mrk_owner isEqualTo "") then {
 			// } else {
 			_sideOfMarker = (side _mrk_owner) call BIS_fnc_sideID;
-			if (_sideOfMarker isEqualTo 4 || (["Projectile#", _mrk_name] call BIS_fnc_inString) || (["Detonation#", _mrk_name] call BIS_fnc_inString) || (["Mine#", _mrk_name] call BIS_fnc_inString)) then {_sideOfMarker = -1};
+			if (_sideOfMarker isEqualTo 4 || 
+			(["Projectile#", _mrk_name] call BIS_fnc_inString) || 
+			(["Detonation#", _mrk_name] call BIS_fnc_inString) || 
+			(["Mine#", _mrk_name] call BIS_fnc_inString) ||
+			(["ObjectMarker", _mrk_name] call BIS_fnc_inString) ||
+			(["moduleCoverMap", _mrk_name] call BIS_fnc_inString)) then {_sideOfMarker = -1};
 			// };
 
 			diag_log text format["OCAPLOG: SERVER: Valid CREATED process of %1, sending to extension --

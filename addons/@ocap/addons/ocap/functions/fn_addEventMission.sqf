@@ -10,7 +10,7 @@ addMissionEventHandler ["EntityKilled", {
 	_this call ocap_fnc_eh_killed;
 }];
 
-call ocap_fnc_trackAceThrowing;
+// call ocap_fnc_trackAceThrowing;
 call ocap_fnc_trackAceExplPlace;
 
 if (ocap_saveMissionEnded) then {

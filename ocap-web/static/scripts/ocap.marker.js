@@ -13,6 +13,7 @@ class Marker {
 		this._isShow = false;
 		this._popup = "";
 		this._popupClassName = "leaflet-popup-unit";
+		this._systemMarkers = ["ObjectMarker", "moduleCoverMap"];
 	};
 
 	manageFrame(f) {
@@ -51,15 +52,25 @@ class Marker {
 	show() {
 		if (!this._isShow) {
 			this._isShow = true;
-			this.setMarkerOpacity(0.7);
+			if (this._systemMarkers.includes(this._type)) {
+				this.setMarkerOpacity(0.35);
+			} else {
+				this.setMarkerOpacity(0.7);
+			};
 		};
 	};
 
 	_createMarker(latLng) {
 		let marker = L.marker(latLng).addTo(map);
 		marker.setIcon(this._icon);
-		let popup = this._createPopup( `${this._side} ${this._player.getName()} ${this._text}`);
-		marker.bindPopup(popup).openPopup();
+		
+		if (!(this._systemMarkers.includes(this._type)) && this._side != "GLOBAL") {
+			let popup = this._createPopup(`${this._side} ${this._player.getName()} ${this._text}`);
+			marker.bindPopup(popup).openPopup();
+		} else if (!(this._systemMarkers.includes(this._type)) && this._side == "GLOBAL") {
+			let popup = this._createPopup(`${this._player.getName()} ${this._text}`);
+			marker.bindPopup(popup).openPopup();
+		};
 		this._marker = marker;
 		this.show();
 	};
