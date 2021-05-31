@@ -34,6 +34,10 @@ if (_function == "INIT") then {
 						_type = "moduleCoverMap";
 						_colour = "ColorBlack";
 					};
+					if (["safeMarker", _marker] call BIS_fnc_inString) then {
+						_type = "safeStart";
+						_colour = "ColorBlack";
+					};
 
 					_exclude = [
 						"bis_fnc_moduleCoverMap_0",
@@ -51,7 +55,7 @@ if (_function == "INIT") then {
 					if (!(_marker in _exclude)) then {
 						_randomizedOwner = allPlayers # 0;
 						["fnf_ocap_handleMarker", ["CREATED", _marker, _randomizedOwner, _position, _type, _shape, [1,1], _dir, _brush, _colour, 1, _text]] call CBA_fnc_localEvent;
-						"debug_console" callExtension (str [_marker, _randomizedOwner, _position, _type, _shape, [1,1], _dir, _brush, _colour, 1, _text] + "#0100");
+						// "debug_console" callExtension (str [_marker, _randomizedOwner, _position, _type, _shape, [1,1], _dir, _brush, _colour, 1, _text] + "#0100");
 					};
 
 				} forEach allMapMarkers;
