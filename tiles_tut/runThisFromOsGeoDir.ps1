@@ -1,5 +1,5 @@
 Write-Host "This script should be placed in your OSGeo4W64 directory along with the trimmed PNGs at 16834 by 16384 resolution you've prepared."
-pause
+Pause
 
 Add-Type -AssemblyName 'System.Windows.Forms'
 Add-Type -AssemblyName 'Microsoft.VisualBasic'
@@ -29,15 +29,16 @@ ForEach ($Terrain in $TerrainPNGs) {
 			[System.Windows.Forms.SendKeys]::SendWait("py3_env~")
 			[System.Windows.Forms.SendKeys]::SendWait("gdal2tiles_legacy_no-tms -p raster -z 0-6 $Terrain~")
 			[System.Windows.Forms.SendKeys]::SendWait("exit~")
-			while (Get-Process -Id $ID -EA SilentlyContinue) { Start-Sleep 2 }
 		} catch {
 			Write-Error $PSItem
 			continue
 		}
-	} else { [System.Windows.Forms.SendKeys]::SendWait("exit~") }
+	} else {
 
-	Write-Host "$Terrain processed. Please rename the folder and prepare for the next one to run."
-	pause
+		[System.Windows.Forms.SendKeys]::SendWait("exit~")
+		Write-Host "$Terrain processed. Please rename the folder and prepare for the next one to run."
+		Pause
 
-	Remove-Item ".\temp.vrt" -Force -EA SilentlyContinue
+		Remove-Item ".\temp.vrt" -Force -EA SilentlyContinue
+	}
 }
