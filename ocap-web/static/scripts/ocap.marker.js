@@ -1,7 +1,11 @@
 class Marker {
 	constructor(type, text, player, color, startFrame, endFrame, side, positions) {
 		this._type = type;
-		this._icon = L.icon({ iconSize: [35, 35], iconUrl: `images/markers/${type}/${color}.png` });
+		if (type == "ellipse") {
+			this._circle = L.circle([0,0], { radius: 5, fillColor: color, fillOpacity:0.1, interactive: false });
+		} else {
+			this._icon = L.icon({ iconSize: [35, 35], iconUrl: `images/markers/${type}/${color}.png` });
+		};
 		this._text = text;
 		this._player = player;
 		this._color = color;
@@ -60,41 +64,48 @@ class Marker {
 		};
 	};
 
-	_createMarker(latLng) {
-		let marker = L.marker(latLng).addTo(map);
-		marker.setIcon(this._icon);
-		let markerCustomText = "";
-		if (this._text) { markerCustomText = this._text };
+	_createMarker (latLng) {
+		let marker;
+		if (this._icon) {
+			marker = L.marker(latLng).addTo(map);
+			marker.setIcon(this._icon);
 		
-		if (
-			// objectives
-			markerCustomText.search("Terminal") > -1
-		) {
-			let popup = this._createPopup(`${this._text}`);
-			marker.bindPopup(popup).openPopup();
-		} else if (
-			// map borders & custom objects
-			this._systemMarkers.includes(this._type) &&
-			this._side == "GLOBAL") {
-			console.log("system marker")
-		} else if (
-			// projectiles
-			(
-				this._type.search("magIcons") > -1 ||
-				this._type == "Minefield" ||
-				this._type == "mil_triangle"
-			) &&
-			this._side == "GLOBAL") {
-			let popup = this._createPopup(`${this._player.getName()} ${this._text}`);
-			marker.bindPopup(popup).openPopup();
-		} else {
-			// all normal player marks
-			let popup = this._createPopup(`${this._side} ${this._player.getName()} ${this._text}`);
-			marker.bindPopup(popup).openPopup();
-		}
-		this._marker = marker;
-		this.show();
-	};
+
+			let markerCustomText = "";
+			if (this._text) { markerCustomText = this._text };
+		
+			if (
+				// objectives
+				markerCustomText.search("Terminal") > -1
+			) {
+				let popup = this._createPopup(`${this._text}`);
+				marker.bindPopup(popup).openPopup();
+			} else if (
+				// map borders & custom objects
+				this._systemMarkers.includes(this._type) &&
+				this._side == "GLOBAL") {
+				console.log("system marker")
+			} else if (
+				// projectiles
+				(
+					this._type.search("magIcons") > -1 ||
+					this._type == "Minefield" ||
+					this._type == "mil_triangle"
+				) &&
+				this._side == "GLOBAL") {
+				let popup = this._createPopup(`${this._player.getName()} ${this._text}`);
+				marker.bindPopup(popup).openPopup();
+			} else {
+				// all normal player marks
+				let popup = this._createPopup(`${this._side} ${this._player.getName()} ${this._text}`);
+				marker.bindPopup(popup).openPopup();
+			}
+		} else if (this._circle) {
+			marker = this._circle.addTo(map);
+		};
+			this._marker = marker;
+			this.show();
+		};
 
 	_createPopup(content) {
 		let popup = L.popup({
@@ -128,10 +139,12 @@ class Marker {
 	};
 
 	setMarkerOpacity(opacity) {
-		this._marker.setOpacity(opacity);
-		let popup = this._marker.getPopup();
-		if (popup != null) {
-			popup.getElement().style.opacity = opacity;
+		if (this._icon) {
+			this._marker.setOpacity(opacity);
+			let popup = this._marker.getPopup();
+			if (popup != null) {
+				popup.getElement().style.opacity = opacity;
+			};
 		};
 	};
 	

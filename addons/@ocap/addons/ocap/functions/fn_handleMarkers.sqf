@@ -54,7 +54,8 @@ if (_function == "INIT") then {
 
 					if (!(_marker in _exclude)) then {
 						_randomizedOwner = allPlayers # 0;
-						["fnf_ocap_handleMarker", ["CREATED", _marker, _randomizedOwner, _position, _type, _shape, [1,1], _dir, _brush, _colour, 1, _text]] call CBA_fnc_localEvent;
+						_forceGlobal = true;
+						["fnf_ocap_handleMarker", ["CREATED", _marker, _randomizedOwner, _position, _type, _shape, [1,1], _dir, _brush, _colour, 1, _text, _forceGlobal]] call CBA_fnc_localEvent;
 						// "debug_console" callExtension (str [_marker, _randomizedOwner, _position, _type, _shape, [1,1], _dir, _brush, _colour, 1, _text] + "#0100");
 					};
 
@@ -113,7 +114,7 @@ if (_function == "INIT") then {
 
 ocap_markers_handle = ["fnf_ocap_handleMarker", {
 
-	params["_eventType", "_mrk_name", "_mrk_owner","_pos", "_type", "_shape", "_size", "_dir", "_brush", "_color", "_alpha", "_text"];
+	params["_eventType", "_mrk_name", "_mrk_owner","_pos", "_type", "_shape", "_size", "_dir", "_brush", "_color", "_alpha", "_text", "_forceGlobal"];
 
 
 	diag_log text format["OCAPLOG: SERVER: Received data --
@@ -155,7 +156,8 @@ _pos
 			(["Detonation#", _mrk_name] call BIS_fnc_inString) || 
 			(["Mine#", _mrk_name] call BIS_fnc_inString) ||
 			(["ObjectMarker", _mrk_name] call BIS_fnc_inString) ||
-			(["moduleCoverMap", _mrk_name] call BIS_fnc_inString)) then {_sideOfMarker = -1};
+			(["moduleCoverMap", _mrk_name] call BIS_fnc_inString) ||
+			_forceGlobal) then {_sideOfMarker = -1};
 			// };
 
 			diag_log text format["OCAPLOG: SERVER: Valid CREATED process of %1, sending to extension --
