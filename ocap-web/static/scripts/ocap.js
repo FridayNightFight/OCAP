@@ -258,6 +258,14 @@ function initMap() {
 	});
 
 	createInitialMarkers();
+	let boundaryMarks = markers.filter(item => {
+		return item._type == "moduleCoverMap"
+	});
+	if (boundaryMarks.length == 4) {
+		let boundaryPoints = boundaryMarks.map(item => armaToLatLng(item._positions[0][1]));
+		boundaryPoints.push(boundaryPoints[0]);
+		L.polyline(boundaryPoints, { color: "#000000", fill: false }).addTo(map);
+	};
 	document.dispatchEvent(new Event("mapInited"));
 	//test();
 };
@@ -597,6 +605,7 @@ function processOp(filepath) {
 				gameEvents.addEvent(gameEvent);
 			};
 		});
+
 
 		console.log("Finished processing operation (" + (new Date() - time) + "ms).");
 		initMap();
