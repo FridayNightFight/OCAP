@@ -2,7 +2,9 @@ class Marker {
 	constructor(type, text, player, color, startFrame, endFrame, side, positions) {
 		this._type = type;
 		if (type == "ellipse") {
-			this._circle = L.circle([0,0], { radius: 5, fillColor: color, fillOpacity:0.1, interactive: false });
+			this._circle = L.circle([0, 0], { radius: 5, fillColor: color, fillOpacity: 0.1, interactive: false });
+		} else if (type == "rectangle") {
+			this._rectangle = L.rectangle([[0, 0], [25, 25]], {fillColor: color, fillOpacity: 0.1, interactive: false });
 		} else {
 			this._icon = L.icon({ iconSize: [35, 35], iconUrl: `images/markers/${type}/${color}.png` });
 		};
@@ -41,7 +43,37 @@ class Marker {
 		if (this._marker == null) {
 			this._createMarker(latLng);
 		} else {
-			this._marker.setLatLng(latLng);
+			if (!this._rectangle) {
+				this._marker.setLatLng(latLng);
+			} else {
+				// rectangles require 2 sets of bounds, bot left and top right. calculate from center
+
+				// this method operates in translated meters, but is not square (due to projection?)
+				// let bound = latLng.toBounds(25).pad(25);
+				// let boundPoints = [bound.getSouthWest(), bound.getNorthWest(), bound.getNorthEast(), bound.getSouthEast()];
+				// this._marker = this._marker.setBounds(bound);
+
+
+				// this method calculates meters based on the map projection, aware of its unique nature being interpreted from Arma
+				var offsetX = 5;
+				var offsetY = 5;
+
+				var point1 = L.point([(pos[0] * multiplier) + trim, (imageSize - (pos[1] * multiplier)) + trim]);
+				// var point1 = map.project(latLng);
+				var point2 = point1.add([offsetX, offsetY]);
+				var latLng2 = map.unproject(point2, mapMaxNativeZoom);
+				var bounds = L.latLngBounds(latLng, latLng2);
+
+				this._marker = this._marker.setBounds(bounds);
+
+
+				// this._marker = this._marker.setLatLngs(boundPoints);
+
+				// this method modifies latLng points directly
+				// let boundPoint1 = [latLng.lat + 0.1, latLng.lng + 0.1];
+				// let boundPoint2 = [latLng.lat - 0.1, latLng.lng - 0.1];
+				// this._marker.setBounds(L.latLngBounds(boundPoint1, boundPoint2));
+			}
 		};
 		this.show();
 	};
@@ -102,6 +134,9 @@ class Marker {
 			}
 		} else if (this._circle) {
 			marker = this._circle.addTo(map);
+		} else if (this._rectangle) {
+			this._rectangle.addTo(map);
+			marker = this._rectangle;
 		};
 			this._marker = marker;
 			this.show();
