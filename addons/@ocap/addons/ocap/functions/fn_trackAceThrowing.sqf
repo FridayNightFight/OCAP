@@ -110,6 +110,12 @@ trackThrows = ["ace_throwableThrown", {
                 false;
 			};
 
+            if !((count _lastPos) isEqualTo 0) then {
+                // if (count _lastPos == 3) then {
+                _finalPos = parseSimpleArray (format["[%1,%2]", _lastPos # 0, _lastPos # 1]);
+                ["fnf_ocap_handleMarker", ["UPDATED", _markName, _unit, _finalPos]] call CBA_fnc_serverEvent;
+            };
+
             sleep 7;
             ["fnf_ocap_handleMarker", ["DELETED", _markName]] call CBA_fnc_serverEvent;
         };

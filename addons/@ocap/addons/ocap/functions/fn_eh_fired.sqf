@@ -1,4 +1,4 @@
-params ["_firer", "_weapon", "_muzzle", "_mode", "_ammo", "_magazine", "_projectile", "_gunner"];
+params ["_firer", "_weapon", "_muzzle", "_mode", "_ammo", "_magazine", "_projectile", "_vehicle"];
 
 _frame = ocap_captureFrameNo;
 
@@ -10,6 +10,9 @@ _ammoSimType = getText(configFile >> "CfgAmmo" >> _ammo >> "simulation");
 if (_ammoSimType isEqualTo "shotBullet") then {
 	[_projectile, _firer, _frame, _ammoSimType] spawn {
 		params["_projectile", "_firer", "_frame", "_ammoSimType"];
+		if (isNull _projectile) then {
+			_projectile = nearestObject [_firer, _ammo];
+		};
 		private _lastPos = [];
 		waitUntil {
 			_pos = getPosATL _projectile;
@@ -48,7 +51,17 @@ if (_ammoSimType isEqualTo "shotBullet") then {
 	if (_magDisp == "") then {_magDisp = getText(configFile >> "CfgAmmo" >> _ammo >> "displayName")};
 
 	// non-bullet handling
-	_markTextLocal = format["%1 - %2", _muzzleDisp, _magDisp];
+	private ["_markTextLocal"];
+	if (!isNull _vehicle) then {
+		_markTextLocal = format["[%3] %1 - %2", _muzzleDisp, _magDisp, ([configOf _vehicle] call BIS_fnc_displayName)];
+	} else {
+		if (_ammoSimType isEqualTo "shotGrenade") then {
+			_markTextLocal = format["%1", _magDisp];
+		} else {
+			_markTextLocal = format["%1 - %2", _muzzleDisp, _magDisp];
+		};
+	};
+	
 	_markName = format["Projectile#%1", _int];
 	_markColor = "ColorRed";
 	_markerType = "";
@@ -103,16 +116,16 @@ if (_ammoSimType isEqualTo "shotBullet") then {
 		};
 		_lastPos = _pos;
 		["fnf_ocap_handleMarker", ["UPDATED", _markName, _firer, [_pos # 0, _pos # 1]]] call CBA_fnc_localEvent;
-		sleep 0.2;
+		// sleep 0.2;
 		false;
 	};
 
-	// if !((count _lastPos) isEqualTo 0) then {
+	if !((count _lastPos) isEqualTo 0) then {
 	// if (count _lastPos == 3) then {
-	// 	_finalPos = parseSimpleArray (format["[%1,%2]", _lastPos # 0, _lastPos # 1]);
-	// 	["fnf_ocap_handleMarker", ["UPDATED", _markName, _firer, _finalPos]] call CBA_fnc_serverEvent;
-	// };
-	sleep 5;
+		_finalPos = parseSimpleArray (format["[%1,%2]", _lastPos # 0, _lastPos # 1]);
+		["fnf_ocap_handleMarker", ["UPDATED", _markName, _firer, _finalPos]] call CBA_fnc_serverEvent;
+	};
+	sleep 7;
 	// deleteMarkerLocal _markName;
 	// };
 	["fnf_ocap_handleMarker", ["DELETED", _markName]] call CBA_fnc_localEvent;
