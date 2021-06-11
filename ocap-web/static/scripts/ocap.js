@@ -264,8 +264,7 @@ function initMap() {
 	if (boundaryMarks.length == 4) {
 		let boundaryPoints = boundaryMarks.map(item => armaToLatLng(item._positions[0][1]));
 		boundaryPoints.push(boundaryPoints[0]);
-		let bounds = L.latLngBounds(boundaryPoints);
-		L.rectangle(bounds, { color:"#000000", fill: true, fillColor:"#00FF00", fillOpacity: 0.05, interactive: false, noClip: true}).addTo(map);
+		L.polyline(boundaryPoints, { color: "#000000", fill: true, fillColor: "#00FF00", fillOpacity: 0.05, interactive: false, noClip: true }).addTo(map);
 	};
 	document.dispatchEvent(new Event("mapInited"));
 	//test();
