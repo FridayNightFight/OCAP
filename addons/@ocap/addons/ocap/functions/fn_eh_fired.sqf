@@ -100,8 +100,8 @@ if (_ammoSimType isEqualTo "shotBullet") then {
 	// _mark setMarkerShapeLocal "ICON";
 	// _mark setMarkerTextLocal format["%1 - %2", _firer, _markTextLocal];
 
-	_firerPosRaw = getPosATL _firer;
-	_firerPos = parseSimpleArray (format["[%1,%2]", _firerPosRaw # 0, _firerPosRaw # 1]);
+	_firerPos = getPosATL _firer;
+	_firerPos resize 2;
 	["fnf_ocap_handleMarker", ["CREATED", _markName, _firer, _firerPos, _markerType, "ICON", [1,1], 0, "Solid", _markColor, 1, _markTextLocal]] call CBA_fnc_localEvent;
 
 	if (isNull _projectile) then {
@@ -115,15 +115,16 @@ if (_ammoSimType isEqualTo "shotBullet") then {
 			true
 		};
 		_lastPos = _pos;
-		["fnf_ocap_handleMarker", ["UPDATED", _markName, _firer, [_pos # 0, _pos # 1]]] call CBA_fnc_localEvent;
+		_pos resize 2;
+		["fnf_ocap_handleMarker", ["UPDATED", _markName, _firer, _pos]] call CBA_fnc_localEvent;
 		// sleep 0.2;
 		false;
 	};
 
 	if !((count _lastPos) isEqualTo 0) then {
 	// if (count _lastPos == 3) then {
-		_finalPos = parseSimpleArray (format["[%1,%2]", _lastPos # 0, _lastPos # 1]);
-		["fnf_ocap_handleMarker", ["UPDATED", _markName, _firer, _finalPos]] call CBA_fnc_serverEvent;
+		_finalPos resize 2;
+		["fnf_ocap_handleMarker", ["UPDATED", _markName, _firer, _finalPos]] call CBA_fnc_localEvent;
 	};
 	sleep 7;
 	// deleteMarkerLocal _markName;

@@ -473,8 +473,8 @@ class UI {
 			<a href="https://github.com/Zealot111/OCAP" target="_blank">GitHub Link</a>
 			<br/>
 			<br/>
-			Modified: IndigoFox (Friday Night Fight)<br/>
-			<a href="https://github.com/FridayNightFight/OCAP" target="_blank">GitHub Link</a>
+			Further Modified: IndigoFox, Zealot<br/>
+			<a href="https://github.com/indig0fox/OCAP" target="_blank">GitHub Link</a>
 			<br/>
 			<br/>
 			<span id="keyControl-playPause"></span><br/>
@@ -509,7 +509,7 @@ class UI {
 		localizable(this.modalBody, "copy_link", `</h2> </center>
 		<input readonly="true" type="text" id="ShareLink">`, `<center> <h2 style="color:white">`);
 
-		let text = document.location.host + "/?";
+		let text = "http://" + document.location.host + "/?";
 		text += "file=" + fileName;
 		text += "&frame=" + playbackFrame;
 		text += "&zoom=" + map.getZoom();
