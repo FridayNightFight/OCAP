@@ -46,6 +46,7 @@ class CfgFunctions
 			class trackAceExplPlace{};
 			class trackAceExplLife{};
 			class trackAceRemoteDet{};
+			class getUnitType{};
 		};
 	};
 };

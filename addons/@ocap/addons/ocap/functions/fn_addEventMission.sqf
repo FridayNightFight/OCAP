@@ -10,7 +10,6 @@ addMissionEventHandler ["EntityKilled", {
 	_this call ocap_fnc_eh_killed;
 }];
 
-// call ocap_fnc_trackAceThrowing;
 call ocap_fnc_trackAceExplPlace;
 
 if (ocap_saveMissionEnded) then {
@@ -20,7 +19,11 @@ if (ocap_saveMissionEnded) then {
 };
 
 // Add event saving markers
-["INIT"] call ocap_fnc_handleMarkers;
+[
+	{BIS_fnc_init},
+	{call ocap_fnc_handleMarkers;}
+] call CBA_fnc_waitUntilAndExecute;
+
 
 ["WMT_fnc_EndMission", {
 	_this call ocap_fnc_exportData;

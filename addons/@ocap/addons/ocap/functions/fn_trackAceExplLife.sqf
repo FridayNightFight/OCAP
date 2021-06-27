@@ -28,20 +28,20 @@ if (_nearMines isEqualTo []) then {
 	_markColor = "ColorRed";
 	_markerType = "Minefield";
 
-	["fnf_ocap_handleMarker", ["CREATED", _markName, _placer, _placedPos, _markerType, "ICON", [1,1], 0, "Solid", "ColorRed", 1, _markTextLocal]] call CBA_fnc_localEvent;
+	["ocap_handleMarker", ["CREATED", _markName, _placer, _placedPos, _markerType, "ICON", [1,1], 0, "Solid", "ColorRed", 1, _markTextLocal]] call CBA_fnc_localEvent;
 
 	waitUntil {isNull _armedMine};
 
-	["fnf_ocap_handleMarker", ["DELETED", _markName]] call CBA_fnc_localEvent;
+	["ocap_handleMarker", ["DELETED", _markName]] call CBA_fnc_localEvent;
 
 	_markerType = "waypoint";
 	_markName = format["Detonation#%1", _int];
 
-	["fnf_ocap_handleMarker", ["CREATED", _markName, _placer, _placedPos, _markerType, "ICON", [1,1], 0, "Solid", _markColor, 1, _markTextLocal]] call CBA_fnc_localEvent;
+	["ocap_handleMarker", ["CREATED", _markName, _placer, _placedPos, _markerType, "ICON", [1,1], 0, "Solid", _markColor, 1, _markTextLocal]] call CBA_fnc_localEvent;
 
 	[_markName] spawn {
 		params ["_markName"];
 		sleep 7;
-		["fnf_ocap_handleMarker", ["DELETED", _markName]] call CBA_fnc_localEvent;
+		["ocap_handleMarker", ["DELETED", _markName]] call CBA_fnc_localEvent;
 	};
 };

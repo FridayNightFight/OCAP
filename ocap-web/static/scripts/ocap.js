@@ -263,8 +263,8 @@ function initMap() {
 	});
 	if (boundaryMarks.length == 4) {
 		let boundaryPoints = boundaryMarks.map(item => armaToLatLng(item._positions[0][1]));
-		boundaryPoints.push(boundaryPoints[0]);
-		L.polyline(boundaryPoints, { color: "#000000", fill: true, fillColor: "#00FF00", fillOpacity: 0.05, interactive: false, noClip: true }).addTo(map);
+		let boundaryPolygon = L.polygon(boundaryPoints, { color: "#000000", fill: true, fillColor: "#00FF00", fillOpacity: 0.02, interactive: false, noClip: true }).addTo(map);
+		map.flyToBounds(boundaryPolygon.getBounds());
 	};
 	document.dispatchEvent(new Event("mapInited"));
 	//test();
@@ -305,6 +305,11 @@ function defineIcons() {
 	};
 
 	let imgPathMan = "images/markers/man/";
+	let imgPathManMG = "images/markers/man/MG/";
+	let imgPathManGL = "images/markers/man/GL/";
+	let imgPathManAT = "images/markers/man/AT/";
+	let imgPathManSniper = "images/markers/man/Sniper/";
+	let imgPathManAA = "images/markers/man/AA/";
 	let imgPathShip = "images/markers/ship/";
 	let imgPathParachute = "images/markers/parachute/";
 	let imgPathHeli = "images/markers/heli/";
@@ -321,6 +326,11 @@ function defineIcons() {
 	let imgs = ["blufor", "opfor", "ind", "civ", "dead", "hit", "follow", "unconscious"];
 	imgs.forEach((img, i) => {
 		icons.man[img] = L.icon({ iconSize: [16, 16], iconUrl: `${imgPathMan}${img}.svg` });
+		// icons.manMG[img] = L.icon({ iconSize: [16, 16], iconUrl: `${imgPathManMG}${img}.svg` });
+		// icons.manGL[img] = L.icon({ iconSize: [16, 16], iconUrl: `${imgPathManGL}${img}.svg` });
+		// icons.manAT[img] = L.icon({ iconSize: [16, 16], iconUrl: `${imgPathManAT}${img}.svg` });
+		// icons.manSniper[img] = L.icon({ iconSize: [16, 16], iconUrl: `${imgPathManSniper}${img}.svg` });
+		// icons.manAA[img] = L.icon({ iconSize: [16, 16], iconUrl: `${imgPathManAA}${img}.svg` });
 		icons.ship[img] = L.icon({ iconSize: [28, 28], iconUrl: `${imgPathShip}${img}.svg` });
 		icons.parachute[img] = L.icon({ iconSize: [20, 20], iconUrl: `${imgPathParachute}${img}.svg` });
 		icons.heli[img] = L.icon({ iconSize: [32, 32], iconUrl: `${imgPathHeli}${img}.svg` });
@@ -518,16 +528,23 @@ function processOp(filepath) {
 
 		if (data.Markers != null) {
 			data.Markers.forEach(function (markerJSON) {
-				var type = markerJSON[0];
-				var text = markerJSON[1];
-				var startFrame = markerJSON[2];
-				var endFrame = markerJSON[3];
-				var player = entities.getById(markerJSON[4]);
-				var color = markerJSON[5];
-				var side = arrSide[markerJSON[6] + 1];
-				var positions = markerJSON[7];
-				var marker = new Marker(type, text, player, color, startFrame, endFrame, side, positions);
-				markers.push(marker);
+				try {
+					var type = markerJSON[0];
+					var text = markerJSON[1];
+					var startFrame = markerJSON[2];
+					var endFrame = markerJSON[3];
+					var player = entities.getById(markerJSON[4]);
+					var color = markerJSON[5];
+					var side = arrSide[markerJSON[6] + 1];
+					var positions = markerJSON[7];
+					var size = markerJSON[8];
+					var name = markerJSON[9];
+					var shape = markerJSON[10];
+					var marker = new Marker(type, text, player, color, startFrame, endFrame, side, positions, size, name, shape);
+					markers.push(marker);
+				} catch (err) {
+					console.error(`Failed to process ${markerJSON[9]} with text "${markerJSON[1]}"\nError: ${err}`);
+				};
 			});
 		};
 		// Show title side

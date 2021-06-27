@@ -49,6 +49,14 @@ while {ocap_capture} do {
 				_x setVariable ["ocap_isInitialised", true];
 			};
 			if !(_x getVariable ["ocap_exclude", false]) then {
+				private _unitRole = _x getVariable ["ocap_unitType", ""];
+
+				if (ocap_captureFrameNo % 10 == 0 || _unitRole == "") then {
+					_unitRole = [_x] call ocap_fnc_getUnitType;
+					_x setVariable ["ocap_unitType", _unitRole];
+					"debug_console" callExtension (str _unitRole);
+				};
+
 				_pos = getPosATL _x;
 				_pos resize 2;
 				[":UPDATE:UNIT:", [
@@ -67,7 +75,8 @@ while {ocap_capture} do {
 					},  //4
 					BOOL(!((vehicle _x) isEqualTo _x)),  //5
 					if (alive _x) then {name _x} else {""}, //6
-					BOOL(isPlayer _x) //7
+					BOOL(isPlayer _x), //7
+					_unitRole //8
 				]] call ocap_fnc_extension;
 			};
 			false
