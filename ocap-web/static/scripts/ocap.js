@@ -178,7 +178,7 @@ function initMap() {
 		//maxZoom: mapMaxZoom,
 		zoomControl: false,
 		zoomAnimation: true,
-		scrollWheelZoom: false,
+		scrollWheelZoom: true,
 		fadeAnimation: true,
 		crs: L.CRS.Simple,
 		attributionControl: false,
@@ -238,17 +238,17 @@ function initMap() {
 	// Add custom handling for mousewheel zooming
 	// Prevents map blurring when zooming in too quickly
 	mapDiv.addEventListener("wheel", function (event) {
-		/*		// We pause playback while zooming to prevent icon visual glitches
+				// We pause playback while zooming to prevent icon visual glitches
 				if (!playbackPaused) {
 					playbackPaused = true;
 					setTimeout(function() {
 						playbackPaused = false;
 					}, 250);
-				};*/
-		console.log(event);
+				};
+	// 	console.log(event);
 		var zoom;
 		if (event.deltaY > 0) { zoom = -0.5 } else { zoom = 0.5 };
-		map.zoomIn(zoom, { animate: false });
+	// 	map.zoomIn(zoom, { animate: false });
 	});
 
 	map.on("dragstart", function () {
@@ -263,7 +263,7 @@ function initMap() {
 	});
 	if (boundaryMarks.length == 4) {
 		let boundaryPoints = boundaryMarks.map(item => armaToLatLng(item._positions[0][1]));
-		let boundaryPolygon = L.polygon(boundaryPoints, { color: "#000000", fill: true, fillColor: "#00FF00", fillOpacity: 0.02, interactive: false, noClip: true }).addTo(map);
+		let boundaryPolygon = L.polygon(boundaryPoints, { color: "#000000", fill: true, fillColor: "#000000", fillOpacity: 0.2, interactive: false, noClip: true }).addTo(map);
 		map.flyToBounds(boundaryPolygon.getBounds());
 	};
 	document.dispatchEvent(new Event("mapInited"));
@@ -440,6 +440,8 @@ function processOp(filepath) {
 	fileName = filepath.substr(5, filepath.length);
 	$.getJSON(filepath, function (data) {
 		worldName = data.worldName.toLowerCase();
+		var world = getWorldByName(worldName);
+		var multiplier = world.multiplier;
 		missionName = data.missionName;
 		ui.setMissionName(missionName);
 
@@ -537,7 +539,7 @@ function processOp(filepath) {
 					var color = markerJSON[5];
 					var side = arrSide[markerJSON[6] + 1];
 					var positions = markerJSON[7];
-					var size = markerJSON[8];
+					var size = markerJSON[8].map(value => value * multiplier);
 					var name = markerJSON[9];
 					var shape = markerJSON[10];
 					var marker = new Marker(type, text, player, color, startFrame, endFrame, side, positions, size, name, shape);
@@ -708,8 +710,8 @@ function startPlaybackLoop() {
 					// Draw fire line (if enabled)
 					var projectilePos = entity.firedOnFrame(playbackFrame);
 					if (projectilePos != null && ui.firelinesEnabled) {
-						console.log(entity);
-						console.log(`Shooter pos: ${entity.getLatLng()}\nFired event: ${projectilePos} (is null: ${projectilePos == null})`);
+						// console.log(entity);
+						// console.log(`Shooter pos: ${entity.getLatLng()}\nFired event: ${projectilePos} (is null: ${projectilePos == null})`);
 						var line = L.polyline([entity.getLatLng(), armaToLatLng(projectilePos)], {
 							color: entity.getSideColour(),
 							weight: 2,
@@ -769,8 +771,9 @@ function startPlaybackLoop() {
 			markers.forEach(function playbackMarker(marker) {
 				if (ui.markersEnable) {
 					marker.manageFrame(playbackFrame);
+					marker.hideMarkerPopup(false);
 				} else {
-					marker.hide();
+					marker.hideMarkerPopup(true);
 				};
 			});
 			// Handle entityToFollow

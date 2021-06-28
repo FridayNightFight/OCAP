@@ -119,7 +119,6 @@ _shape
 		_size params ["_a", "_b"];
 
 		if (isNil "_dir") then {_dir = 0};
-		if (_type == "") then {_type = "mil_dot"};
 
 		// if (["ObjectMarker", _marker] call BIS_fnc_inString) then {
 		// 	_type = "ObjectMarker";

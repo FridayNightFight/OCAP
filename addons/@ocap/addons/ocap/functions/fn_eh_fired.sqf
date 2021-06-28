@@ -125,7 +125,7 @@ if (_ammoSimType isEqualTo "shotBullet") then {
 		_lastPos resize 2;;
 		["ocap_handleMarker", ["UPDATED", _markName, _firer, _lastPos]] call CBA_fnc_localEvent;
 	};
-	sleep 7;
+	sleep (10 * (call ocap_fnc_getDelay));
 	// deleteMarkerLocal _markName;
 	// };
 	["ocap_handleMarker", ["DELETED", _markName]] call CBA_fnc_localEvent;

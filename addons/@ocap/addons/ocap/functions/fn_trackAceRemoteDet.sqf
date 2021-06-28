@@ -20,7 +20,7 @@
 	[_markName] spawn {
 		params ["_markName"];
 
-		sleep 7;
+		sleep (10 * (call ocap_fnc_getDelay));
 		// [format['["ocap_handleMarker", ["DELETED", %1]] call CBA_fnc_serverEvent;', _markName]] remoteExec ["hint", 0];
 		// systemChat format['["ocap_handleMarker", ["DELETED", %1]] call CBA_fnc_serverEvent;', _markName];
 		["ocap_handleMarker", ["DELETED", _markName]] call CBA_fnc_serverEvent;

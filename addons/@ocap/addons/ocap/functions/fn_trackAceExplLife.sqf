@@ -41,7 +41,7 @@ if (_nearMines isEqualTo []) then {
 
 	[_markName] spawn {
 		params ["_markName"];
-		sleep 7;
+		sleep (10 * (call ocap_fnc_getDelay));
 		["ocap_handleMarker", ["DELETED", _markName]] call CBA_fnc_localEvent;
 	};
 };
