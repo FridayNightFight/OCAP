@@ -1,7 +1,7 @@
 {
 	"title": "OCAP",
 	"description": "Operation Capture And Playback",
-	"author": "Frontend: MisterGoodson (aka Goodson [3CB]), Backend: Dell",
+	"author": "Web: MisterGoodson (aka Goodson [3CB]), IndigoFox -- Extension: Zealot -- SQF: Dell, IndigoFox",
 	"language": "en",
 	"version": "3.2.0",
 	"listen": "127.0.0.1:5000",
