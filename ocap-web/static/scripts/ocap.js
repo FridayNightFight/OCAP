@@ -539,9 +539,17 @@ function processOp(filepath) {
 					var color = markerJSON[5];
 					var side = arrSide[markerJSON[6] + 1];
 					var positions = markerJSON[7];
-					var size = markerJSON[8].map(value => value * multiplier);
-					var name = markerJSON[9];
-					var shape = markerJSON[10];
+
+					// backwards compatibility for marker expansion
+					let size = "";
+					let name = "";
+					let shape = "ICON";
+					if (markerJSON.length > 8) {
+						size = markerJSON[8].map(value => value * multiplier);
+						name = markerJSON[9];
+						shape = markerJSON[10];
+					};
+
 					var marker = new Marker(type, text, player, color, startFrame, endFrame, side, positions, size, name, shape);
 					markers.push(marker);
 				} catch (err) {
@@ -773,6 +781,7 @@ function startPlaybackLoop() {
 					marker.manageFrame(playbackFrame);
 					marker.hideMarkerPopup(false);
 				} else {
+					marker.manageFrame(playbackFrame);
 					marker.hideMarkerPopup(true);
 				};
 			});

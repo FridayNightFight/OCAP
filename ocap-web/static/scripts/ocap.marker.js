@@ -270,7 +270,7 @@ class Marker {
 
 			let element = popup.getElement();
 			let display = "inherit";
-			if (bool || !ui.nicknameEnable) { display = "none" };
+			if (bool) { display = "none" };
 
 			if (element.style.display != display) {
 				element.style.display = display;
