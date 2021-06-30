@@ -11,8 +11,13 @@ class Marker {
 		this._size = size;
 		this._name = name;
 		this._shape = shape;
-		if (this._shape == "ICON") {
+		if (!this._shape || !this._size) {
 			this._icon = L.icon({ iconSize: [35, 35], iconUrl: `images/markers/${type}/${color}.png` });
+		} else if (this._shape == "ICON") {
+			this._size = this._size.map(value => {
+				return (value * 35);
+			});
+			this._icon = L.icon({ iconSize: this._size, iconUrl: `images/markers/${type}/${color}.png` });
 		} else {
 			this._icon = null;
 		};
@@ -44,12 +49,14 @@ class Marker {
 	};
 
 	_updateAtFrame (f) {
-		let pos = this._positions[f][1];
+		let frameData = this._positions[f]
+		let pos = frameData[1];
+		let dir = frameData[2];
+		let alpha = frameData[3];
 		let latLng;
 		let points;
 		if (this._marker == null) {
 			// console.debug(`UPDATE AT FRAME: attempting to create marker ${this._name}`)
-
 
 			if (this._shape == "ICON") {
 				latLng = armaToLatLng(pos);
@@ -122,38 +129,45 @@ class Marker {
 	};
 
 	hide () {
-		if (this._isShow) {
-			this._isShow = false;
-			this.setMarkerOpacity(0);
-		};
+		this._isShow = false;
+		this.setMarkerOpacity(0);
 	};
 
 	show () {
-		if (!this._isShow) {
-			this._isShow = true;
-			// if (this._systemMarkers.includes(this._type)) {
-				// this.setMarkerOpacity(0.2);
-			// } else {
-				if (this._shape == "ICON") {
-					this.setMarkerOpacity(1);
-				} else if (this._shape == "ELLIPSE") {
-					this.setMarkerOpacity(0.25);
-				} else if (this._shape == "RECTANGLE") {
-					this.setMarkerOpacity(0.25);
-				} else if (this._shape == "POLYLINE") {
-					this.setMarkerOpacity(0.7);
-				};
-			// };
-		};
+		this._isShow = true;
+		// if (this._systemMarkers.includes(this._type)) {
+			// this.setMarkerOpacity(0.2);
+		// } else {
+			if (this._shape == "ICON") {
+				this.setMarkerOpacity(1);
+			} else if (this._shape == "ELLIPSE") {
+				this.setMarkerOpacity(0.25);
+			} else if (this._shape == "RECTANGLE") {
+				this.setMarkerOpacity(0.25);
+			} else if (this._shape == "POLYLINE") {
+				this.setMarkerOpacity(0.7);
+			};
+		// };
 	};
 
 	_createMarker (latLng) {
 		let marker;
 		let startPos;
+		let popupText = "";
 		console.debug(`Creating ${this._name} of shape ${this._shape}`)
 
-		if (this._shape == "ICON") {
-			let popupText = "";
+		if ((this._player == -1 || this._player == false) && this._shape == "ICON") {
+			// objNull passed, no owner. system marker with basic popup
+			
+			let interactiveVal = false;
+			let markerCustomText = "";
+			if (this._text) { markerCustomText = this._text };
+			popupText = `${this._text}`;
+			marker = L.marker(latLng, { interactive: interactiveVal }).addTo(map);
+			marker.setIcon(this._icon);
+			let popup = this._createPopup(popupText);
+			marker.bindPopup(popup).openPopup();
+		} else if (this._shape == "ICON") {
 			let interactiveVal = false;
 
 			let markerCustomText = "";
@@ -179,19 +193,23 @@ class Marker {
 				) &&
 				this._side == "GLOBAL") {
 				popupText = `${this._player.getName()} ${this._text}`;
+			} else if (this._side == "GLOBAL") {
+				popupText = `${this._text}`;
 			} else {
 				// all normal player marks
 				interactiveVal = true;
 				popupText = `${this._side} ${this._player.getName()} ${this._text}`;
-			}
+			};
 
 			marker = L.marker(latLng, { interactive: interactiveVal }).addTo(map);
 			marker.setIcon(this._icon);
 			let popup = this._createPopup(popupText);
 			marker.bindPopup(popup).openPopup();
-		} else if (this._shape == "ELLIPSE") {
-			let rad = this._size[0] * multiplier * 0.01;
-			marker = L.circle(latLng, { radius: rad, color: "#000000", opacity: 0.5, fill: true, fillColor: this._color, fillOpacity: 0.2, noClip: true, interactive: false }).addTo(map);
+		};
+
+		if (this._shape == "ELLIPSE") {
+				let rad = this._size[0] * 0.01;
+				marker = L.circle(latLng, { radius: rad, color: "#000000", opacity: 0.5, fill: true, fillColor: this._color, fillOpacity: 0.2, noClip: true, interactive: false }).addTo(map);
 		} else if (this._shape == "RECTANGLE") {
 			marker = L.rectangle(latLng, { color: "#000000", opacity: 0.5, fillColor: this._color, fillOpacity: 0.2, noClip: true, interactive: false }).addTo(map);
 		} else if (this._shape == "POLYLINE") {
@@ -237,22 +255,24 @@ class Marker {
 	};
 
 	setMarkerOpacity (opacity) {
-		let strokeOpacity = opacity;
-		if (opacity > 0) {
-			strokeOpacity = opacity + 0.3;
-		};
-		if (this._shape == "ICON") {
-			this._marker.setOpacity(opacity);
-			let popup = this._marker.getPopup();
-			if (popup != null) {
-				popup.getElement().style.opacity = opacity;
+		if (this._marker != null) {
+			let strokeOpacity = opacity;
+			if (opacity > 0) {
+				strokeOpacity = opacity + 0.3;
 			};
-		} else if (this._shape == "ELLIPSE") {
-			this._marker.setStyle({ opacity: strokeOpacity, fillOpacity: opacity });
-		} else if (this._shape == "RECTANGLE") {
-			this._marker.setStyle({ opacity: strokeOpacity, fillOpacity: opacity });
-		} else if (this._shape == "POLYLINE") {
-			this._marker.setStyle({ opacity: opacity });
+			if (this._shape == "ICON") {
+				this._marker.setOpacity(opacity);
+				let popup = this._marker.getPopup();
+				if (popup != null) {
+					popup.getElement().style.opacity = opacity;
+				};
+			} else if (this._shape == "ELLIPSE") {
+				this._marker.setStyle({ opacity: strokeOpacity, fillOpacity: opacity });
+			} else if (this._shape == "RECTANGLE") {
+				this._marker.setStyle({ opacity: strokeOpacity, fillOpacity: opacity });
+			} else if (this._shape == "POLYLINE") {
+				this._marker.setStyle({ opacity: opacity });
+			};
 		};
 	};
 

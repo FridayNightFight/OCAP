@@ -10,16 +10,25 @@ if (!ocap_capture) exitWith {LOG(["fnc_exportData.sqf called! OCAP don't start."
 ocap_capture = false;
 ocap_endFrameNo = ocap_captureFrameNo;
 
-private "_wmt_info";
-if (count _this == 1) then {
-	_wmt_info = ["", _this select 0];
-} else {
-	_wmt_info = [str (_this select 0), _this select 1];
+params ["_side", "_message", "_tag"];
+switch (count _this) do {
+	case 0: {
+		[":EVENT:", [ocap_endFrameNo, "endMission", ["", "Mission ended"]] call ocap_fnc_extension;
+	}
+	case 1: {
+		[":EVENT:", [ocap_endFrameNo, "endMission", ["", _side]] call ocap_fnc_extension;
+	};
+	default {
+		[":EVENT:", [ocap_endFrameNo, "endMission", [str(_side), _message]] call ocap_fnc_extension;
+	};
 };
-[":EVENT:", [ocap_endFrameNo, "endMission", _wmt_info]] call ocap_fnc_extension;
 
 if (ocap_needToSave) then {
-	[":SAVE:", [worldName, briefingName, getMissionConfigValue ["author", ""], ocap_frameCaptureDelay, ocap_endFrameNo]] call ocap_fnc_extension;
+	if (!isNil "_tag") then {
+		[":SAVE:", [worldName, briefingName, getMissionConfigValue ["author", ""], ocap_frameCaptureDelay, ocap_endFrameNo, _tag]] call ocap_fnc_extension;
+	} else {
+		[":SAVE:", [worldName, briefingName, getMissionConfigValue ["author", ""], ocap_frameCaptureDelay, ocap_endFrameNo]] call ocap_fnc_extension;
+	};
 } else {
 	LOG(["ocap_needToSave is set to false. Not saving"]);
 };

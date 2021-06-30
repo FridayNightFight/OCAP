@@ -535,7 +535,12 @@ function processOp(filepath) {
 					var text = markerJSON[1];
 					var startFrame = markerJSON[2];
 					var endFrame = markerJSON[3];
-					var player = entities.getById(markerJSON[4]);
+					var player;
+					if (markerJSON[4] == -1) {
+						player = -1;
+					} else {
+						player = entities.getById(markerJSON[4]);
+					};
 					var color = markerJSON[5];
 					var side = arrSide[markerJSON[6] + 1];
 					var positions = markerJSON[7];
@@ -545,7 +550,11 @@ function processOp(filepath) {
 					let name = "";
 					let shape = "ICON";
 					if (markerJSON.length > 8) {
-						size = markerJSON[8].map(value => value * multiplier);
+						if (markerJSON[10] == "ICON") {
+							size = markerJSON[8]
+						} else {
+							size = markerJSON[8].map(value => value * multiplier);
+						};
 						name = markerJSON[9];
 						shape = markerJSON[10];
 					};
