@@ -19,10 +19,7 @@ if (ocap_saveMissionEnded) then {
 };
 
 // Add event saving markers
-[
-	{BIS_fnc_init},
-	{call ocap_fnc_handleMarkers;}
-] call CBA_fnc_waitUntilAndExecute;
+call ocap_fnc_handleMarkers;
 
 
 ["WMT_fnc_EndMission", {

@@ -40,7 +40,17 @@ _shape
 
 			_mrk_color = getarray (configfile >> "CfgMarkerColors" >> _color >> "color") call bis_fnc_colorRGBtoHTML;
 
-			_sideOfMarker = (side _mrk_owner) call BIS_fnc_sideID;
+
+			private ["_sideOfMarker"];
+			if (_mrk_owner isEqualTo objNull) then {
+				_forceGlobal = true;
+				_mrk_owner = 0;
+				_sideOfMarker = -1;
+			} else {
+				_sideOfMarker = (side _mrk_owner) call BIS_fnc_sideID;
+				_mrk_owner = _mrk_owner getVariable["ocap_id", 0];
+			};
+
 			if (_sideOfMarker isEqualTo 4 || 
 			(["Projectile#", _mrk_name] call BIS_fnc_inString) || 
 			(["Detonation#", _mrk_name] call BIS_fnc_inString) || 
@@ -58,11 +68,13 @@ _shape
 				};
 				_pos = _polylinePos;
 			};
+			
+
 
 			diag_log text format["OCAPLOG: SERVER: Valid CREATED process of %1, sending to extension --
-%2 ", _mrk_name, [_mrk_name, 0, _type, _text, ocap_captureFrameNo, -1, _mrk_owner getVariable["ocap_id", 0], _mrk_color, _size, _sideOfMarker, _pos, _shape]];
+%2 ", _mrk_name, [_mrk_name, 0, _type, _text, ocap_captureFrameNo, -1, _mrk_owner, _mrk_color, _size, _sideOfMarker, _pos, _shape]];
 
-			[":MARKER:CREATE:", [_mrk_name, 0, _type, _text, ocap_captureFrameNo, -1, _mrk_owner getVariable["ocap_id", 0], _mrk_color, _size, _sideOfMarker, _pos, _shape]] call ocap_fnc_extension;
+			[":MARKER:CREATE:", [_mrk_name, 0, _type, _text, ocap_captureFrameNo, -1, _mrk_owner, _mrk_color, _size, _sideOfMarker, _pos, _shape]] call ocap_fnc_extension;
 
 		};
 
@@ -94,62 +106,77 @@ _shape
 
 
 
+
+
+// handle created markers
+{
+	addMissionEventHandler["MarkerCreated", {
+		params["_marker", "_channelNumber", "_owner", "_local"];
+
+		if (!_local) exitWith {};
+
+		_pos = markerPos _marker;
+		_type = markerType _marker;
+		_shape = markerShape _marker;
+		_size = markerSize _marker;
+		_dir = markerDir _marker;
+		_brush = markerBrush _marker;
+		_color = markerColor _marker;
+		_text = markerText _marker;
+		_polyline = markerPolyline _marker;
+		if (count _polyline != 0) then {_pos = _polyline};
+
+		diag_log text format["OCAPLOG: Sending data from %1 with param CREATED and name ""%2""", _owner, _marker];
+
+		["ocap_handleMarker", ["CREATED", _marker, _owner, _pos, _type, _shape, _size, _dir, _brush, _color, 1, _text]] call CBA_fnc_serverEvent;
+	}];
+
+	// handle marker moves/updates
+	addMissionEventHandler["MarkerUpdated", {
+		params["_marker", "_local"];
+
+		if (!_local) exitWith {};
+		diag_log text format["OCAPLOG: Sent data from %1 with param UPDATED and name ""%2""", player, _marker];
+
+		["ocap_handleMarker", ["UPDATED", _marker, player, markerPos _marker]] call CBA_fnc_serverEvent;
+	}];
+
+	// handle marker deletions
+	addMissionEventHandler["MarkerDeleted", {
+		params["_marker", "_local"];
+
+		if (!_local) exitWith {};
+		diag_log text format["OCAPLOG: Sent data from %1 with param DELETED and name ""%2""", player, _marker];
+
+		["ocap_handleMarker", ["DELETED", _marker, player]] call CBA_fnc_serverEvent;
+	}];
+} remoteExec["call", 0, true];
+
+
+
 // wait 10 seconds for any scripted init markers to finalize
 // then collect all initial markers & add event handlers to clients
-[{
-
-	_exclude = [
-		"bis_fnc_moduleCoverMap_0",
-		"bis_fnc_moduleCoverMap_90",
-		"bis_fnc_moduleCoverMap_180",
-		"bis_fnc_moduleCoverMap_270",
-		"bis_fnc_moduleCoverMap_border",
-		"respawn",
-		"respawn_west",
-		"respawn_east",
-		"respawn_guerrila",
-		"respawn_civilian"
-	];
+[
+	{count allPlayers > 0},
 	{
-		// "Started polling starting markers" remoteExec ["hint", 0];
-		// get intro object markers
-		(_x call BIS_fnc_markerParams) params ["_nameArray", "_position", "_size", "_colour", "_type", "_brush", "_shape", "_alpha", "_text"];
-		_position params ["_posX", "_posY"];
-		_nameArray params ["_marker"];
-		_size params ["_a", "_b"];
-
-		if (isNil "_dir") then {_dir = 0};
-
-		// if (["ObjectMarker", _marker] call BIS_fnc_inString) then {
-		// 	_type = "ObjectMarker";
-		// 	_colour = "ColorBlack";
-		// };
-		if (["moduleCoverMap_dot", _marker] call BIS_fnc_inString) then {
-			_type = "moduleCoverMap";
-			_colour = "ColorBlack";
-		};
-		// if (["safeMarker", _marker] call BIS_fnc_inString) then {
-		// 	_type = "safeStart";
-		// 	_colour = "ColorBlack";
-		// };
-
-		_position resize 2;
-
-		_randomizedOwner = allPlayers # 0;
-		_forceGlobal = true;
-		["ocap_handleMarker", ["CREATED", _marker, _randomizedOwner, _position, _type, _shape, _size, _dir, _brush, _colour, 1, _text, _forceGlobal]] call CBA_fnc_localEvent;
-		// "debug_console" callExtension (str [_marker, _randomizedOwner, _position, _type, _shape, [1,1], _dir, _brush, _colour, 1, _text] + "#0100");
-
-	} forEach (allMapMarkers select {!(_x in _exclude)});
-
-
-	{
-		// handle created markers
-		addMissionEventHandler["MarkerCreated", {
-			params["_marker", "_channelNumber", "_owner", "_local"];
-
-			if (!_local) exitWith {};
-
+		_exclude = [
+			"bis_fnc_moduleCoverMap_0",
+			"bis_fnc_moduleCoverMap_90",
+			"bis_fnc_moduleCoverMap_180",
+			"bis_fnc_moduleCoverMap_270",
+			"bis_fnc_moduleCoverMap_border",
+			"respawn",
+			"respawn_west",
+			"respawn_east",
+			"respawn_guerrila",
+			"respawn_civilian"
+		];
+		// _randomizedOwner = allPlayers # 0;
+		_randomizedOwner = objNull;
+		{
+			_marker = _x;
+			// "Started polling starting markers" remoteExec ["hint", 0];
+			// get intro object markers
 			_pos = markerPos _marker;
 			_type = markerType _marker;
 			_shape = markerShape _marker;
@@ -159,31 +186,37 @@ _shape
 			_color = markerColor _marker;
 			_text = markerText _marker;
 			_polyline = markerPolyline _marker;
-			if (count _polyline != 0) then {_pos = _polyline};
+			if (count _polyline != 0) then {
+				_pos = _polyline;
+			} else {
+				_pos resize 2;
+			};
 
-			diag_log text format["OCAPLOG: Sending data from %1 with param CREATED and name ""%2""", _owner, _marker];
+			if (isNil "_dir") then {_dir = 0};
 
-			["ocap_handleMarker", ["CREATED", _marker, _owner, _pos, _type, _shape, _size, _dir, _brush, _color, 1, _text]] call CBA_fnc_serverEvent;
-		}];
+			// if (["ObjectMarker", _marker] call BIS_fnc_inString) then {
+			// 	_type = "ObjectMarker";
+			// 	_colour = "ColorBlack";
+			// };
+			if (["moduleCoverMap_dot", _marker] call BIS_fnc_inString) then {
+				_type = "moduleCoverMap";
+				_colour = "ColorBlack";
+			};
+			// if (["safeMarker", _marker] call BIS_fnc_inString) then {
+			// 	_type = "safeStart";
+			// 	_colour = "ColorBlack";
+			// };
+			
+			_forceGlobal = true;
 
-		// handle marker moves/updates
-		addMissionEventHandler["MarkerUpdated", {
-			params["_marker", "_local"];
+			["ocap_handleMarker", ["CREATED", _marker, _randomizedOwner, _pos, _type, _shape, _size, _dir, _brush, _color, 1, _text, _forceGlobal]] call CBA_fnc_localEvent;
 
-			if (!_local) exitWith {};
-			diag_log text format["OCAPLOG: Sent data from %1 with param UPDATED and name ""%2""", player, _marker];
+			// ["ocap_handleMarker", ["CREATED", _marker, _randomizedOwner, _position, _type, _shape, _size, _dir, _brush, _colour, 1, _text, _forceGlobal]] call CBA_fnc_localEvent;
+			// "debug_console" callExtension (str [_marker, _randomizedOwner, _pos, _type, _shape, _size, _dir, _brush, _color, 1, _text, _forceGlobal] + "#0100");
 
-			["ocap_handleMarker", ["UPDATED", _marker, player, markerPos _marker]] call CBA_fnc_serverEvent;
-		}];
+		} forEach (allMapMarkers);
 
-		// handle marker deletions
-		addMissionEventHandler["MarkerDeleted", {
-			params["_marker", "_local"];
 
-			if (!_local) exitWith {};
-			diag_log text format["OCAPLOG: Sent data from %1 with param DELETED and name ""%2""", player, _marker];
 
-			["ocap_handleMarker", ["DELETED", _marker, player]] call CBA_fnc_serverEvent;
-		}];
-	} remoteExec["call", 0, true];
-}, [], 10] call CBA_fnc_waitAndExecute;
+	}
+] call CBA_fnc_waitUntilAndExecute;
