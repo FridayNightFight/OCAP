@@ -39,6 +39,13 @@ _shape
 			ocap_markers_tracked pushBackUnique _mrk_name;
 
 			_mrk_color = getarray (configfile >> "CfgMarkerColors" >> _color >> "color") call bis_fnc_colorRGBtoHTML;
+			if (!((_mrk_color # 0) isEqualType 0)) then {
+				private _facColor = +_mrk_color;
+				{
+					_facColor pushback (call compile _x);
+				} forEach (getArray(configfile >> "CfgMarkerColors" >> _colorStr >> "color"));
+				_mrk_color = _facColor call bis_fnc_colorRGBtoHTML;;
+			};
 
 
 			private ["_sideOfMarker"];
@@ -69,10 +76,9 @@ _shape
 				_pos = _polylinePos;
 			};
 
-			if (isNil "_dir") {
+			if (isNil "_dir") then {
 				_dir = 0;
-			};
-			if (_dir == "") then {_dir = 0};
+			} else {if (_dir isEqualTo "") then {_dir = 0}};
 			
 
 
@@ -205,7 +211,9 @@ _shape
 				_pos resize 2;
 			};
 
-			if (isNil "_dir") then {_dir = 0};
+			if (isNil "_dir") then {
+				_dir = 0;
+			} else {if (_dir isEqualTo "") then {_dir = 0}};
 
 			// if (["ObjectMarker", _marker] call BIS_fnc_inString) then {
 			// 	_type = "ObjectMarker";

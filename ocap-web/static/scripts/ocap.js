@@ -547,19 +547,17 @@ function processOp(filepath) {
 
 					// backwards compatibility for marker expansion
 					let size = "";
-					let name = "";
 					let shape = "ICON";
 					if (markerJSON.length > 8) {
-						if (markerJSON[10] == "ICON") {
+						if (markerJSON[9] == "ICON") {
 							size = markerJSON[8]
 						} else {
 							size = markerJSON[8].map(value => value * multiplier);
 						};
-						name = markerJSON[9];
-						shape = markerJSON[10];
+						shape = markerJSON[9];
 					};
 
-					var marker = new Marker(type, text, player, color, startFrame, endFrame, side, positions, size, name, shape);
+					var marker = new Marker(type, text, player, color, startFrame, endFrame, side, positions, size, shape);
 					markers.push(marker);
 				} catch (err) {
 					console.error(`Failed to process ${markerJSON[9]} with text "${markerJSON[1]}"\nError: ${err}`);

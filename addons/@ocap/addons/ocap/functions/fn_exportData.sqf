@@ -13,13 +13,13 @@ ocap_endFrameNo = ocap_captureFrameNo;
 params ["_side", "_message", "_tag"];
 switch (count _this) do {
 	case 0: {
-		[":EVENT:", [ocap_endFrameNo, "endMission", ["", "Mission ended"]] call ocap_fnc_extension;
-	}
+		[":EVENT:", [ocap_endFrameNo, "endMission", ["", "Mission ended"]]] call ocap_fnc_extension;
+	};
 	case 1: {
-		[":EVENT:", [ocap_endFrameNo, "endMission", ["", _side]] call ocap_fnc_extension;
+		[":EVENT:", [ocap_endFrameNo, "endMission", ["", _side]]] call ocap_fnc_extension;
 	};
 	default {
-		[":EVENT:", [ocap_endFrameNo, "endMission", [str(_side), _message]] call ocap_fnc_extension;
+		[":EVENT:", [ocap_endFrameNo, "endMission", [str(_side), _message]]] call ocap_fnc_extension;
 	};
 };
 

@@ -107,13 +107,11 @@ ForEach ($Folder in (Get-ChildItem -Directory | ForEach-Object FullName)) {
 		ForEach ($ColorHex in $TargetColors) {
 			# magick convert "$Folder\FFFFFF.png" -fuzz 5% -fill "#$ColorHex" -opaque "#FFFFFF" -colorize 10 "$ColorHex.png"
 			# magick "$Folder\FFFFFF.png" -fuzz 80% -fill "#$ColorHex" -opaque "#FFFFFF" "$ColorHex.png"
-			magick "$Folder\FFFFFF.png" -fuzz 5% -fill "#$ColorHex" -opaque "#FFFFFF" -colorize 100% "$ColorHex.png"
-		}
-	} else {
-		ForEach ($ColorHex in $TargetColors) {
-			# magick convert "$Folder\FFFFFF.png" -fuzz 5% -fill "#$ColorHex" -opaque "#FFFFFF" -colorize 10 "$ColorHex.png"
-			# magick "$Folder\FFFFFF.png" -fuzz 80% -fill "#$ColorHex" -opaque "#FFFFFF" "$ColorHex.png"
-			magick "$Folder\000000.png" -fuzz 5% -fill "#$ColorHex" -opaque "#000000" -colorize 100% "$ColorHex.png"
+			if ($ColorHex -eq "000000") {
+				magick ".\FFFFFF.png" -fuzz 90% -fill "#444444" -opaque "#FFFFFF" "000000.png"
+			} else {
+				magick ".\FFFFFF.png" -fuzz 90% -fill "#$ColorHex" -opaque "#FFFFFF" "$ColorHex.png"
+			}
 		}
 	}
 }
