@@ -69,51 +69,8 @@ class Marker {
 			} else if (this._shape == "RECTANGLE") {
 				let startX = pos[0];
 				let startY = pos[1];
-				let sizeY = this._size[0];
-				let sizeX = this._size[1];
-
-				let pointsRaw = [
-					[startX - sizeX, startY + sizeY], // top left
-					[startX + sizeX, startY + sizeY], // top right
-					[startX + sizeX, startY - sizeY], // bottom right
-					[startX - sizeX, startY - sizeY] // bottom left
-				];
-				points = pointsRaw.map(coord => {
-					return armaToLatLng(coord);
-				});
-				// let bounds = L.latLngBounds(points);
-				if (!alpha) { alpha = 0.2 };
-
-				this._createMarker(points, dir, alpha);
-			} else if (this._shape == "POLYLINE") {
-				points = pos.map(coord => {
-					return armaToLatLng(coord);
-				});
-				if (!alpha) { alpha = 1 };
-				this._createMarker(points, dir, alpha);
-			};
-
-		} else {
-			// console.debug(`UPDATE AT FRAME: attempting to update marker ${this._name}`)
-
-			if (this._shape == "ICON") {
-				latLng = armaToLatLng(pos);
-				if (!alpha) { alpha = 1 };
-
-				this._marker.setLatLng(latLng);
-
-				// Set direction
-				this._marker.setRotationAngle(dir);
-	
-			} else if (this._shape == "ELLIPSE") {
-				latLng = armaToLatLng(pos);
-				if (!alpha) { alpha = 0.3 };
-				this._marker.setLatLng(latLng).redraw();
-			} else if (this._shape == "RECTANGLE") {
-				let startX = pos[0];
-				let startY = pos[1];
-				let sizeY = this._size[0];
-				let sizeX = this._size[1];
+				let sizeX = this._size[0];
+				let sizeY = this._size[1];
 
 				let pointsRaw = [
 					[startX - sizeX, startY + sizeY], // top left
@@ -131,6 +88,50 @@ class Marker {
 
 				if (!alpha) { alpha = 0.3 };
 
+				this._createMarker(pointsRotate, dir, alpha);
+			} else if (this._shape == "POLYLINE") {
+				points = pos.map(coord => {
+					return armaToLatLng(coord);
+				});
+				if (!alpha) { alpha = 1 };
+				this._createMarker(points, dir, alpha);
+			};
+
+		} else {
+			// console.debug(`UPDATE AT FRAME: attempting to update marker ${this._name}`)
+
+			if (this._shape == "ICON") {
+				latLng = armaToLatLng(pos);
+				if (!alpha) { alpha = 1 };
+
+				this._marker.setRotationAngle(dir);
+				this._marker.setLatLng(latLng);	
+			} else if (this._shape == "ELLIPSE") {
+				latLng = armaToLatLng(pos);
+				if (!alpha) { alpha = 0.3 };
+
+				this._marker.setLatLng(latLng).redraw();
+			} else if (this._shape == "RECTANGLE") {
+				let startX = pos[0];
+				let startY = pos[1];
+				let sizeX = this._size[0];
+				let sizeY = this._size[1];
+				if (!alpha) { alpha = 0.3 };
+
+				let pointsRaw = [
+					[startX - sizeX, startY + sizeY], // top left
+					[startX + sizeX, startY + sizeY], // top right
+					[startX + sizeX, startY - sizeY], // bottom right
+					[startX - sizeX, startY - sizeY] // bottom left
+				];
+				points = pointsRaw.map(coord => {
+					return armaToLatLng(coord);
+				});
+				// let bounds = L.latLngBounds(points);
+
+				// process rotation around center
+				let pointsRotate = this._rotatePoints(armaToLatLng(pos), points, dir);
+
 				this._marker.setLatLngs(pointsRotate).redraw();
 			} else if (this._shape == "POLYLINE") {
 				if (!alpha) { alpha = 1 };
@@ -144,23 +145,24 @@ class Marker {
 
 
 	_rotatePoints (center, points, yaw) {
-		var res = []
-		var centerPoint = map.latLngToLayerPoint(center)
-		var angle = yaw * (Math.PI / 180)
+		const res = []
+		const centerPoint = map.latLngToLayerPoint(center)
+		const angle = yaw * (Math.PI / 180)
 		for (let i = 0; i < points.length; i++) {
 			const p = map.latLngToLayerPoint(points[i])
 			// translate to center
 			const p2 = new L.Point(p.x - centerPoint.x, p.y - centerPoint.y)
 			// rotate using matrix rotation
-			var p3 = new L.Point(Math.cos(angle) * p2.x - Math.sin(angle) * p2.y, Math.sin(angle) * p2.x + Math.cos(angle) * p2.y);
+			const p3 = new L.Point(Math.cos(angle) * p2.x - Math.sin(angle) * p2.y, Math.sin(angle) * p2.x + Math.cos(angle) * p2.y)
 			// translate back to center
-			var p4 = new L.Point(p3.x + centerPoint.x, p3.y + centerPoint.y);
+			let p4 = new L.Point(p3.x + centerPoint.x, p3.y + centerPoint.y)
 			// done with that point
-			p4 = map.layerPointToLatLng(p4);
-			res.push(p4);
-		}
-		return res;
-	}
+			p4 = map.layerPointToLatLng(p4)
+			res.push(p4)
+		};
+		return res
+	};
+
 
 
 
@@ -257,8 +259,8 @@ class Marker {
 		};
 
 		if (this._shape == "ELLIPSE") {
-			let rad = this._size[0] * 0.01;
-			marker = L.circle(latLng, { radius: rad, color: "#000000", opacity: 0.5, fill: true, fillColor: this._color, fillOpacity: 0.2, stroke: false, noClip: true, interactive: false }).addTo(map);
+			let rad = this._size[0] * 0.01 * window.multiplier;
+			marker = L.circle(latLng, { radius: rad, color: this._color, opacity: 0.5, fill: true, fillColor: this._color, fillOpacity: 0.2, stroke: false, noClip: true, interactive: false }).addTo(map);
 		} else if (this._shape == "RECTANGLE") {
 			marker = L.polygon(latLng, { color: this._color, opacity: 0.5, fillColor: this._color, fillOpacity: 0.2, stroke: false, noClip: true, interactive: false }).addTo(map);
 		} else if (this._shape == "POLYLINE") {

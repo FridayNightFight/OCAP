@@ -554,7 +554,7 @@ function processOp (filepath) {
 						if (markerJSON[9] == "ICON") {
 							size = markerJSON[8]
 						} else {
-							size = markerJSON[8].map(value => value * multiplier);
+							size = markerJSON[8];//.map(value => value * multiplier);
 						};
 						shape = markerJSON[9];
 					};

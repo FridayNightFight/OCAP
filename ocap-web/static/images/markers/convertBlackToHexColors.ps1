@@ -103,15 +103,22 @@ ForEach ($Folder in (Get-ChildItem -Directory | ForEach-Object FullName)) {
 	)
 	# $Folder = Get-Location
 	Set-Location $Folder
-	if (Test-Path ".\FFFFFF.png") {
+	Write-Host "Processing $Folder"
+	if (Test-Path ".\EDEBBA.png") {
 		ForEach ($ColorHex in $TargetColors) {
 			# magick convert "$Folder\FFFFFF.png" -fuzz 5% -fill "#$ColorHex" -opaque "#FFFFFF" -colorize 10 "$ColorHex.png"
 			# magick "$Folder\FFFFFF.png" -fuzz 80% -fill "#$ColorHex" -opaque "#FFFFFF" "$ColorHex.png"
 			if ($ColorHex -eq "000000") {
-				magick ".\FFFFFF.png" -fuzz 90% -fill "#444444" -opaque "#FFFFFF" "000000.png"
+				magick ".\EDEBBA.png" -fuzz 99% -fill "#444444" -opaque "#EDEBBA" "000000.png"
 			} else {
-				magick ".\FFFFFF.png" -fuzz 90% -fill "#$ColorHex" -opaque "#FFFFFF" "$ColorHex.png"
+				magick ".\EDEBBA.png" -fuzz 99% -fill "#$ColorHex" -opaque "#EDEBBA" "$ColorHex.png"
 			}
+		}
+	} elseif (Test-Path ".\FFFFFF.png") {
+		if ($ColorHex -eq "000000") {
+			magick ".\FFFFFF.png" -fuzz 99% -fill "#444444" -opaque "#FFFFFF" "000000.png"
+		} else {
+			magick ".\FFFFFF.png" -fuzz 99% -fill "#$ColorHex" -opaque "#FFFFFF" "$ColorHex.png"
 		}
 	}
 }
