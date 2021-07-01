@@ -260,7 +260,7 @@ class Marker {
 			let rad = this._size[0] * 0.01;
 			marker = L.circle(latLng, { radius: rad, color: "#000000", opacity: 0.5, fill: true, fillColor: this._color, fillOpacity: 0.2, stroke: false, noClip: true, interactive: false }).addTo(map);
 		} else if (this._shape == "RECTANGLE") {
-			marker = L.rectangle(latLng, { color: "#000000", opacity: 0.5, fillColor: this._color, fillOpacity: 0.2, stroke: false, noClip: true, interactive: false }).addTo(map);
+			marker = L.polygon(latLng, { color: this._color, opacity: 0.5, fillColor: this._color, fillOpacity: 0.2, stroke: false, noClip: true, interactive: false }).addTo(map);
 		} else if (this._shape == "POLYLINE") {
 			marker = L.polyline(latLng, { color: this._color, opacity: 1, noClip: true, lineCap: 'butt', lineJoin: 'round', interactive: false }).addTo(map);
 		};

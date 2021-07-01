@@ -38,13 +38,15 @@ _shape
 			if (_type isEqualTo "") then {_type = "nullType"};
 			ocap_markers_tracked pushBackUnique _mrk_name;
 
-			_mrk_color = getarray (configfile >> "CfgMarkerColors" >> _color >> "color") call bis_fnc_colorRGBtoHTML;
-			if (!((_mrk_color # 0) isEqualType 0)) then {
+			_mrk_color = getarray (configfile >> "CfgMarkerColors" >> _color >> "color");
+			if ((_mrk_color # 0) isEqualType "") then {
 				private _facColor = +_mrk_color;
 				{
 					_facColor pushback (call compile _x);
 				} forEach (getArray(configfile >> "CfgMarkerColors" >> _colorStr >> "color"));
-				_mrk_color = _facColor call bis_fnc_colorRGBtoHTML;;
+				_mrk_color = _facColor call bis_fnc_colorRGBtoHTML;
+			} else {
+				_mrk_color = _mrk_color call bis_fnc_colorRGBtoHTML;
 			};
 
 
