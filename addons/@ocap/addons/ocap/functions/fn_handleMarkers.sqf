@@ -248,10 +248,10 @@ _shape
 				_dir = 0;
 			} else {if (_dir isEqualTo "") then {_dir = 0}};
 
-			// if (["ObjectMarker", _marker] call BIS_fnc_inString) then {
-			// 	_type = "ObjectMarker";
-			// 	_colour = "ColorBlack";
-			// };
+			if (["ObjectMarker", _marker] call BIS_fnc_inString) then {
+				_type = "ObjectMarker";
+				_colour = "ColorBlack";
+			};
 			if (["moduleCoverMap_dot", _marker] call BIS_fnc_inString) then {
 				_type = "moduleCoverMap";
 				_colour = "ColorBlack";

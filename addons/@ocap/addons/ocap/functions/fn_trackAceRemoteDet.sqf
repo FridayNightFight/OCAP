@@ -15,7 +15,7 @@
 	_markerType = "waypoint";
 	_pos = getPos _explosive;
 
-	["ocap_handleMarker", ["CREATED", _markName, _unit, _pos, _markerType, "ICON", [1,1], 0, "Solid", "ColorRed", 1, _markTextLocal]] call CBA_fnc_serverEvent;
+	["ocap_handleMarker", ["CREATED", _markName, _unit, _pos, _markerType, "ICON", [1,1], 0, "Solid", "ColorRed", 1, _markTextLocal, true]] call CBA_fnc_serverEvent;
 
 	[_markName] spawn {
 		params ["_markName"];

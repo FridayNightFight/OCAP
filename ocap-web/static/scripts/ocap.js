@@ -263,7 +263,7 @@ function initMap () {
 	});
 	if (boundaryMarks.length == 4) {
 		let boundaryPoints = boundaryMarks.map(item => armaToLatLng(item._positions[0][1]));
-		let boundaryPolygon = L.polygon(boundaryPoints, { color: "#000000", fill: true, fillColor: "#000000", fillOpacity: 0.2, interactive: false, noClip: true }).addTo(map);
+		let boundaryPolygon = L.polygon(boundaryPoints, { color: "#000000", fill: false, interactive: false, noClip: true }).addTo(map);
 		map.flyToBounds(boundaryPolygon.getBounds());
 	} else {
 		map.flyToBounds(map.getBounds());

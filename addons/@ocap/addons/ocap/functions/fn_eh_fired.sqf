@@ -102,7 +102,7 @@ if (_ammoSimType isEqualTo "shotBullet") then {
 
 	_firerPos = getPosATL _firer;
 	_firerPos resize 2;
-	["ocap_handleMarker", ["CREATED", _markName, _firer, _firerPos, _markerType, "ICON", [1,1], 0, "Solid", _markColor, 1, _markTextLocal]] call CBA_fnc_localEvent;
+	["ocap_handleMarker", ["CREATED", _markName, _firer, _firerPos, _markerType, "ICON", [1,1], 0, "Solid", _markColor, 1, _markTextLocal, true]] call CBA_fnc_localEvent;
 
 	if (isNull _projectile) then {
 		_projectile = nearestObject [_firer, _ammo];
@@ -115,7 +115,7 @@ if (_ammoSimType isEqualTo "shotBullet") then {
 			true
 		};
 		_lastPos = _pos;
-		["ocap_handleMarker", ["UPDATED", _markName, _firer, [_pos # 0, _pos # 1]]] call CBA_fnc_localEvent;
+		["ocap_handleMarker", ["UPDATED", _markName, _firer, [_pos # 0, _pos # 1], 0, 1]] call CBA_fnc_localEvent;
 		sleep 0.1;
 		false;
 	};
@@ -123,7 +123,7 @@ if (_ammoSimType isEqualTo "shotBullet") then {
 	if !((count _lastPos) isEqualTo 0) then {
 	// if (count _lastPos == 3) then {
 		_lastPos resize 2;
-		["ocap_handleMarker", ["UPDATED", _markName, _firer, _lastPos]] call CBA_fnc_localEvent;
+		["ocap_handleMarker", ["UPDATED", _markName, _firer, _lastPos, 0, 1]] call CBA_fnc_localEvent;
 	};
 	sleep 10;
 	// deleteMarkerLocal _markName;
