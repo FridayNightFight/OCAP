@@ -135,7 +135,11 @@ ForEach ($Folder in (Get-ChildItem -Directory | ForEach-Object FullName)) {
 					}
 				}
 			} elseif (Test-Path ".\FFFFFF.png") {
-				if ((Get-Location).Path -notcontains 'flag' -and (Get-Item (Get-Location).Path).Name.Substring(0, 2) -in @("b_", "o_", "n_", "c_")) {
+				if (
+					(Get-Location).Path -notcontains 'flag' -and (Get-Item (Get-Location).Path).Name.Substring(0, 2) -in @("b_", "o_", "n_", "c_") -or 
+					(Get-Item (Get-Location).Path).Name -in @(
+						"Minefield", "MinefieldAP", "moduleCoverMap", "waypoint")
+					) {
 					ForEach ($ColorHex in $TargetColors) {
 						if ($ColorHex -eq "000000") {
 							magick convert ".\FFFFFF.png" -fuzz 75% -fill "#444444" -opaque "#FFFFFF" -colorize 100% "000000.png"
