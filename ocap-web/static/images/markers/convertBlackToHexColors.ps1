@@ -104,21 +104,47 @@ ForEach ($Folder in (Get-ChildItem -Directory | ForEach-Object FullName)) {
 	# $Folder = Get-Location
 	Set-Location $Folder
 	Write-Host "Processing $Folder"
-	if (Test-Path ".\EDEBBA.png") {
-		ForEach ($ColorHex in $TargetColors) {
-			# magick convert "$Folder\FFFFFF.png" -fuzz 5% -fill "#$ColorHex" -opaque "#FFFFFF" -colorize 10 "$ColorHex.png"
-			# magick "$Folder\FFFFFF.png" -fuzz 80% -fill "#$ColorHex" -opaque "#FFFFFF" "$ColorHex.png"
-			if ($ColorHex -eq "000000") {
-				magick ".\EDEBBA.png" -fuzz 99% -fill "#444444" -opaque "#EDEBBA" "000000.png"
-			} else {
-				magick ".\EDEBBA.png" -fuzz 99% -fill "#$ColorHex" -opaque "#EDEBBA" "$ColorHex.png"
+	if ((Get-Location).Path -notcontains 'flag') {
+		if ((Get-Item (Get-Location).Path).Name.Substring(0, 2) -in @("b_", "o_", "n_", "c_")) {
+			if (Test-Path ".\EDEBBA.png") {
+				ForEach ($ColorHex in $TargetColors) {
+					if ($ColorHex -eq "000000") {
+						magick convert ".\EDEBBA.png" -fuzz 75% -fill "#44444480" -opaque "#EDEBBA" "000000.png"
+					} else {
+						magick convert ".\EDEBBA.png" -fuzz 75% -fill "#${ColorHex}80" -opaque "#EDEBBA" "$ColorHex.png"
+					}
+				}
+			} elseif (Test-Path ".\FFFFFF.png") {
+				if ((Get-Location).Path -notcontains 'flag' -and (Get-Item (Get-Location).Path).Name.Substring(0, 2) -in @("b_", "o_", "n_", "c_")) {
+					ForEach ($ColorHex in $TargetColors) {
+						if ($ColorHex -eq "000000") {
+							magick convert ".\FFFFFF.png" -fuzz 75% -fill "#44444480" -opaque "#FFFFFF" "000000.png"
+						} else {
+							magick convert ".\FFFFFF.png" -fuzz 75% -fill "#${ColorHex}80" -opaque "#FFFFFF" "$ColorHex.png"
+						}
+					}
+				}
 			}
-		}
-	} elseif (Test-Path ".\FFFFFF.png") {
-		if ($ColorHex -eq "000000") {
-			magick ".\FFFFFF.png" -fuzz 99% -fill "#444444" -opaque "#FFFFFF" "000000.png"
-		} else {
-			magick ".\FFFFFF.png" -fuzz 99% -fill "#$ColorHex" -opaque "#FFFFFF" "$ColorHex.png"
+		} elseif ((Get-Item (Get-Location).Path).Name.Substring(0, 3) -in @("mil", "hd_")) {
+			if (Test-Path ".\EDEBBA.png") {
+				ForEach ($ColorHex in $TargetColors) {
+					if ($ColorHex -eq "000000") {
+						magick convert ".\EDEBBA.png" -fuzz 75% -fill "#444444" -opaque "#EDEBBA" -colorize 100% "000000.png"
+					} else {
+						magick convert ".\EDEBBA.png" -fuzz 75% -fill "#${ColorHex}" -opaque "#EDEBBA" -colorize 100% "$ColorHex.png"
+					}
+				}
+			} elseif (Test-Path ".\FFFFFF.png") {
+				if ((Get-Location).Path -notcontains 'flag' -and (Get-Item (Get-Location).Path).Name.Substring(0, 2) -in @("b_", "o_", "n_", "c_")) {
+					ForEach ($ColorHex in $TargetColors) {
+						if ($ColorHex -eq "000000") {
+							magick convert ".\FFFFFF.png" -fuzz 75% -fill "#444444" -opaque "#FFFFFF" -colorize 100% "000000.png"
+						} else {
+							magick convert ".\FFFFFF.png" -fuzz 75% -fill "#${ColorHex}" -opaque "#FFFFFF" -colorize 100% "$ColorHex.png"
+						}
+					}
+				}
+			}
 		}
 	}
 }
