@@ -1,0 +1,19 @@
+Testing Checklist:
+
+1. Mission should have ellipse and rectangle markers scripted or placed in editor.
+	- some rotated
+	- some straight
+2. Players should create ON MAP SCREEN:
+	- 1 icon with text, straight
+	- 1 icon without text, straight
+	- 1 icon with text, rotated
+	- 1 icon without text, rotated
+	- 1 icon of type "Infantry", "Armor", etc, rotated
+	- at least one drawn line (CTRL+Click/Drag)
+3. Players should create ONCE LOADED IN:
+	- 1 icon with text, straight
+	- 1 icon without text, straight
+	- 1 icon with text, rotated
+	- 1 icon without text, rotated
+	- 1 icon of type "Infantry", "Armor", etc, rotated
+	- at least one drawn line (CTRL+Click/Drag)

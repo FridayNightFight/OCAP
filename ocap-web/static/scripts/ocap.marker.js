@@ -90,7 +90,8 @@ class Marker {
 
 				this._createMarker(pointsRotate, dir, alpha);
 			} else if (this._shape == "POLYLINE") {
-				points = pos.map(coord => {
+				let simplePoints = L.LineUtil.simplify(pos);
+				points = simplePoints.map(coord => {
 					return armaToLatLng(coord);
 				});
 				if (!alpha) { alpha = 1 };

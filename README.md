@@ -107,6 +107,13 @@ if (isServer) then {
 >
 > If the web component is not running, the upload will fail and a local copy of the compressed recording will be saved. Logs are available in the `Arma 3/ocaplog` directory to troubleshoot.
 
+### Mission Design Recommendations
+
+**Markers**
+
+It's recommended that you use [`BIS_fnc_stringToMarker`](https://community.bistudio.com/wiki/BIS_fnc_stringToMarker) and [`BIS_fnc_stringToMarkerLocal`](https://community.bistudio.com/wiki/BIS_fnc_stringToMarkerLocal) when creating scripted markers. Using [`createMarker`](https://community.bistudio.com/wiki/createMarker) and its local equivalent then updating it with further commands will trigger the marker handler at initial creation without vital info applied, leaving it as a text-less mil_dot in the playback.
+
+
 ---
 
 ## Detailed Features

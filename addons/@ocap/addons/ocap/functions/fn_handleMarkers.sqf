@@ -3,7 +3,7 @@ ocap_markers_tracked = []; // Markers which we saves into replay
 // create CBA event handler to be called on server
 ocap_markers_handle = ["ocap_handleMarker", {
 
-	params["_eventType", "_mrk_name", "_mrk_owner","_pos", "_type", "_shape", "_size", "_dir", "_brush", "_color", "_alpha", "_text", "_forceGlobal"];
+	params["_eventType", "_mrk_name", "_mrk_owner", "_pos", "_type", "_shape", "_size", "_dir", "_brush", "_color", "_alpha", "_text", "_forceGlobal"];
 
 
 	diag_log text format["OCAPLOG: SERVER: Received data --
@@ -35,18 +35,45 @@ _shape
 
 			diag_log text format["OCAPLOG: SERVER: Valid CREATED process of marker from %1 for ""%2""", _mrk_owner, _mrk_name];
 
-			if (_type isEqualTo "") then {_type = "nullType"};
+			if (_type isEqualTo "") then {_type = "mil_dot"};
 			ocap_markers_tracked pushBackUnique _mrk_name;
 
-			_mrk_color = getarray (configfile >> "CfgMarkerColors" >> _color >> "color");
-			if ((_mrk_color # 0) isEqualType "") then {
-				private _facColor = +_mrk_color;
-				{
-					_facColor pushback (call compile _x);
-				} forEach (getArray(configfile >> "CfgMarkerColors" >> _colorStr >> "color"));
-				_mrk_color = _facColor call bis_fnc_colorRGBtoHTML;
+			private _mrk_color = "";
+			private _mrk_colorRaw = getarray (configfile >> "CfgMarkerColors" >> _color >> "color");
+			if ((_mrk_colorRaw # 0) isEqualType "" || _color == "Default") then {
+				_typeSplit = _type select [0, 2];
+				if (
+					_color == "ColorEAST" ||
+					_typeSplit == "o_"
+				) then {
+					_mrk_color = "#800000";
+				} else {
+					if (
+						_color == "ColorWEST" ||
+						_typeSplit == "b_"
+					) then {
+						_mrk_color = "#004C99";
+					} else {
+						if (
+							_color == "ColorGUER" ||
+							_typeSplit == "n_"
+						) then {
+							_mrk_color = "#008000";
+						} else {
+							if (
+								_color == "ColorCIV" ||
+								_typeSplit == "c_"
+							) then {
+								_mrk_color = "#660080";
+							} else {
+								_mrk_color = "#000000";
+							};
+						};
+					};
+				};
 			} else {
-				_mrk_color = _mrk_color call bis_fnc_colorRGBtoHTML;
+				_mrk_colorRaw = getarray (configfile >> "CfgMarkerColors" >> _color >> "color");
+				_mrk_color = (_mrk_colorRaw call bis_fnc_colorRGBtoHTML);
 			};
 
 
@@ -60,13 +87,13 @@ _shape
 				_mrk_owner = _mrk_owner getVariable["ocap_id", 0];
 			};
 
-			if (_sideOfMarker isEqualTo 4 || 
-			(["Projectile#", _mrk_name] call BIS_fnc_inString) || 
-			(["Detonation#", _mrk_name] call BIS_fnc_inString) || 
+			if (_sideOfMarker isEqualTo 4 ||
+			(["Projectile#", _mrk_name] call BIS_fnc_inString) ||
+			(["Detonation#", _mrk_name] call BIS_fnc_inString) ||
 			(["Mine#", _mrk_name] call BIS_fnc_inString) ||
 			(["ObjectMarker", _mrk_name] call BIS_fnc_inString) ||
 			(["moduleCoverMap", _mrk_name] call BIS_fnc_inString) ||
-			(!isNil "_forceGlobal")) then {_sideOfMarker = -1;};
+			(!isNil "_forceGlobal")) then {_sideOfMarker = -1};
 
 			private ["_polylinePos"];
 			if (count _pos > 2) then {
@@ -81,7 +108,7 @@ _shape
 			if (isNil "_dir") then {
 				_dir = 0;
 			} else {if (_dir isEqualTo "") then {_dir = 0}};
-			
+
 
 
 			diag_log text format["OCAPLOG: SERVER: Valid CREATED process of %1, sending to extension --
@@ -127,6 +154,10 @@ _shape
 		params["_marker", "_channelNumber", "_owner", "_local"];
 
 		if (!_local) exitWith {};
+
+		[{
+			uiSleep 1;
+		}, [], 2] call CBA_fnc_waitAndExecute;
 
 		_pos = markerPos _marker;
 		_type = markerType _marker;
@@ -229,7 +260,7 @@ _shape
 			// 	_type = "safeStart";
 			// 	_colour = "ColorBlack";
 			// };
-			
+
 			_forceGlobal = true;
 
 			// "_eventType", "_mrk_name", "_mrk_owner","_pos", "_type", "_shape", "_size", "_dir", "_brush", "_color", "_alpha", "_text", "_forceGlobal"
