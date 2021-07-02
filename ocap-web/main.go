@@ -19,46 +19,24 @@
 package main
 
 import (
-	"bytes"
 	"database/sql"
 	"encoding/json"
 	"html/template"
 	"io"
-	"io/ioutil"
 	"log"
 	"mime"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
 var (
-	db        *sql.DB
-	options   *Options
-	indexHTML []byte
+	db            *sql.DB
+	textTemplates *template.Template
 )
-
-// ClassGame Model type game in option file
-// Example [TvT, tvt]
-type ClassGame struct {
-	Key  string `json:"key"`
-	Name string `json:"name"`
-}
-
-// Options Model option file
-type Options struct {
-	Title       string      `json:"title"`
-	Description string      `json:"description"`
-	Author      string      `json:"author"`
-	Language    string      `json:"language"`
-	Version     string      `json:"version"`
-	Listen      string      `json:"listen"`
-	Secret      string      `json:"secret"`
-	Logger      bool        `json:"logger"`
-	ClassesGame []ClassGame `json:"classes-game"`
-}
 
 // ResponseWriter Access response to status
 type ResponseWriter struct {
@@ -72,44 +50,61 @@ func (res *ResponseWriter) WriteHeader(code int) {
 	res.ResponseWriter.WriteHeader(code)
 }
 
-func check(err error) {
-	if err != nil {
-		log.Println("error:", err)
-	}
-}
-
 // OperationGet http header filter operation
 func OperationGet(w http.ResponseWriter, r *http.Request) {
-	op := OperationFilter{r.FormValue("name"), r.FormValue("older"), r.FormValue("newer"), r.FormValue("type")}
+	op := OperationFilter{
+		MissionName: r.FormValue("name"),
+		DateOlder:   r.FormValue("older"),
+		DateNewer:   r.FormValue("newer"),
+		Class:       r.FormValue("type"),
+	}
 	ops, err := op.GetByFilter(db)
-	check(err)
+	if err != nil {
+		log.Println(err.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
 
-	b, err := json.Marshal(ops)
-	check(err)
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(b)
+	err = json.NewEncoder(w).Encode(ops)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
 }
 
 // OperationAdd http header add operation only for server
 func OperationAdd(w http.ResponseWriter, r *http.Request) {
 	// Check secret variable
-	if options.Secret != "" && r.FormValue("secret") != options.Secret {
+	if C.Secret != "" && r.FormValue("secret") != C.Secret {
 		log.Println(r.RemoteAddr, "invalid secret denied access")
-		w.WriteHeader(http.StatusForbidden)
+		http.Error(w, "invalid secret denied access", http.StatusForbidden)
 		return
 	}
 
 	// Parser new opertion
 	op, err := NewOperation(r)
-	check(err)
+	if err != nil {
+		log.Println(err.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
 
 	// Compress operation
 	err = op.SaveFileAsGZIP("static/data/", r)
-	check(err)
+	if err != nil {
+		log.Println(err.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
 
 	// Insert new line in db
 	_, err = op.Insert(db)
-	check(err)
+	if err != nil {
+		log.Println(err.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
 }
 
 // StaticHandler write index.html (buffer) or send static file
@@ -117,7 +112,11 @@ func StaticHandler(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// send home page
 		if r.URL.Path == "/" {
-			w.Write(indexHTML)
+			err := textTemplates.ExecuteTemplate(w, "index.html", C)
+			if err != nil {
+				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+				log.Println(err.Error())
+			}
 			return
 		}
 		// Add Expiration cache 90 days (with code 404, the cache does not work [tested on Google Chrome])
@@ -138,22 +137,6 @@ func StaticHandler(next http.Handler) http.Handler {
 	})
 }
 
-// CreatePage creates a page by templates. Subsequently does not generate it again
-func CreatePage(path string, param interface{}) ([]byte, error) {
-	var (
-		tmpl *template.Template
-		err  error
-		buf  bytes.Buffer
-	)
-	if tmpl, err = template.ParseFiles("template/" + path); err != nil {
-		return nil, err
-	}
-	if err = tmpl.Execute(&buf, param); err != nil {
-		return nil, err
-	}
-	return buf.Bytes(), nil
-}
-
 // LoggerRequest writes logs from incoming requests
 func LoggerRequest(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -163,46 +146,23 @@ func LoggerRequest(next http.Handler) http.Handler {
 	})
 }
 
-func init() {
-	// Parsing option file
-	var (
-		blob []byte
-		err  error
-	)
-	if blob, err = ioutil.ReadFile("option.json"); err != nil {
-		panic(err)
+func initTemplates() error {
+	textTemplates = template.New("test")
+	var err error
+	textTemplates, err = textTemplates.ParseGlob(filepath.Join("template", "*"))
+	if err != nil {
+		return err
 	}
-	if err = json.Unmarshal(blob, &options); err != nil {
-		panic(err)
-	}
+	return nil
 }
 
-func main() {
+func initDB() error {
 	var err error
-	// Connecting logger file
-	if options.Logger {
-		filelog, err := os.OpenFile("ocap.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-		if err != nil {
-			panic(err)
-		}
-		defer filelog.Close()
-		wrt := io.MultiWriter(os.Stdout, filelog)
-		log.SetOutput(wrt)
-	}
-	log.Println("=== Starting server ===")
-
-	// Create home page
-	if indexHTML, err = CreatePage("index.html", options); err != nil {
-		log.Println("error:", err)
-		panic(err)
-	}
 
 	// Connect db
-	if db, err = sql.Open("sqlite3", "data.db"); err != nil {
-		log.Println("error:", err)
-		panic(err)
+	if db, err = sql.Open("sqlite3", C.DB); err != nil {
+		return err
 	}
-	defer db.Close()
 
 	// Create default database
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS operations (
@@ -214,10 +174,37 @@ func main() {
 		'date' TEXT ,
 		'type' TEXT NOT NULL DEFAULT ''
 	)`)
+	return err
+}
+
+func main() {
+	err := readConfig()
 	if err != nil {
-		log.Println("error:", err)
-		panic(err)
+		panic(err.Error())
 	}
+
+	// Connecting logger file
+	if C.Logger {
+		loggingFile, err := os.OpenFile("ocap.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+		if err != nil {
+			panic(err)
+		}
+		defer loggingFile.Close()
+		log.SetOutput(io.MultiWriter(os.Stdout, loggingFile))
+	}
+
+	err = initTemplates()
+	if err != nil {
+		log.Panicln(err.Error())
+	}
+
+	err = initDB()
+	if err != nil {
+		log.Panicln(err.Error())
+	}
+	defer db.Close()
+
+	log.Println("=== Starting server ===")
 
 	// Add exeption
 	// not set header for json files (map.json)
@@ -230,5 +217,5 @@ func main() {
 	mux.HandleFunc("/api/v1/operations/add", OperationAdd)
 	mux.HandleFunc("/api/v1/operations/get", OperationGet)
 
-	http.ListenAndServe(options.Listen, LoggerRequest(mux))
+	http.ListenAndServe(C.Listen, LoggerRequest(mux))
 }

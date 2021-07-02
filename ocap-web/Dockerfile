@@ -6,7 +6,6 @@ RUN apk add --no-cache alpine-sdk && go build -a -o app .
 FROM alpine:3.14
 WORKDIR /usr/local/ocap-web
 COPY --from=builder /go/pkg/ocap-web/app /usr/local/ocap-web/app
-COPY option.json /usr/local/ocap-web
 COPY static /usr/local/ocap-web/static
 COPY template /usr/local/ocap-web/template
 
