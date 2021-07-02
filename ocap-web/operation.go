@@ -29,7 +29,7 @@ import (
 	"time"
 )
 
-// Operation Model opearation table in db
+// Operation Model operation table in db
 type Operation struct {
 	ID              int64   `json:"id"`
 	WorldName       string  `json:"world_name"`
@@ -50,13 +50,14 @@ type OperationFilter struct {
 
 // NewOperation by http request
 func NewOperation(r *http.Request) (op Operation, err error) {
-	op = Operation{}
-	op.WorldName = r.FormValue("worldName")
-	op.MissionName = r.FormValue("missionName")
+	op = Operation{
+		WorldName:   r.FormValue("worldName"),
+		MissionName: r.FormValue("missionName"),
+		Filename:    r.FormValue("filename"),
+		Date:        time.Now().Format("2006-01-02"),
+		Class:       r.FormValue("type"),
+	}
 	op.MissionDuration, err = strconv.ParseFloat(r.FormValue("missionDuration"), 64)
-	op.Filename = r.FormValue("filename")
-	op.Date = time.Now().Format("2006-01-02")
-	op.Class = r.FormValue("type")
 	return op, err
 }
 

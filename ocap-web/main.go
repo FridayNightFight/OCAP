@@ -82,7 +82,7 @@ func OperationAdd(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Parser new opertion
+	// Parser new operation
 	op, err := NewOperation(r)
 	if err != nil {
 		log.Println(err.Error())
@@ -206,7 +206,7 @@ func main() {
 
 	log.Println("=== Starting server ===")
 
-	// Add exeption
+	// Add exception
 	// not set header for json files (map.json)
 	mime.AddExtensionType(".json", "application/json")
 
