@@ -8,8 +8,8 @@ _ammoSimType = getText(configFile >> "CfgAmmo" >> _ammo >> "simulation");
 
 // bullet handling, cut short
 if (_ammoSimType isEqualTo "shotBullet") then {
-	[_projectile, _firer, _frame, _ammoSimType] spawn {
-		params["_projectile", "_firer", "_frame", "_ammoSimType"];
+	[_projectile, _firer, _frame, _ammoSimType, _ammo] spawn {
+		params["_projectile", "_firer", "_frame", "_ammoSimType", "_ammo"];
 		if (isNull _projectile) then {
 			_projectile = nearestObject [_firer, _ammo];
 		};

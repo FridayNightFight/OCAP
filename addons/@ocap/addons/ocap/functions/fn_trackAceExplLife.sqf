@@ -20,6 +20,7 @@ if (_nearMines isEqualTo []) then {
 	_explosiveDisp = getText(configFile >> "CfgMagazines" >> _explosiveMag >> "displayName");
 
 	_placedPos = getPos _armedMine;
+	_placedPos resize 2;
 	_placer = _placedPos nearestObject "Man";
 	_placer addOwnedMine _armedMine;
 

@@ -48,8 +48,9 @@ class Marker {
 	};
 
 	_updateAtFrame (f) {
-		let frameData = this._positions[f]
+		let frameData = this._positions[f];
 		let pos = frameData[1];
+		if (pos.length == 1) { pos = pos[0] };
 		let dir = frameData[2];
 		let alpha = frameData[3];
 

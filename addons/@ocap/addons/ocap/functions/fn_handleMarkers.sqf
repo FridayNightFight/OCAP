@@ -154,9 +154,10 @@ _shape
 		params["_marker", "_channelNumber", "_owner", "_local"];
 
 		if (!_local) exitWith {};
+		if (isServer && ["ObjectMarker", _marker] call BIS_fnc_inString) exitWith {};
 
 		[{
-			uiSleep 1;
+			name player;
 		}, [], 2] call CBA_fnc_waitAndExecute;
 
 		_pos = markerPos _marker;

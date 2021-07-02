@@ -559,8 +559,10 @@ function processOp (filepath) {
 						shape = markerJSON[9];
 					};
 
-					var marker = new Marker(type, text, player, color, startFrame, endFrame, side, positions, size, shape);
-					markers.push(marker);
+					if (!(type.includes("zoneTrigger") || type.includes("Empty"))) {
+						var marker = new Marker(type, text, player, color, startFrame, endFrame, side, positions, size, shape);
+						markers.push(marker);
+					}
 				} catch (err) {
 					console.error(`Failed to process ${markerJSON[9]} with text "${markerJSON[1]}"\nError: ${err}`);
 				};
