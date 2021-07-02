@@ -23,7 +23,7 @@ type Options struct {
 	Listen      string      `json:"listen" yaml:"listen"`
 	Secret      string      `json:"secret" yaml:"secret"`
 	Logger      bool        `json:"logger" yaml:"logger"`
-	ClassesGame []ClassGame `json:"classes-game" yaml:"classes-game"`
+	ClassesGame []ClassGame `json:"classes-game" yaml:"classes-game" mapstructure:"classes-game"`
 	DB          string      `json:"db" yaml:"db"`
 }
 

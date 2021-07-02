@@ -149,11 +149,8 @@ func LoggerRequest(next http.Handler) http.Handler {
 func initTemplates() error {
 	textTemplates = template.New("test")
 	var err error
-	textTemplates, err = textTemplates.ParseGlob(filepath.Join("template", "*"))
-	if err != nil {
-		return err
-	}
-	return nil
+	textTemplates, err = textTemplates.ParseGlob(filepath.Join("template", "*.html"))
+	return err
 }
 
 func initDB() error {
