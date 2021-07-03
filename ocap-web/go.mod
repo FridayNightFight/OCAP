@@ -1,4 +1,4 @@
-module github.com/indig0fox/OCAP
+module github.com/OCAPv2/OCAP
 
 go 1.16
 
