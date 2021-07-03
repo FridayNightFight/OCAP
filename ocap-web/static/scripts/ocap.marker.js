@@ -91,10 +91,14 @@ class Marker {
 
 				this._createMarker(pointsRotate, dir, alpha);
 			} else if (this._shape == "POLYLINE") {
-				let simplePoints = L.LineUtil.simplify(pos);
-				points = simplePoints.map(coord => {
-					return armaToLatLng(coord);
-				});
+				if (Array.isArray(pos[0])) {
+					let simplePoints = L.LineUtil.simplify(pos);
+					points = simplePoints.map(coord => {
+						return armaToLatLng(coord);
+					});
+				} else {
+					points = armaToLatLng([pos[0], pos[1]])
+				};
 				if (!alpha) { alpha = 1 };
 				this._createMarker(points, dir, alpha);
 			};
@@ -261,7 +265,7 @@ class Marker {
 		};
 
 		if (this._shape == "ELLIPSE") {
-			let rad = this._size[0] * 0.01 * window.multiplier;
+			let rad = this._size[0] * 0.015 * window.multiplier;
 			marker = L.circle(latLng, { radius: rad, color: this._color, opacity: 0.5, fill: true, fillColor: this._color, fillOpacity: 0.2, stroke: false, noClip: true, interactive: false }).addTo(map);
 		} else if (this._shape == "RECTANGLE") {
 			marker = L.polygon(latLng, { color: this._color, opacity: 0.5, fillColor: this._color, fillOpacity: 0.2, stroke: false, noClip: true, interactive: false }).addTo(map);

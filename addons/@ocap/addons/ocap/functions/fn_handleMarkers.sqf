@@ -126,6 +126,7 @@ _shape
 			if (_mrk_name in ocap_markers_tracked) then {
 				// 				diag_log format ["OCAPLOG: SERVER: Valid UPDATED process of %1, sending to extension --
 				// %2", _mrk, _mrk call BIS_fnc_markerToString];
+				if (isNil "_dir") then {_dir = 0};
 				[":MARKER:MOVE:", [_mrk_name, ocap_captureFrameNo, _pos, _dir, _alpha]] call ocap_fnc_extension;
 			};
 		};
