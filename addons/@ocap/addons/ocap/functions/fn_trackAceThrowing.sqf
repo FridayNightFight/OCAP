@@ -105,7 +105,7 @@ trackThrows = ["ace_throwableThrown", {
 					true
 				};
 				_lastPos = _pos;
-				["ocap_handleMarker", ["UPDATED", _markName, _unit, [_pos # 0, _pos # 1], 0, 1]] call CBA_fnc_serverEvent;
+				["ocap_handleMarker", ["UPDATED", _markName, _unit, [_pos # 0, _pos # 1], "", "", "", 0, "", "", 1]] call CBA_fnc_serverEvent;
                 sleep 0.1;
                 false;
 			};
@@ -113,7 +113,7 @@ trackThrows = ["ace_throwableThrown", {
             if !((count _lastPos) isEqualTo 0) then {
                 // if (count _lastPos == 3) then {
                 _lastPos resize 2;
-                ["ocap_handleMarker", ["UPDATED", _markName, _unit, _lastPos, 0, 1]] call CBA_fnc_serverEvent;
+                ["ocap_handleMarker", ["UPDATED", _markName, _unit, _lastPos, "", "", "", 0, "", "", 1]] call CBA_fnc_serverEvent;
             };
 
             sleep 10;

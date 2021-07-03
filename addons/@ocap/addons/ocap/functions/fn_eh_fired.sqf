@@ -115,7 +115,8 @@ if (_ammoSimType isEqualTo "shotBullet") then {
 			true
 		};
 		_lastPos = _pos;
-		["ocap_handleMarker", ["UPDATED", _markName, _firer, [_pos # 0, _pos # 1], 0, 1]] call CBA_fnc_localEvent;
+		// params["_eventType", "_mrk_name", "_mrk_owner", "_pos", "_type", "_shape", "_size", "_dir", "_brush", "_color", "_alpha", "_text", "_forceGlobal"];
+		["ocap_handleMarker", ["UPDATED", _markName, _firer, [_pos # 0, _pos # 1], "", "", "", 0, "", "", 1]] call CBA_fnc_localEvent;
 		sleep 0.1;
 		false;
 	};
@@ -123,7 +124,8 @@ if (_ammoSimType isEqualTo "shotBullet") then {
 	if !((count _lastPos) isEqualTo 0) then {
 	// if (count _lastPos == 3) then {
 		_lastPos resize 2;
-		["ocap_handleMarker", ["UPDATED", _markName, _firer, _lastPos, 0, 1]] call CBA_fnc_localEvent;
+		// params["_eventType", "_mrk_name", "_mrk_owner", "_pos", "_type", "_shape", "_size", "_dir", "_brush", "_color", "_alpha", "_text", "_forceGlobal"];
+		["ocap_handleMarker", ["UPDATED", _markName, _firer, _lastPos, "", "", "", 0, "", "", 1]] call CBA_fnc_localEvent;
 	};
 	sleep 10;
 	// deleteMarkerLocal _markName;
