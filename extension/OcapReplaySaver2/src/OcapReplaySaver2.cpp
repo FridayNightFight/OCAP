@@ -46,6 +46,9 @@ v 4.1.1.4 2020-02-25 Zealot Remove uncompressed data if compressed successfully,
 v 4.1.1.5 2021-01-17 Zealot Debug output
 v 4.1.1.6 2021-01-31 Zealot EscapeArma3ToJson function disabled, suspected bugs in escapeArma3ToJson implementation
 v 4.1.1.7 2021-02-01 Zealot Additional debug info
+v 4.2.0.0 2021-06-30 Zealot additional optional parameters for MARKER:CREATE, MARKER:MOVE, SAVE
+v 4.2.0.1 2021-07-01 Zealot -1 marker duration fixed
+v 4.2.0.2 2021-07-02 Zealot Added brush parameter
 
 TODO:
 - чтение запись настроек
@@ -53,7 +56,7 @@ TODO:
 
 */
 
-#define CURRENT_VERSION "4.1.1.7"
+#define CURRENT_VERSION "4.2.0.2"
 
 #pragma endregion
 
@@ -159,13 +162,16 @@ namespace {
 
 	class ocapException : public std::exception {
 	public:
-		ocapException() : std::exception() {};
+		ocapException() {};
 		ocapException(const char* e) : std::exception(e) {};
 
 	};
 
 #define ERROR_THROW(S) {LOG(ERROR) << S;throw ocapException(S); }
-#define COMMAND_CHECK_INPUT_PARAMETERS(N) if(args.size()!=N){ERROR_THROW("Unexpected number of given arguments!"); LOG(WARNING) << "Expected " << N << "arguments";}
+#define COMMAND_CHECK_INPUT_PARAMETERS(N) if(args.size()!=N){LOG(WARNING) << "Expected " << N << "arguments";ERROR_THROW("Unexpected number of given arguments!");}
+#define COMMAND_CHECK_INPUT_PARAMETERS2(N,M) if(args.size()!=N && args.size()!=M){LOG(WARNING) << "Expected " << N << " or " << M << " arguments";ERROR_THROW("Unexpected number of given arguments!"); }
+#define COMMAND_CHECK_INPUT_PARAMETERS3(N,M,O) if(args.size()!=N&&args.size()!=M&&args.size()!=O){LOG(WARNING) << "Expected " << N << " or " << M << " or " << O << " arguments";ERROR_THROW("Unexpected number of given arguments!"); }
+#define COMMAND_CHECK_INPUT_PARAMETERS4(N,M,O,P) if(args.size()!=N&&args.size()!=M&&args.size()!=O&&args.size()!=P){LOG(WARNING) << "Expected " << N << " or " << M << " or " << O << " or " << P << " arguments";ERROR_THROW("Unexpected number of given arguments!"); }
 #define COMMAND_CHECK_WRITING_STATE	if(!is_writing.load()) {ERROR_THROW("Is not writing state!")}
 
 #define JSON_STR_FROM_ARG(N) (json::string_t(filterSqfString(args[N])))
@@ -251,7 +257,7 @@ bool write_compressed_data(const char* filename, const char* buffer, size_t buff
 		LOG(ERROR) << "Cannot create file: " << filename;
 		return false;
 	}
-	if (!gzwrite(gz, buffer, buff_len)) {
+	if (!gzwrite(gz, buffer, static_cast<unsigned int>(buff_len))) {
 		LOG(ERROR) << "Error while file writing " << filename;
 		result = false;
 	}
@@ -455,6 +461,8 @@ void prepareMarkerFrames(int frames) {
 		5	:	104, // конечный фрейм
 		6	:	0, // 0 -east, 1 - west, 2 - resistance, 3- civilian, -1 - global
 		7	:	[[52,[1000,5000],180],[70,[1500,5600],270]] // позиция
+		8   : [1,1] // markerSize, NEW
+		9   : "ICON" // markerShape NEW
 		]
 		*/
 		/*
@@ -464,12 +472,14 @@ void prepareMarkerFrames(int frames) {
 		*/
 
 		// чистит "Markers"
-		for (int i = 0; i < j["Markers"].size(); ++i) {
-			json ja = j["Markers"][i];
-			if (ja[5].get<int>() == -1) {
-				ja[5] = frames;
+
+		for (auto &ja : j["Markers"]) {
+			if (ja[3].get<int>() == -1) {
+				ja[3] = frames;
 			}
-			j["Markers"][i] = json::array({ja[2], ja[3], ja[4], ja[5], ja[6], ja[7],ja[9], ja[10]});
+			
+			ja.erase(ja.cbegin() + 9); // remove markerId, as it could be long
+			//j["Markers"][i] = json::array({ja[2], ja[3], ja[4], ja[5], ja[6], ja[7],ja[9], ja[10]});
 		}
 	}
 	catch (exception &e) {
@@ -501,7 +511,7 @@ pair<string, string> saveCurrentReplayToTempFile() {
 
 	try {
 		if (config.traceLog)
-			all_replay = j.dump(4, ' ', false, json::error_handler_t::ignore);
+			all_replay = j.dump(2, ' ', false, json::error_handler_t::ignore);
 		else
 			all_replay = j.dump(-1, ' ',false, json::error_handler_t::ignore);
 	}
@@ -866,40 +876,76 @@ void curlActions(string worldName, string missionName, string duration, string f
 #pragma region Commands Handlers
 
 
+/*
+Input parameters:
+ 0  marker name
+ 1  marker direction
+ 2  swt_cfgMarkers_names select _type, markerType, "mil_dot"
+ 3  marker text
+ 4  ocap_captureFrameNo, frame when marker was created
+ 5  -1, frame when marker was deleted
+ 6  _pl getVariable ["ocap_id", 0], who has placed the marker
+ 7  call bis_fnc_colorRGBtoHTML, "0000FF"
+ 8  marker size [1,1]
+ 9  side _pl call BIS_fnc_sideID, -1 global, 0 - east, 1 - west , 2 - resistance
+ 10 markerPos, [100,100]
+ 11 Shape (opt.), "ICON"
+ 12 markerAlpha (opt.) , 100
+ 13 markerBrush (opt.)	, "Solid"
+
+*/
+
 // :MARKER:CREATE: 11:["SWT_M#156"::0::"o_inf"::"CBR"::0::-1::0::"#0000FF"::[1,1]::0::[3915.44,1971.98]]
 void commandMarkerCreate(const vector<string> &args) {
-	COMMAND_CHECK_INPUT_PARAMETERS(11)
+	COMMAND_CHECK_INPUT_PARAMETERS4(11,12,13,14)
 	COMMAND_CHECK_WRITING_STATE
 
-		//создать новый маркер
-		if (j["Markers"].is_null()) {
-			j["Markers"] = json::array();
-		}
+	//создать новый маркер
+	if (j["Markers"].is_null()) {
+		j["Markers"] = json::array();
+	}
 	/* входные параметры
 	[0:_mname , 1: 0, 2 : swt_cfgMarkers_names select _type, 3: _mtext, 4: ocap_captureFrameNo, 5:-1, 6: _pl getVariable ["ocap_id", 0],
-	7: call bis_fnc_colorRGBtoHTML, 8:[1,1], 9:side _pl call BIS_fnc_sideID, 10:_mpos]]
+	7: call bis_fnc_colorRGBtoHTML, 8: marker size [1,1], 9:side _pl call BIS_fnc_sideID, 10:_mpos, 11: Shape (opt.), 12: markerAlpha (opt.)]]
 	*/
-
 
 	json::string_t clr = json::string_t(removeHash(filterSqfString(args[7])));
 	if (clr == "any") {
 		clr = "000000";
 	}
-	json frameNo = JSON_PARSE_FROM_ARG(4);
+	json frameNo = JSON_INT_FROM_ARG(4);
+	
 	json a = json::array({
-		JSON_STR_FROM_ARG(0),
-		JSON_INT_FROM_ARG(1),
-		JSON_STR_FROM_ARG(2),
-		JSON_STR_FROM_ARG(3),
-		frameNo, // Frame number when marker created
-		JSON_INT_FROM_ARG(5),
-		JSON_INT_FROM_ARG(6),
-		clr, // Color
-		JSON_PARSE_FROM_ARG(8), // Marker size, always [1,1]
-		JSON_PARSE_FROM_ARG(9), //
-		json::array() }); // Marker pos
+		/*0*/	JSON_STR_FROM_ARG(2), // markerType
+		/*1*/	JSON_STR_FROM_ARG(3), // markerText
+		/*2*/	frameNo, // Frame number when marker created
+		/*3*/	JSON_INT_FROM_ARG(5), // -1 by default, frame when marker deleted
+		/*4*/	JSON_INT_FROM_ARG(6), //  ocap_id
+		/*5*/	clr, // Color
+		/*6*/	JSON_INT_FROM_ARG(9), // side
+		/*7*/	json::array(), // marker position on frames	[[frame, [x,y], dir],[frame, [x,y], dir], ...]
+		/*8*/	JSON_PARSE_FROM_ARG(8), // Marker size	[1,1]
+		/*9*/	JSON_STR_FROM_ARG(0) // MarkerId
+		}); // Marker pos
+	if (args.size() > 11) {
+		json shape = JSON_STR_FROM_ARG(11);
+		a.push_back(shape);
+	}
+	if (args.size() > 13) {
+		json brush = JSON_STR_FROM_ARG(13);
+		a.push_back(brush);
+	}
+	
+	//json alpha = args.size() < 13 ? ((shape == "RECTANGLE" || shape == "ELLIPSE") ? json::number_integer_t(20) : json::number_integer_t(100)) : JSON_INT_FROM_ARG(12);
+
+	//                                           markerPos                dir                    alpha
 	json coordRecord = json::array({ frameNo, JSON_PARSE_FROM_ARG(10), JSON_INT_FROM_ARG(1)});
-	a[10].push_back(coordRecord);
+	if (args.size() > 12) {
+		json alpha = JSON_INT_FROM_ARG(12);
+		coordRecord.push_back(alpha);
+	}
+
+	a[7].push_back(coordRecord);
 	j["Markers"].push_back(a);
 }
 
@@ -910,33 +956,39 @@ void commandMarkerDelete(const vector<string> &args) {
 	COMMAND_CHECK_WRITING_STATE
 
 	json mname = JSON_STR_FROM_ARG(0);
-	auto it = find_if(j["Markers"].rbegin(), j["Markers"].rend(), [&](const auto & i) { return i[0] == mname; });
+	auto it = find_if(j["Markers"].rbegin(), j["Markers"].rend(), [&](const auto & i) { return i[9] == mname; });
 	if (it == j["Markers"].rend()) {
-		LOG(ERROR) << "No such marker" << args[0];
+		LOG(ERROR) << "No such marker" << mname;
 		throw ocapException("No such marker!");
 	}
-	(*it)[5] = JSON_INT_FROM_ARG(1);
+	(*it)[3] = JSON_INT_FROM_ARG(1);
 }
-
+// markerName, frame, position, (opt.) dir , (opt.) alpha
 // :MARKER:MOVE: 3:["SWT_M#156"::0::[3882.53,2041.32]]
 void commandMarkerMove(const vector<string> &args) {
-	COMMAND_CHECK_INPUT_PARAMETERS(3)
 	COMMAND_CHECK_WRITING_STATE
+	COMMAND_CHECK_INPUT_PARAMETERS3(3, 4, 5)
+
+	json dir = args.size() < 4 ? json::number_integer_t(0) : JSON_INT_FROM_ARG(3);
 
 	json mname = JSON_STR_FROM_ARG(0); // имя маркера
-	auto it = find_if(j["Markers"].rbegin(), j["Markers"].rend(), [&](const auto & i) { return i[0] == mname; });
+	auto it = find_if(j["Markers"].rbegin(), j["Markers"].rend(), [&](const auto & i) { return i[9] == mname; });
 	if (it == j["Markers"].rend()) {
-		LOG(ERROR) << "No such marker" << args[0];
+		LOG(ERROR) << "No such marker" << mname;
 		throw ocapException("No such marker!");
 	}
-	json coordRecord = json::array({ JSON_INT_FROM_ARG(1), JSON_PARSE_FROM_ARG(2), 0 });
+	json coordRecord = json::array({ JSON_INT_FROM_ARG(1), JSON_PARSE_FROM_ARG(2), dir});
+	if (args.size() > 4) {
+		json alpha = JSON_INT_FROM_ARG(4);
+		coordRecord.push_back(alpha);
+	}
 	// ищем последнюю запись с таким же фреймом
 	int frame = coordRecord[0];
-	auto coord = find_if((*it)[10].rbegin(), (*it)[10].rend(), [&](const auto & i) { return i[0] == frame; });
-	if (coord == (*it)[10].rend()) {
+	auto coord = find_if((*it)[7].rbegin(), (*it)[7].rend(), [&](const auto & i) { return i[0] == frame; });
+	if (coord == (*it)[7].rend()) {
 		// такой записи нет
-		LOG(TRACE) << "No marker coord on this frame. Adding new." << coordRecord;
-		(*it)[10].push_back(coordRecord);
+		LOG(WARNING) << "No marker coord on this frame. Adding new." << coordRecord;
+		(*it)[7].push_back(coordRecord);
 	}
 	else
 	{
@@ -1040,7 +1092,7 @@ void commandNewVeh(const vector<string> &args) {
 
 // :SAVE: 5:["Beketov"::"RBC 202 Неожиданный поворот 05"::"[RE]Aventador"::1.23::4233] 
 void commandSave(const vector<string> &args) {
-	COMMAND_CHECK_INPUT_PARAMETERS(5)
+	COMMAND_CHECK_INPUT_PARAMETERS2(5,6)
 	COMMAND_CHECK_WRITING_STATE
 
 	LOG(INFO) << args[0] << args[1] << args[2] << args[3] << args[4];
@@ -1050,6 +1102,9 @@ void commandSave(const vector<string> &args) {
 	j["missionAuthor"] = JSON_STR_FROM_ARG(2);
 	j["captureDelay"] = JSON_FLOAT_FROM_ARG(3);
 	j["endFrame"] = JSON_INT_FROM_ARG(4);
+	if (args.size() > 5) {
+		j["tags"] = JSON_STR_FROM_ARG(5);
+	}
 
 	prepareMarkerFrames(j["endFrame"]);
 	pair<string, string> fnames = saveCurrentReplayToTempFile();
@@ -1073,7 +1128,7 @@ void commandClear(const vector<string> &args)
 // :UPDATE:UNIT: 7:[0::[14548.4,19793.9]::84::1::0::"|UN|Capt.Farid"::1] 
 void commandUpdateUnit(const vector<string> &args)
 {
-	COMMAND_CHECK_INPUT_PARAMETERS(7)
+	COMMAND_CHECK_INPUT_PARAMETERS2(7,8)
 	COMMAND_CHECK_WRITING_STATE
 
 		int id = stoi(args[0]);
@@ -1084,7 +1139,8 @@ void commandUpdateUnit(const vector<string> &args)
 			JSON_INT_FROM_ARG(3),
 			JSON_INT_FROM_ARG(4),
 			JSON_STR_FROM_ARG(5),
-			JSON_INT_FROM_ARG(6)
+			JSON_INT_FROM_ARG(6),
+			args.size() < 8 ? json::string_t() : JSON_STR_FROM_ARG(7)
 		}));
 	}
 	else {
@@ -1246,6 +1302,18 @@ int __stdcall RVExtensionArgs(char *output, int outputSize, const char *function
 
 	return res;
 }
+
+class MainStatic final {
+	MainStatic() {
+
+	}
+	~MainStatic() {
+
+	}
+
+
+
+} main_static;
 
 
 // Normal Windows DLL junk...
