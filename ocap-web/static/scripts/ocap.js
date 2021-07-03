@@ -89,6 +89,15 @@ var followColour = "#FFA81A";
 var hitColour = "#FF0000";
 var deadColour = "#000000";
 
+// pattern fill for shapes
+var stripePattern = new L.StripePattern({
+	angle: 45,
+	weight: 2,
+	color: 'black',
+	opacity: 0.2,
+});
+stripePattern.addTo(map);
+
 function getArguments () {
 	let args = new Object();
 	window.location.search.replace("?", "").split("&").forEach(function (s) {
@@ -550,6 +559,7 @@ function processOp (filepath) {
 					// backwards compatibility for marker expansion
 					let size = "";
 					let shape = "ICON";
+					let brush = "Solid";
 					if (markerJSON.length > 8) {
 						if (markerJSON[9] == "ICON") {
 							size = markerJSON[8]
@@ -558,9 +568,12 @@ function processOp (filepath) {
 						};
 						shape = markerJSON[9];
 					};
+					if (markerJSON.length > 10) {
+						brush = markerJSON[10];
+					};
 
 					if (!(type.includes("zoneTrigger") || type.includes("Empty"))) {
-						var marker = new Marker(type, text, player, color, startFrame, endFrame, side, positions, size, shape);
+						var marker = new Marker(type, text, player, color, startFrame, endFrame, side, positions, size, shape, brush);
 						markers.push(marker);
 					}
 				} catch (err) {

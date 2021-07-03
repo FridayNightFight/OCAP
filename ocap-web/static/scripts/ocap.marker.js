@@ -1,15 +1,41 @@
 class Marker {
-	constructor(type, text, player, color, startFrame, endFrame, side, positions, size, shape) {
+	constructor(type, text, player, color, startFrame, endFrame, side, positions, size, shape, brush) {
 		this._type = type;
 		this._text = text;
-		this._player = player;
-		this._color = `#${color}`;
-		this._startFrame = startFrame;
-		this._endFrame = endFrame;
-		this._side = side;
+		this._player = player; // Entity obj
+		this._color = `#${color}`; // 00FF00 (hex color)
+		this._startFrame = startFrame; // 22
+		this._endFrame = endFrame; // 35
+		this._side = side; // -1,0,1,2 (int, pairs to global array)
 		this._positions = positions;
-		this._size = size;
+		// [
+		// 	[
+		// 		0(frame),
+		// 		[
+		// 			800(x),
+		// 			1200(y),
+		// 			[0](z)
+		// 		],
+		// 		0(dir in compass bearing),
+		// 		1(alpha 0-100)
+		// 	]
+		// ]
+		// coords for polylines are in subarray format
+		// [
+		// 	[
+		// 		800(x),
+		// 		1200(y)
+		// 	],
+		// 		600(x),
+		// 		900(y)
+		// 	]
+		// ]
+		this._size = size; // [1,1]
 		this._shape = shape;
+		// "ICON"
+		// "RECTANGLE"
+		// "ELLIPSE"
+		// "POLYLINE"
 		if (!this._shape || !this._size) {
 			this._icon = L.icon({ iconSize: [35, 35], iconUrl: `images/markers/${type}/${color}.png` });
 		} else if (this._shape == "ICON") {
@@ -20,6 +46,18 @@ class Marker {
 		} else {
 			this._icon = null;
 		};
+		this._brush = brush;
+		// "Solid"
+		// "SolidFull"(A3 only)
+		// "Horizontal"
+		// "Vertical"
+		// "Grid"
+		// "FDiagonal"
+		// "BDiagonal"
+		// "DiagGrid"
+		// "Cross"
+		// "Border"
+		// "SolidBorder"
 		this._marker = null;
 		this._isShow = false;
 		this._popup = "";
@@ -266,9 +304,11 @@ class Marker {
 
 		if (this._shape == "ELLIPSE") {
 			let rad = this._size[0] * 0.015 * window.multiplier;
-			marker = L.circle(latLng, { radius: rad, color: this._color, opacity: 0.5, fill: true, fillColor: this._color, fillOpacity: 0.2, stroke: false, noClip: true, interactive: false }).addTo(map);
+			// marker = L.circle(latLng, { radius: rad, color: this._color, opacity: 0.5, fill: true, fillColor: this._color, fillOpacity: 0.2, stroke: false, noClip: true, interactive: false }).addTo(map);
+			marker = L.circle(latLng, { radius: rad, color: this._color, opacity: 0.5, fill: true, fillPattern: stripePattern, stroke: true, noClip: true, interactive: false }).addTo(map);
 		} else if (this._shape == "RECTANGLE") {
-			marker = L.polygon(latLng, { color: this._color, opacity: 0.5, fillColor: this._color, fillOpacity: 0.2, stroke: false, noClip: true, interactive: false }).addTo(map);
+			// marker = L.polygon(latLng, { color: this._color, opacity: 0.5, fillColor: this._color, fillOpacity: 0.2, stroke: false, noClip: true, interactive: false }).addTo(map);
+			marker = L.polygon(latLng, { color: this._color, opacity: 0.5, fillPattern: stripePattern, stroke: true, noClip: true, interactive: false }).addTo(map);
 		} else if (this._shape == "POLYLINE") {
 			marker = L.polyline(latLng, { color: this._color, opacity: 1, noClip: true, lineCap: 'butt', lineJoin: 'round', interactive: false }).addTo(map);
 		};
