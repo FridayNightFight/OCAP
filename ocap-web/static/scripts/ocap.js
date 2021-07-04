@@ -89,14 +89,6 @@ var followColour = "#FFA81A";
 var hitColour = "#FF0000";
 var deadColour = "#000000";
 
-// pattern fill for shapes
-var stripePattern = new L.StripePattern({
-	angle: 45,
-	weight: 2,
-	color: 'black',
-	opacity: 0.2,
-});
-stripePattern.addTo(map);
 
 function getArguments () {
 	let args = new Object();
@@ -277,6 +269,8 @@ function initMap () {
 	} else {
 		map.flyToBounds(map.getBounds());
 	};
+
+
 	document.dispatchEvent(new Event("mapInited"));
 	//test();
 };

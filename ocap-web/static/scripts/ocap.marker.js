@@ -46,9 +46,11 @@ class Marker {
 		} else {
 			this._icon = null;
 		};
+
+
 		this._brush = brush;
-		// "Solid"
-		// "SolidFull"(A3 only)
+		// "Solid" (default)
+		// "SolidFull" (A3 only)
 		// "Horizontal"
 		// "Vertical"
 		// "Grid"
@@ -58,6 +60,97 @@ class Marker {
 		// "Cross"
 		// "Border"
 		// "SolidBorder"
+		this._shapeOptions = null;
+		this._brushPattern = null;
+		switch (brush) {
+			case "Solid":
+				this._shapeOptions = {
+						color: this._color,
+						stroke: false,
+						fill: true,
+						fillOpacity: 0.2
+				};
+				break;
+			case "SolidFull":
+				this._shapeOptions = {
+						color: this._color,
+						stroke: false,
+						fill: true,
+						fillOpacity: 1
+				};
+				break;
+			case "Horizontal":
+				this._brushPattern = {
+						color: this._color,
+						opacity: 0.2,
+						angle: 0,
+						weight: 2
+				};
+				this._shapeOptions = {
+						color: this._color,
+						stroke: false,
+						fill: false,
+					};
+				break;
+			case ("Vertical" || "Grid"):
+				this._brushPattern = {
+						color: this._color,
+						opacity: 0.2,
+						angle: 90,
+						weight: 2
+				};
+				this._shapeOptions = {
+
+						color: this._color,
+						stroke: false,
+						fill: false,
+					};
+				break;
+			case "FDiagonal":
+				this._brushPattern = {
+						color: this._color,
+						opacity: 0.2,
+						angle: 315,
+						weight: 2,
+						spaceWeight: 6
+				};
+				this._shapeOptions = {
+						color: this._color,
+						stroke: false,
+						fill: false
+					};
+				break;
+			case ("BDiagonal" || "DiagGrid" || "Cross"):
+				this._brushPattern = {
+						color: this._color,
+						opacity: 0.2,
+						angle: 45,
+						weight: 2,
+						spaceWeight: 6
+				};
+				this._shapeOptions = {
+						color: this._color,
+						stroke: false,
+						fill: false
+					};
+				break;
+			case "Border":
+				this._shapeOptions = {
+						color: this._color,
+						stroke: true,
+						fill: false
+					};
+				break;
+			case "SolidBorder":
+				this._shapeOptions = {
+						color: this._color,
+						stroke: true,
+						fill: true
+					};
+				break;
+			default:
+				break;
+		}
 		this._marker = null;
 		this._isShow = false;
 		this._popup = "";
@@ -149,7 +242,7 @@ class Marker {
 				if (!alpha) { alpha = 1 };
 
 				this._marker.setRotationAngle(dir);
-				this._marker.setLatLng(latLng);	
+				this._marker.setLatLng(latLng);
 			} else if (this._shape == "ELLIPSE") {
 				latLng = armaToLatLng(pos);
 				if (!alpha) { alpha = 0.3 };
@@ -305,10 +398,20 @@ class Marker {
 		if (this._shape == "ELLIPSE") {
 			let rad = this._size[0] * 0.015 * window.multiplier;
 			// marker = L.circle(latLng, { radius: rad, color: this._color, opacity: 0.5, fill: true, fillColor: this._color, fillOpacity: 0.2, stroke: false, noClip: true, interactive: false }).addTo(map);
-			marker = L.circle(latLng, { radius: rad, color: this._color, opacity: 0.5, fill: true, fillPattern: stripePattern, stroke: true, noClip: true, interactive: false }).addTo(map);
+			marker = L.circle(latLng, { radius: rad, noClip: true, interactive: false });
+			L.Util.setOptions(marker, this._shapeOptions);
+			if (this._brushPattern) {
+				L.Util.setOptions(marker, { fillPattern: new L.StripePattern(this._brushPattern).addTo(map) });
+			};
+			marker.addTo(map);
 		} else if (this._shape == "RECTANGLE") {
 			// marker = L.polygon(latLng, { color: this._color, opacity: 0.5, fillColor: this._color, fillOpacity: 0.2, stroke: false, noClip: true, interactive: false }).addTo(map);
-			marker = L.polygon(latLng, { color: this._color, opacity: 0.5, fillPattern: stripePattern, stroke: true, noClip: true, interactive: false }).addTo(map);
+			marker = L.polygon(latLng, { noClip: true, interactive: false, renderer: L.canvas() });
+			L.Util.setOptions(marker, this._shapeOptions);
+			if (this._brushPattern) {
+				L.Util.setOptions(marker, { fillPattern: new L.StripePattern(this._brushPattern).addTo(map) });
+			};
+			marker.addTo(map);
 		} else if (this._shape == "POLYLINE") {
 			marker = L.polyline(latLng, { color: this._color, opacity: 1, noClip: true, lineCap: 'butt', lineJoin: 'round', interactive: false }).addTo(map);
 		};
