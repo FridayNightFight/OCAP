@@ -177,10 +177,11 @@ class endMissionEvent {
 };
 
 class customEvent {
-	constructor(frameNum, type, msg) {
+	constructor(frameNum, type, eventName, msg) {
 		this.frameNum = frameNum;
 		this.timecode = dateToTimeString(new Date(frameNum * frameCaptureDelay));
 		this.type = type;
+		this.eventName = eventName;
 		this.msg = msg;
 		this._element = null;
 

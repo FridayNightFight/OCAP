@@ -644,6 +644,9 @@ function processOp (filepath) {
 				case (type == "endMission"):
 					gameEvent = new endMissionEvent(frameNum, type, eventJSON[2][0], eventJSON[2][1]);
 					break;
+				case (type == "customEvent"):
+					gameEvent = new customEvent(frameNum, type, eventJSON[2], eventJSON[3]);
+					break;
 			};
 			// Add event to gameEvents list
 			if (gameEvent != null) {
