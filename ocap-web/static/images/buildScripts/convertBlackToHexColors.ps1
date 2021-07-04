@@ -104,16 +104,52 @@ ForEach ($Folder in (Get-ChildItem -Directory | ForEach-Object FullName)) {
 	# $Folder = Get-Location
 	Set-Location $Folder
 	Write-Host "Processing $Folder"
+	$FolderName = (Get-Item (Get-Location).Path).Name
+
+
+	# Don't touch markers that have unique colors such as flags or colored icons that will only ever be white.
+	# We also don't need to do anything with folders that have .svg files in them, as those are system-related.
 	if (
 		$null -ne (Get-ChildItem -File -Filter "*.svg") -or
-		(Get-Location).Path -contains 'flag_' -or
-		(Get-Location).Path -contains 'faction_'
+		$FolderName -match 'flag_' -or
+		$FolderName -match 'faction_' -or
+		$FolderName -in @(
+			"moduleCoverMap",
+			"safeStart",
+			"magIcons",
+			"objectMarker",
+			"ellipse",
+			"rectangle",
+			"RedCrystal",
+			"loc_CivilDefense",
+			"loc_CulturalProperty",
+			"loc_DangerousForces",
+			"magIcons"
+		)
+	) { continue }
+
+	# This is for markers with white (FFFFFF) inner color and black borders, such as the vanilla INFANTRY markers.
+	# Basically, anything that isn't all one color and needs special processing only on the default 'white' with transparency.
+	if (
+		$FolderName.Substring(0, 2) -in @("b_", "o_", "n_", "c_") -or
+		$FolderName.Substring(0, 4) -in @("LIB_n", "LIB_g", "LIB_n", "LIB_o") -or
+		$FolderName -match '$loc_Power' -or
+		$FolderName -match '$respawn' -or
+		$FolderName -in @(
+			"loc_BusStop",
+			"loc_Church",
+			"loc_Frame",
+			"loc_FuelStation",
+			"loc_Hospital",
+			"loc_Lighthouse",
+			"loc_Quay",
+			"loc_SafetyZone",
+			"loc_Transmitter",
+			"loc_WaterTower"
+		)
 	) {
-		continue
-	} else {
 		ForEach ($ColorHex in $TargetColors) {
 			if ($ColorHex -ne "FFFFFF") {
-
 				Start-Process cmd -ArgumentList @(
 					"/c",
 					"magick",
@@ -126,53 +162,20 @@ ForEach ($Folder in (Get-ChildItem -Directory | ForEach-Object FullName)) {
 			}
 		}
 	}
-	# 		if ((Get-Item (Get-Location).Path).Name.Substring(0, 2) -in @("b_", "o_", "n_", "c_")) {
-	# 			if (Test-Path ".\EDEBBA.png") {
-	# 				ForEach ($ColorHex in $TargetColors) {
-	# 					#if ($ColorHex -eq "000000") {
-	# 					# magick convert ".\EDEBBA.png" -fuzz 75% -fill "#44444480" -opaque "#EDEBBA" "000000.png"
-	# 					#} elseif ($ColorHex -ne "EDEBBA") {
-	# 					if ($ColorHex -ne "FFFFFF") {
-	# 						# magick convert ".\EDEBBA.png" -fuzz 75% -fill "#${ColorHex}80" -opaque "#EDEBBA" "$ColorHex.png"
-	# 						Start-Process cmd -ArgumentList @("/c", "magick", "FFFFFF.png +write mpr:img", "-alpha off -fuzz 30% -fill ""#$ColorHex"" -opaque ""#FFFFFF""", "( mpr:img -alpha extract )", "-alpha off -compose copy_opacity -composite", "$ColorHex.png")
-	# 					}
-	# 					#}
-	# 				}
-	# 			} elseif (Test-Path ".\FFFFFF.png") {
-	# 				if ((Get-Location).Path -notcontains 'flag' -and (Get-Item (Get-Location).Path).Name.Substring(0, 2) -in @("b_", "o_", "n_", "c_")) {
-	# 					ForEach ($ColorHex in $TargetColors) {
-	# 						#if ($ColorHex -eq "000000") {
-	# 						# magick convert ".\FFFFFF.png" -fuzz 75% -fill "#44444480" -opaque "#FFFFFF" "000000.png"
-	# 						#} else {
-	# 							# magick convert ".\FFFFFF.png" -fuzz 75% -fill "#${ColorHex}80" -opaque "#FFFFFF" "$ColorHex.png"
+	
+	# Otherwise, we'll just colorize it all, keeping the contrast of black and white but tinting the entire icon because there's no border to worry about.
+	ForEach ($ColorHex in $TargetColors) {
+		if ($ColorHex -ne "FFFFFF") {
 
-	# 					}
-	# 				}
-	# 			}
-	# 		} elseif ((Get-Item (Get-Location).Path).Name.Substring(0, 3) -in @("mil", "hd_")) {
-	# 			if (Test-Path ".\EDEBBA.png") {
-	# 				ForEach ($ColorHex in $TargetColors) {
-	# 					if ($ColorHex -eq "000000") {
-	# 						magick convert ".\EDEBBA.png" -fuzz 75% -fill "#444444" -opaque "#EDEBBA" -colorize 100% "000000.png"
-	# 					} else {
-	# 						magick convert ".\EDEBBA.png" -fuzz 75% -fill "#${ColorHex}" -opaque "#EDEBBA" -colorize 100% "$ColorHex.png"
-	# 					}
-	# 				}
-	# 			} elseif (Test-Path ".\FFFFFF.png") {
-	# 				if (
-	# 					(Get-Location).Path -notcontains 'flag' -and (Get-Item (Get-Location).Path).Name.Substring(0, 2) -in @("b_", "o_", "n_", "c_") -or 
-	# 					(Get-Item (Get-Location).Path).Name -in @(
-	# 						"Minefield", "MinefieldAP", "moduleCoverMap", "waypoint")
-	# 				) {
-	# 					ForEach ($ColorHex in $TargetColors) {
-	# 						if ($ColorHex -eq "000000") {
-	# 							magick convert ".\FFFFFF.png" -fuzz 75% -fill "#444444" -opaque "#FFFFFF" -colorize 100% "000000.png"
-	# 						} else {
-	# 							magick convert ".\FFFFFF.png" -fuzz 75% -fill "#${ColorHex}" -opaque "#FFFFFF" -colorize 100% "$ColorHex.png"
-	# 						}
-	# 					}
-	# 				}
-	# 			}
-	# 		}
-	# 	}
-	# }
+			Start-Process cmd -ArgumentList @(
+				"/c",
+				"magick",
+				"FFFFFF.png +write mpr:img",
+				"-alpha off -fuzz 90% -fill ""#$ColorHex"" -opaque ""#FFFFFF"" -colorize 100%",
+				"( mpr:img -alpha extract )",
+				"-alpha off -compose copy_opacity -composite",
+				"$ColorHex.png"
+			)
+		}
+	}
+}

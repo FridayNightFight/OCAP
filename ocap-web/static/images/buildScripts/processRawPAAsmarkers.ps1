@@ -19,7 +19,7 @@ function Convert-RawPAA {
 
 	BEGIN {
 		$startLoc = Get-Location
-		Set-Location magIcons:
+		Set-Location markers:
 	}
 
 	PROCESS {
@@ -28,18 +28,18 @@ function Convert-RawPAA {
 		if ((Get-Item $file.name).GetType().Name -eq "DirectoryInfo") {
 			return
 		}
-		Rename-Item $file.name -NewName "temp.paa" | Out-Null
-		New-Item -Name $file.name -Type Directory -Force
-		Move-Item -Path "temp.paa" -Destination ($file.name + "\temp.paa") -Force -EA SilentlyContinue
-		Rename-Item -Path ($file.name + "\temp.paa") -NewName "FFFFFF.paa" -Force -EA SilentlyContinue
-		$paaPath = (Get-Item ($file.name + "\FFFFFF.paa")).FullName
+		Copy-Item $file.name -Destination ".\temp.paa" -Force
+		New-Item -Name $line.class -Type Directory -Force
+		Copy-Item -Path "temp.paa" -Destination ($line.class + "\temp.paa") -Force -EA SilentlyContinue
+		Rename-Item -Path ($line.class + "\temp.paa") -NewName "FFFFFF.paa" -Force -EA SilentlyContinue
+		$paaPath = (Get-Item ($line.class + "\FFFFFF.paa")).FullName
 		$pngPath = $paaPath -replace 'FFFFFF.paa', 'FFFFFF.png'
 		. Pal2PacE:Pal2PacE.exe $paaPath $pngPath
-		# Copy-Item (magIcons:$line.Class + "\FFFFFF.png") (magIcons:$line.Class + "\000000.png")
+		# Copy-Item (markers:$line.Class + "\FFFFFF.png") (markers:$line.Class + "\000000.png")
 	}
 
 	END {
-		Remove-Item -Path ($file.name + "\FFFFFF.paa") -Force -EA SilentlyContinue
+		Remove-Item -Path ($line.class + "\FFFFFF.paa") -Force -EA SilentlyContinue
 		# Remove-Item $file
 		Set-Location $startLoc
 	}
@@ -54,6 +54,7 @@ ForEach ($file in (Get-ChildItem -Path markers: -File -Filter '*.paa')) {
 				Convert-RawPAA -File $file -Line $line
 			} catch {
 				Write-Host -ForegroundColor Red "Error processing $($file.name)"
+				Write-Host $PSItem
 			}
 		}
 	}
