@@ -2,14 +2,10 @@
 _classes = ("true" configClasses (ConfigFile >> "CfgMarkers"));
 _classes = [_classes, [], {configName _x}, "ASCEND"] call BIS_fnc_sortBy;
 "debug_console" callExtension ("X");
-_export = "No.^Class^Name^Icon Path^Shadow^Scope^Added with";
+_export = "Class^Name^Icon Path";
 "debug_console" callExtension (_export + "~0000");
 {
-	_addon = _x call ENH_fnc_getConfigSourceAddon params [["_addonClass", ""]];
-	if (_addonClass isNotEqualTo "") then {_addonClass = format ["Icon|%1|24", _addonClass]};
-
-	_shadow = ["YES", "NO"] select (getNumber (_x >> "shadow"));
-	"debug_console" callExtension (str (_forEachIndex + 1) + "." + "^" + configName _x + "^" + getText (_x >> "name") + "^" + getText (_x >> "icon") + "^" + _shadow + "^" + str getNumber (_x >> "scope") + "^" + _addonClass + "~0000");
+	"debug_console" callExtension (configName _x + "^" + getText (_x >> "name") + "^" + getText (_x >> "icon") + "^" + "~0000");
 	
 } forEach _classes;
 "debug_console" callExtension ("A");
