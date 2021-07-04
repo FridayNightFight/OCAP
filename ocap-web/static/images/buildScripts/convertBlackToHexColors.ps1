@@ -50,132 +50,167 @@ ForEach ($Folder in (Get-ChildItem -Directory | ForEach-Object FullName)) {
 
 
 
+
+
 # FOR GENERAL COLORIZED MARKERS
 $ParentPath = (Get-Location).Path
-ForEach ($Folder in (Get-ChildItem -Directory | ForEach-Object FullName)) {
-	$TargetColors = @(
-		"000000",
-		"0000FF",
-		"004C99",
-		"008000",
-		"00CC00",
-		"660080",
-		"678B9B",
-		"800000",
-		"804000",
-		"808080",
-		"809966",
-		"ADBF83",
-		"B040A7",
-		"B13339",
-		"B29900",
-		"D96600",
-		"D9D900",
-		"E60000",
-		"F08231",
-		"FF4C66",
-		"FFFFFF"
-		"261C1C",
-		"808080",
-		"BA3B2B",
-		"523836",
-		"D6960D",
-		"E0C91A",
-		"A39947",
-		"528C3D",
-		"404F9C",
-		"EDB8C9",
-		"EDEBBA",
-		"B13339",
-		"ADBF83",
-		"F08231",
-		"678B9B",
-		"B040A7",
-		"5A595A",
-		"B21A00",
-		"009900",
-		"000000",
-		"B21A00",
-		"009900",
-		"1A1AE6",
-		"CC9900",
-		"CCCCCC"
+workflow Convert-IconsToColored {
+	[CmdletBinding()]
+	param (
+		[Parameter()]
+		[Array]
+		$Folders
 	)
-	# $Folder = Get-Location
-	Set-Location $Folder
-	Write-Host "Processing $Folder"
-	$FolderName = (Get-Item (Get-Location).Path).Name
+	foreach -parallel ($Folder In $Folders) {
+		inlineScript {
+		
+			$TargetColors = @(
+				"000000",
+				"0000FF",
+				"004C99",
+				"008000",
+				"00CC00",
+				"660080",
+				"678B9B",
+				"800000",
+				"804000",
+				"808080",
+				"809966",
+				"ADBF83",
+				"B040A7",
+				"B13339",
+				"B29900",
+				"D96600",
+				"D9D900",
+				"E60000",
+				"F08231",
+				"FF4C66",
+				"FFFFFF"
+				"261C1C",
+				"808080",
+				"BA3B2B",
+				"523836",
+				"D6960D",
+				"E0C91A",
+				"A39947",
+				"528C3D",
+				"404F9C",
+				"EDB8C9",
+				"EDEBBA",
+				"B13339",
+				"ADBF83",
+				"F08231",
+				"678B9B",
+				"B040A7",
+				"5A595A",
+				"B21A00",
+				"009900",
+				"000000",
+				"B21A00",
+				"009900",
+				"1A1AE6",
+				"CC9900",
+				"CCCCCC"
+			)
+			# $Folder = Get-Location
+			$Folder = $using:Folder
+			Set-Location $Folder
+			Write-Host "Processing $Folder"
+			$FolderName = (Get-Item (Get-Location).Path).Name
 
 
-	# Don't touch markers that have unique colors such as flags or colored icons that will only ever be white.
-	# We also don't need to do anything with folders that have .svg files in them, as those are system-related.
-	if (
-		$null -ne (Get-ChildItem -File -Filter "*.svg") -or
-		$FolderName -match 'flag_' -or
-		$FolderName -match 'faction_' -or
-		$FolderName -in @(
-			"moduleCoverMap",
-			"safeStart",
-			"magIcons",
-			"objectMarker",
-			"ellipse",
-			"rectangle",
-			"RedCrystal",
-			"loc_CivilDefense",
-			"loc_CulturalProperty",
-			"loc_DangerousForces",
-			"magIcons"
-		)
-	) { continue }
-
-	# This is for markers with white (FFFFFF) inner color and black borders, such as the vanilla INFANTRY markers.
-	# Basically, anything that isn't all one color and needs special processing only on the default 'white' with transparency.
-	if (
-		$FolderName.Substring(0, 2) -in @("b_", "o_", "n_", "c_") -or
-		$FolderName.Substring(0, 4) -in @("LIB_n", "LIB_g", "LIB_n", "LIB_o") -or
-		$FolderName -match '$loc_Power' -or
-		$FolderName -match '$respawn' -or
-		$FolderName -in @(
-			"loc_BusStop",
-			"loc_Church",
-			"loc_Frame",
-			"loc_FuelStation",
-			"loc_Hospital",
-			"loc_Lighthouse",
-			"loc_Quay",
-			"loc_SafetyZone",
-			"loc_Transmitter",
-			"loc_WaterTower"
-		)
-	) {
-		ForEach ($ColorHex in $TargetColors) {
-			if ($ColorHex -ne "FFFFFF") {
-				Start-Process cmd -ArgumentList @(
-					"/c",
-					"magick",
-					"FFFFFF.png +write mpr:img",
-					"-alpha off -fuzz 90% -fill ""#$ColorHex"" -opaque ""#FFFFFF""",
-					"( mpr:img -alpha extract )",
-					"-alpha off -compose copy_opacity -composite",
-					"$ColorHex.png"
+			# Don't touch markers that have unique colors such as flags or colored icons that will only ever be white.
+			# We also don't need to do anything with folders that have .svg files in them, as those are system-related.
+			if (
+				$null -ne (Get-ChildItem -File -Filter "*.svg") -or
+				$FolderName -match 'flag_' -or
+				$FolderName -match 'faction_' -or
+				$FolderName -in @(
+					"moduleCoverMap",
+					"safeStart",
+					"magIcons",
+					"objectMarker",
+					"ellipse",
+					"rectangle",
+					"RedCrystal",
+					"loc_CivilDefense",
+					"loc_CulturalProperty",
+					"loc_DangerousForces",
+					"magIcons"
 				)
+			) {
+				# do nothing
+			} elseif ($FolderName.Length -ge 4) {
+
+				# This is for markers with white (FFFFFF) inner color and black borders, such as the vanilla INFANTRY markers.
+				# Basically, anything that isn't all one color and needs special processing only on the default 'white' with transparency.
+				if (
+					$FolderName.Substring(0, 2) -in @("b_", "o_", "n_", "c_") -or
+					$FolderName.Substring(0, 4) -in @("LIB_n", "LIB_g", "LIB_n", "LIB_o") -or
+					$FolderName -match 'loc_Power' -or
+					$FolderName -match 'respawn' -or
+					$FolderName -in @(
+						"loc_BusStop",
+						"loc_Church",
+						"loc_Frame",
+						"loc_FuelStation",
+						"loc_Hospital",
+						"loc_Lighthouse",
+						"loc_Quay",
+						"loc_SafetyZone",
+						"loc_Transmitter",
+						"loc_WaterTower"
+					)
+				) {
+					ForEach ($ColorHex in $TargetColors) {
+						if ($ColorHex -ne "FFFFFF") {
+							Start-Process cmd -ArgumentList @(
+								"/c",
+								"magick",
+								"FFFFFF.png +write mpr:img",
+								"-alpha off -fuzz 75% -fill ""#$ColorHex"" -opaque ""#FFFFFF""",
+								"( mpr:img -alpha extract )",
+								"-alpha off -compose copy_opacity -composite",
+								"$ColorHex.png"
+							) -NoNewWindow -Wait
+						}
+					}
+				} else {
+					# Otherwise, we'll just colorize it all, keeping the contrast of black and white but tinting the entire icon because there's no border to worry about.
+					ForEach ($ColorHex in $TargetColors) {
+						if ($ColorHex -ne "FFFFFF") {
+
+							Start-Process cmd -ArgumentList @(
+								"/c",
+								"magick",
+								"FFFFFF.png +write mpr:img",
+								"-alpha off -fuzz 75% -fill ""#$ColorHex"" -opaque ""#FFFFFF"" -colorize 100%",
+								"( mpr:img -alpha extract )",
+								"-alpha off -compose copy_opacity -composite",
+								"$ColorHex.png"
+							) -NoNewWindow -Wait
+						}
+					}
+				}
+			} else {
+	
+				# Otherwise, we'll just colorize it all, keeping the contrast of black and white but tinting the entire icon because there's no border to worry about.
+				ForEach ($ColorHex in $TargetColors) {
+					if ($ColorHex -ne "FFFFFF") {
+
+						Start-Process cmd -ArgumentList @(
+							"/c",
+							"magick",
+							"FFFFFF.png +write mpr:img",
+							"-alpha off -fuzz 75% -fill ""#$ColorHex"" -opaque ""#FFFFFF"" -colorize 100%",
+							"( mpr:img -alpha extract )",
+							"-alpha off -compose copy_opacity -composite",
+							"$ColorHex.png"
+						) -NoNewWindow -Wait
+					}
+				}
 			}
 		}
 	}
-	
-	# Otherwise, we'll just colorize it all, keeping the contrast of black and white but tinting the entire icon because there's no border to worry about.
-	ForEach ($ColorHex in $TargetColors) {
-		if ($ColorHex -ne "FFFFFF") {
-
-			Start-Process cmd -ArgumentList @(
-				"/c",
-				"magick",
-				"FFFFFF.png +write mpr:img",
-				"-alpha off -fuzz 90% -fill ""#$ColorHex"" -opaque ""#FFFFFF"" -colorize 100%",
-				"( mpr:img -alpha extract )",
-				"-alpha off -compose copy_opacity -composite",
-				"$ColorHex.png"
-			)
-		}
-	}
 }
+Convert-IconsToColored -Folders (Get-ChildItem -Path "..\markers" -Directory | ForEach-Object FullName)
