@@ -49,7 +49,7 @@ v 4.1.1.7 2021-02-01 Zealot Additional debug info
 v 4.2.0.0 2021-06-30 Zealot additional optional parameters for MARKER:CREATE, MARKER:MOVE, SAVE
 v 4.2.0.1 2021-07-01 Zealot -1 marker duration fixed
 v 4.2.0.2 2021-07-02 Zealot Added brush parameter
-v 4.3.0.0 2021-07-05 Zealot Many small improvements, linux build
+v 4.3.0.0 2021-07-05 Zealot Many small improvements, linux build 
 
 TODO:
 - чтение запись настроек
@@ -140,9 +140,7 @@ void commandMarkerDelete(const vector<string> &args);
 void commandMarkerMove(const vector<string> &args);
 
 namespace {
-
-    bool init = false;
-	using json = nlohmann::json;
+    using json = nlohmann::json;
 	namespace fs = std::filesystem;
 
 	thread command_thread;
@@ -563,7 +561,7 @@ pair<string, string> saveCurrentReplayToTempFile() {
 	currentReplay.close();
 
 	vector<uint8_t> archive;
-	LOG(INFO) << "Replay saved:" << temp_fname << ":" << temp_fname.native();
+	LOG(INFO) << "Replay saved:" << temp_fname;
 	string archive_name;
 
 	if (true) {
@@ -1339,7 +1337,7 @@ int __stdcall RVExtensionArgs(char *output, int outputSize, const char *function
 
 
 
-#ifdef WIN32
+#ifdef _WIN32
 // Normal Windows DLL junk...
 BOOL APIENTRY DllMain(HMODULE hModule,
 	DWORD  ul_reason_for_call,

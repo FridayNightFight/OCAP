@@ -1,7 +1,7 @@
 #ifndef OCAP_REPLAY_SAVER_2_H
 #define OCAP_REPLAY_SAVER_2_H
 
-#ifdef WIN32
+#ifdef _WIN32
     #define OCAP_EXPORT extern "C" __declspec (dllexport)
 #else
     #define OCAP_EXPORT extern "C" 
