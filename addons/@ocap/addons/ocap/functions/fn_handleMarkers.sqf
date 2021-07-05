@@ -158,29 +158,30 @@ _shape
 		if (isServer && ["ObjectMarker", _marker] call BIS_fnc_inString) exitWith {};
 
 		[{
-			name player;
-		}, [], 2] call CBA_fnc_waitAndExecute;
+			params["_marker", "_channelNumber", "_owner", "_local"];
+			_pos = markerPos _marker;
+			_type = markerType _marker;
+			_shape = markerShape _marker;
+			_size = markerSize _marker;
+			_dir = markerDir _marker;
+			_brush = markerBrush _marker;
+			_color = markerColor _marker;
+			_text = markerText _marker;
+			_alpha = markerAlpha _marker;
+			_polyline = markerPolyline _marker;
+			if (count _polyline != 0) then {
+				_pos = _polyline;
+			} else {
+				_pos resize 2;
+			};
 
-		_pos = markerPos _marker;
-		_type = markerType _marker;
-		_shape = markerShape _marker;
-		_size = markerSize _marker;
-		_dir = markerDir _marker;
-		_brush = markerBrush _marker;
-		_color = markerColor _marker;
-		_text = markerText _marker;
-		_alpha = markerAlpha _marker;
-		_polyline = markerPolyline _marker;
-		if (count _polyline != 0) then {
-			_pos = _polyline;
-		} else {
-			_pos resize 2;
-		};
+			diag_log text format["OCAPLOG: Sending data from %1 with param CREATED and name ""%2""", _owner, _marker];
 
-		diag_log text format["OCAPLOG: Sending data from %1 with param CREATED and name ""%2""", _owner, _marker];
+			// "_eventType", "_mrk_name", "_mrk_owner","_pos", "_type", "_shape", "_size", "_dir", "_brush", "_color", "_alpha", "_text", "_forceGlobal"
+			["ocap_handleMarker", ["CREATED", _marker, _owner, _pos, _type, _shape, _size, _dir, _brush, _color, _alpha, _text]] call CBA_fnc_serverEvent;
+		}, _this, 2] call CBA_fnc_waitAndExecute;
 
-		// "_eventType", "_mrk_name", "_mrk_owner","_pos", "_type", "_shape", "_size", "_dir", "_brush", "_color", "_alpha", "_text", "_forceGlobal"
-		["ocap_handleMarker", ["CREATED", _marker, _owner, _pos, _type, _shape, _size, _dir, _brush, _color, _alpha, _text]] call CBA_fnc_serverEvent;
+		
 	}];
 
 	// handle marker moves/updates
