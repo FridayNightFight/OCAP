@@ -1,4 +1,4 @@
-﻿// by Zealot 
+﻿// by Zealot
 // MIT licence https://opensource.org/licenses/MIT
 
 
@@ -30,7 +30,7 @@ v 3.0.8.2 2018-06-18 Zealot Финальный фикс проблемы с им
 v 4.0.0.1 2018-11-26 Zealot Test version, worker threads variants
 v 4.0.0.3 2018-11-29 Zealot Optimised multithreading
 v 4.0.0.4 2018-11-29 Zealot fixed last deadlocks )))
-v 4.0.0.5 2018-12-09 Zealot potential bug with return * char 
+v 4.0.0.5 2018-12-09 Zealot potential bug with return * char
 v 4.0.0.6 2018-12-09 Zealot fixed crash after mission saved
 v 4.0.0.7 2019-12-07 Zealot Using CMake for building
 v 4.1.0.0 2020-01-25 Zealot New option for new golang web app
@@ -49,6 +49,7 @@ v 4.1.1.7 2021-02-01 Zealot Additional debug info
 v 4.2.0.0 2021-06-30 Zealot additional optional parameters for MARKER:CREATE, MARKER:MOVE, SAVE
 v 4.2.0.1 2021-07-01 Zealot -1 marker duration fixed
 v 4.2.0.2 2021-07-02 Zealot Added brush parameter
+v 4.3.0.0 2021-07-05 Zealot Many small improvements, linux build
 
 TODO:
 - чтение запись настроек
@@ -56,14 +57,16 @@ TODO:
 
 */
 
-#define CURRENT_VERSION "4.2.0.2"
+#define CURRENT_VERSION "4.3.0.0"
 
 #pragma endregion
 
 
 #include "easylogging++.h"
 
+
 #include <cstring>
+#include <cstdio>
 #include <string>
 #include <ctime>
 #include <fstream>
@@ -84,21 +87,25 @@ TODO:
 #include <queue>
 #include <tuple>
 #include <cstdint>
+#include <filesystem>
 
-#include <Windows.h>
-#include <direct.h>
-#include <process.h>
-#include <curl\curl.h>
+#ifdef _WIN32
+	#include <Windows.h>
+	#include <direct.h>
+	#include <process.h>
+#else
+    #include <time.h>
+#endif
+
+#include <curl/curl.h>
 #include <zlib.h>
 
 #include "json.hpp"
+#include "OcapReplaySaver2.h"
 
-#define LOG_NAME "ocaplog\\ocap-main.%datetime{%Y%M%d_%H%m%s}.log"
-#define LOG_NAME_EXT "ocaplog\\ocap-ext.%datetime{%Y%M%d_%H%m%s}.log"
+
 
 #define REPLAY_FILEMASK "%Y_%m_%d__%H_%M_"
-#define CONFIG_NAME L"OcapReplaySaver2.cfg.json"
-#define CONFIG_NAME_SAMPLE L"OcapReplaySaver2.cfg.json.sample"
 
 #define CMD_NEW_UNIT		":NEW:UNIT:"  // новый юнит зарегистрирована ocap
 #define CMD_NEW_VEH			":NEW:VEH:"  // новая техника зарегистрирована ocap
@@ -133,9 +140,10 @@ void commandMarkerDelete(const vector<string> &args);
 void commandMarkerMove(const vector<string> &args);
 
 namespace {
-	
 
+    bool init = false;
 	using json = nlohmann::json;
+	namespace fs = std::filesystem;
 
 	thread command_thread;
 	queue<tuple<string, vector<string> > > commands;
@@ -163,7 +171,7 @@ namespace {
 	class ocapException : public std::exception {
 	public:
 		ocapException() {};
-		ocapException(const char* e) : std::exception(e) {};
+		ocapException(const char* e) {};
 
 	};
 
@@ -181,7 +189,7 @@ namespace {
 
 #define DUMP_ARGS_TO_LOG if(true){stringstream ss;ss<<args.size()<<"[";for(int i=0;i<args.size();i++){if(i>0)ss<<"::";ss<<args[i];}ss<<"]";LOG(WARNING)<<"ARG DUMP:"<<ss.str();}
 
-	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+	//std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
 
 	json j;
 	bool curl_init = false;
@@ -192,7 +200,7 @@ namespace {
 		std::string newUrl = "https://127.0.0.1/api/v1/operations/add";
 		std::string newServerGameType = "tvt";
 		std::string newUrlRequestSecret = "pwd1234";
-		int newMode = 0;
+		int newMode = 1;
 		int httpRequestTimeout = 120;
 		int traceLog = 0;
 		// TODO: new names and comments, logs dir, change types accordingly, chenage default values
@@ -208,23 +216,23 @@ bool checkUTF8Bytes(std::string& in) {
 		if (!pattern_length) {
 			if (in_char >= '\0' && in_char <= '\x7F') // 1-byte sequence
 				continue;
-			if (in_char >= '\xC0' && in_char <= '\xDF') { // 2-byte sequence 
+			if (in_char >= '\xC0' && in_char <= '\xDF') { // 2-byte sequence
 				pattern_length = 1;
 				continue;
 			}
-			if (in_char >= '\xE0' && in_char <= '\xEF') { // 3-byte sequence 
+			if (in_char >= '\xE0' && in_char <= '\xEF') { // 3-byte sequence
 				pattern_length = 2;
 				continue;
 			}
-			if (in_char >= '\xF0' && in_char <= '\xF7') { // 4-byte sequence 
+			if (in_char >= '\xF0' && in_char <= '\xF7') { // 4-byte sequence
 				pattern_length = 3;
 				continue;
 			}
-			if (in_char >= '\xF8' && in_char <= '\xFB') { // 5-byte sequence 
+			if (in_char >= '\xF8' && in_char <= '\xFB') { // 5-byte sequence
 				pattern_length = 4;
 				continue;
 			}
-			if (in_char >= '\xFC' && in_char <= '\xFD') { // 6-byte sequence 
+			if (in_char >= '\xFC' && in_char <= '\xFD') { // 6-byte sequence
 				pattern_length = 5;
 				continue;
 			}
@@ -477,7 +485,7 @@ void prepareMarkerFrames(int frames) {
 			if (ja[3].get<int>() == -1) {
 				ja[3] = frames;
 			}
-			
+
 			ja.erase(ja.cbegin() + 9); // remove markerId, as it could be long
 			//j["Markers"][i] = json::array({ja[2], ja[3], ja[4], ja[5], ja[6], ja[7],ja[9], ja[10]});
 		}
@@ -495,15 +503,45 @@ void prepareMarkerFrames(int frames) {
 
 }
 
-pair<string, string> saveCurrentReplayToTempFile() {
-	char tPath[MAX_PATH] = { 0 };
-	char tName[MAX_PATH] = { 0 };
-	GetTempPathA(MAX_PATH, tPath);
-	GetTempFileNameA(tPath, "ocap", 0, tName);
+fs::path getAndCreateLogDirectory() {
+#ifdef _WIN32
+    fs::path res = fs::current_path();
+    res += "/";
+    res += "OCAPLOG";
+    res.make_preferred();
+    //fs::create_directories(res);
+    return res;
+#else
+    fs::path res("/var/log/ocap");
+    //fs::create_directories(res);
+#endif // _WIN32
+    return res;
+}
 
-	fstream currentReplay(tName, fstream::out | fstream::binary);
+std::string uniqueFileName() {
+    std::srand(std::time(nullptr));
+    std::string res(5,'\0');
+    std::generate_n( res.begin(), 5, []() {
+        const char chars[] = "0123456789abcdefghijklmnopqrstuvwxyz";
+        constexpr size_t m_index = (sizeof(chars) - 1);
+        return chars[rand() % m_index];
+    });
+    return res;
+}
+
+pair<string, string> saveCurrentReplayToTempFile() {
+    fs::path temp_fname = fs::temp_directory_path();
+    temp_fname += "/";
+
+    temp_fname += "ocap_";
+    temp_fname += uniqueFileName();
+    temp_fname.make_preferred();
+
+    LOG(TRACE) << "Temp file name:" << temp_fname;
+
+	fstream currentReplay(temp_fname, fstream::out | fstream::binary);
 	if (!currentReplay.is_open()) {
-		LOG(ERROR) << "Cannot open result file: " << tName;
+		LOG(ERROR) << "Cannot open result file: " << temp_fname;
 		throw ocapException("Cannot open temp file!");
 	}
 
@@ -524,23 +562,23 @@ pair<string, string> saveCurrentReplayToTempFile() {
 	currentReplay.flush();
 	currentReplay.close();
 
-	vector<uint8_t> archive; 
-	LOG(INFO) << "Replay saved:" << tName;
+	vector<uint8_t> archive;
+	LOG(INFO) << "Replay saved:" << temp_fname << ":" << temp_fname.native();
 	string archive_name;
 
 	if (true) {
-		archive_name = string(tName) + ".gz";
+		archive_name = temp_fname.string() + ".gz";
 		if (write_compressed_data(archive_name.c_str(), all_replay.c_str(), all_replay.size())) {
 			LOG(INFO) << "Archive saved:" << archive_name << " Removing uncompressed file.";
-			remove(tName);
+			remove(temp_fname);
 		}
 		else {
 			LOG(WARNING) << "Archive not saved! " << archive_name;
 			archive_name = "";
 		}
 	}
-	
-	return make_pair(string(tName), archive_name);
+
+	return make_pair(temp_fname.string(), archive_name);
 }
 
 std::string& utf8to_translit(const std::string& in, std::string& out) {
@@ -594,10 +632,9 @@ std::string& utf8to_translit(const std::string& in, std::string& out) {
 
 std::string generateResultFileName(const std::string &name) {
 	std::time_t t = std::time(nullptr);
-	std::tm tm;
-	localtime_s(&tm, &t);
+	const std::tm *tm = std::localtime(&t);
 	std::stringstream ss;
-	ss << std::put_time(&tm, REPLAY_FILEMASK) << name;
+	ss << std::put_time(tm, REPLAY_FILEMASK) << name;
 	std::string out_s; out_s.reserve(256);
 	utf8to_translit(ss.str(), out_s);
 	out_s += ".json";
@@ -623,17 +660,24 @@ T& read_config(const json& js, const char* name, T &set_to) {
 	return set_to;
 }
 
-void readWriteConfig(HMODULE hModule) {
-	wchar_t szPath[MAX_PATH], szDirPath[_MAX_DIR];
+#ifdef _WIN32
+fs::path get_config_path_win(HMODULE hModule) {
+    wchar_t szPath[MAX_PATH], szDirPath[_MAX_DIR];
 	GetModuleFileNameW(hModule, szPath, MAX_PATH);
 	_wsplitpath_s(szPath, 0, 0, szDirPath, _MAX_DIR, 0, 0, 0, 0);
-	wstring path(szDirPath), path_sample(szDirPath);
-	path += CONFIG_NAME;
-	path_sample += CONFIG_NAME_SAMPLE;
-	if (!std::ifstream(path_sample)) {
-		LOG(INFO) << "Creating sample config file: " << converter.to_bytes(path_sample);
+	fs::path res = szDirPath;
+	return res;
+}
+#endif
 
-		json j = { 
+void readWriteConfig(const fs::path &cfg_path = "/etc/ocap") {
+	fs::path cfg_name = cfg_path;  cfg_name += "/OcapReplaySaver2.cfg.json"; cfg_name.make_preferred();
+	fs::path cfg_name_sample = cfg_path; cfg_name_sample += "/OcapReplaySaver2.cfg.json.sample"; cfg_name_sample.make_preferred();
+
+	if (!std::ifstream(cfg_name_sample)) {
+		LOG(INFO) << "Creating sample config file: " << cfg_name_sample;
+
+		json j = {
 			{ "addFileUrl", config.addFileUrl },
 			{ "dbInsertUrl", config.dbInsertUrl },
 			{ "httpRequestTimeout", config.httpRequestTimeout },
@@ -643,19 +687,21 @@ void readWriteConfig(HMODULE hModule) {
 			{ "newServerGameType", config.newServerGameType },
 			{ "newUrlRequestSecret", config.newUrlRequestSecret}
 		};
-		std::ofstream out(path_sample, ofstream::out | ofstream::binary);
+		std::ofstream out(cfg_name_sample, ofstream::out | ofstream::binary);
 		out << j.dump(4) << endl;
 	}
-	LOG(INFO) << "Trying to read config file:" << converter.to_bytes(path);
-	ifstream cfg(path, ifstream::in | ifstream::binary);
+	LOG(INFO) << "Trying to read config file:" << cfg_name;
+	LOG(INFO) << cfg_name.native();
+	ifstream cfg(cfg_name, ifstream::in | ifstream::binary);
 
 	json jcfg;
 	if (!cfg.is_open()) {
 		LOG(WARNING) << "Cannot open cfg file! Using default params.";
 		return;
 	}
+	//TODO: check errors
 	cfg >> jcfg;
-	
+
 	read_config(jcfg, "addFileUrl", config.addFileUrl);
 	read_config(jcfg, "dbInsertUrl", config.dbInsertUrl);
 	read_config(jcfg, "httpRequestTimeout", config.httpRequestTimeout);
@@ -806,11 +852,11 @@ void curlUploadFile(string url, string file, string fileName, int timeout) {
 
 			field = curl_mime_addpart(form);
 			curl_mime_name(field, "fileContents");
-			curl_mime_filedata(field, file.c_str()); 
+			curl_mime_filedata(field, file.c_str());
 
 			field = curl_mime_addpart(form);
 			curl_mime_name(field, "fileName");
-			curl_mime_data(field, fileName.c_str(), CURL_ZERO_TERMINATED); 
+			curl_mime_data(field, fileName.c_str(), CURL_ZERO_TERMINATED);
 			field = curl_mime_addpart(form);
 			curl_mime_name(field, "submit");
 			curl_mime_data(field, "send", CURL_ZERO_TERMINATED);
@@ -826,7 +872,7 @@ void curlUploadFile(string url, string file, string fileName, int timeout) {
 
 			stringstream total;
 			if (!res) {
-				curl_off_t ul; 
+				curl_off_t ul;
 				double ttotal;
 				res = curl_easy_getinfo(curl, CURLINFO_SIZE_UPLOAD_T, &ul);
 				if (!res)
@@ -834,7 +880,7 @@ void curlUploadFile(string url, string file, string fileName, int timeout) {
 				res = curl_easy_getinfo(curl, CURLINFO_TOTAL_TIME, &ttotal);
 				if (!res)
 					total << " in " <<  ttotal << " sec.";
-				
+
 			}
 			total << " URL:" << url;
 
@@ -867,7 +913,7 @@ void curlActions(string worldName, string missionName, string duration, string f
 		curlDbInsert(config.dbInsertUrl, worldName, missionName, duration, filename, config.httpRequestTimeout);
 		curlUploadFile(config.addFileUrl, tfile.first, filename, config.httpRequestTimeout);
 	}
-	
+
 	LOG(INFO) << "Finished!";
 }
 
@@ -914,7 +960,7 @@ void commandMarkerCreate(const vector<string> &args) {
 		clr = "000000";
 	}
 	json frameNo = JSON_INT_FROM_ARG(4);
-	
+
 	json a = json::array({
 		/*0*/	JSON_STR_FROM_ARG(2), // markerType
 		/*1*/	JSON_STR_FROM_ARG(3), // markerText
@@ -935,7 +981,7 @@ void commandMarkerCreate(const vector<string> &args) {
 		json brush = JSON_STR_FROM_ARG(13);
 		a.push_back(brush);
 	}
-	
+
 	//json alpha = args.size() < 13 ? ((shape == "RECTANGLE" || shape == "ELLIPSE") ? json::number_integer_t(20) : json::number_integer_t(100)) : JSON_INT_FROM_ARG(12);
 
 	//                                           markerPos                dir                    alpha
@@ -1004,7 +1050,7 @@ void commandLog(const vector<string> &args) {
 	CLOG(WARNING, "ext") << ss.str();
 }
 
-// TRACE :FIRED: 3:[116::147::[3728.17,2999.07]] 
+// TRACE :FIRED: 3:[116::147::[3728.17,2999.07]]
 void commandFired(const vector<string> &args)
 {
 	COMMAND_CHECK_INPUT_PARAMETERS(3)
@@ -1022,7 +1068,7 @@ void commandFired(const vector<string> &args)
 	}
 }
 
-// START: 4:["Woodland_ACR"::"RBC_194_Psy_woiny_13a"::"[TF]Shatun63"::1.23] 
+// START: 4:["Woodland_ACR"::"RBC_194_Psy_woiny_13a"::"[TF]Shatun63"::1.23]
 void commandStart(const vector<string> &args) {
 	COMMAND_CHECK_INPUT_PARAMETERS(4)
 
@@ -1054,12 +1100,12 @@ void commandStart(const vector<string> &args) {
 	CLOG(INFO, "ext") << "Starting record." << args[0] << args[1] << args[2] << args[3];
 }
 
-// :NEW:UNIT: 6:[0::0::"|UN|Capt.Farid"::"Alpha 1-1"::"EAST"::1] 
+// :NEW:UNIT: 6:[0::0::"|UN|Capt.Farid"::"Alpha 1-1"::"EAST"::1]
 void commandNewUnit(const vector<string> &args) {
 	COMMAND_CHECK_INPUT_PARAMETERS(6)
 	COMMAND_CHECK_WRITING_STATE
 
-	json unit { 
+	json unit {
 		{ "startFrameNum", JSON_INT_FROM_ARG(0) },
 		{ "type" , "unit" },
 		{ "id", JSON_INT_FROM_ARG(1) },
@@ -1073,12 +1119,12 @@ void commandNewUnit(const vector<string> &args) {
 	j["entities"].push_back(unit);
 }
 
-// :NEW:VEH: 4:[0::204::"plane"::"MQ-4A Greyhawk"] 
+// :NEW:VEH: 4:[0::204::"plane"::"MQ-4A Greyhawk"]
 void commandNewVeh(const vector<string> &args) {
 	COMMAND_CHECK_INPUT_PARAMETERS(4)
 	COMMAND_CHECK_WRITING_STATE
 
-	json unit { 
+	json unit {
 		{ "startFrameNum", JSON_INT_FROM_ARG(0) },
 		{ "type" , "vehicle" },
 		{ "id", JSON_INT_FROM_ARG(1) },
@@ -1090,7 +1136,7 @@ void commandNewVeh(const vector<string> &args) {
 	j["entities"].push_back(unit);
 }
 
-// :SAVE: 5:["Beketov"::"RBC 202 Неожиданный поворот 05"::"[RE]Aventador"::1.23::4233] 
+// :SAVE: 5:["Beketov"::"RBC 202 Неожиданный поворот 05"::"[RE]Aventador"::1.23::4233]
 void commandSave(const vector<string> &args) {
 	COMMAND_CHECK_INPUT_PARAMETERS2(5,6)
 	COMMAND_CHECK_WRITING_STATE
@@ -1109,10 +1155,10 @@ void commandSave(const vector<string> &args) {
 	prepareMarkerFrames(j["endFrame"]);
 	pair<string, string> fnames = saveCurrentReplayToTempFile();
 	LOG(INFO) << "TMP:" << fnames.first;
-		
+
 	string fname = generateResultFileName(j["missionName"]);
 	curlActions(j["worldName"], j["missionName"], to_string(stod(args[3]) * stod(args[4])), fname, fnames);
-	
+
 	return commandClear(args);
 }
 
@@ -1125,7 +1171,7 @@ void commandClear(const vector<string> &args)
 	is_writing = false;
 }
 
-// :UPDATE:UNIT: 7:[0::[14548.4,19793.9]::84::1::0::"|UN|Capt.Farid"::1] 
+// :UPDATE:UNIT: 7:[0::[14548.4,19793.9]::84::1::0::"|UN|Capt.Farid"::1]
 void commandUpdateUnit(const vector<string> &args)
 {
 	COMMAND_CHECK_INPUT_PARAMETERS2(7,8)
@@ -1133,7 +1179,7 @@ void commandUpdateUnit(const vector<string> &args)
 
 		int id = stoi(args[0]);
 	if (!j["entities"][id].is_null()) {
-		j["entities"][id]["positions"].push_back(json::array({ 
+		j["entities"][id]["positions"].push_back(json::array({
 			JSON_PARSE_FROM_ARG(1),
 			JSON_INT_FROM_ARG(2),
 			JSON_INT_FROM_ARG(3),
@@ -1148,7 +1194,7 @@ void commandUpdateUnit(const vector<string> &args)
 	}
 }
 
-// :UPDATE:VEH: 5:[204::[2099.44,6388.62,0]::0::1::[202,203]] 
+// :UPDATE:VEH: 5:[204::[2099.44,6388.62,0]::0::1::[202,203]]
 void commandUpdateVeh(const vector<string> &args)
 {
 	COMMAND_CHECK_INPUT_PARAMETERS(5)
@@ -1169,11 +1215,11 @@ void commandUpdateVeh(const vector<string> &args)
 	}
 }
 
-// :EVENT: 3:[0::"connected"::"[RMC] DoS"] 
+// :EVENT: 3:[0::"connected"::"[RMC] DoS"]
 // :EVENT: 5:[404::"killed"::84::[83, "AKS-74N"]::10]
-// :EVENT: 3:[3312::"disconnected"::"[VRG] mEss1a"] 
+// :EVENT: 3:[3312::"disconnected"::"[VRG] mEss1a"]
 // :EVENT: 5:[3652::"killed"::160::[83, "ПКП ""Печенег"""]::80]
-// :EVENT: 3:[4939::"endMission"::["EAST","OPFOR Wins. Their enemies suffered heavy losses!"]] 
+// :EVENT: 3:[4939::"endMission"::["EAST","OPFOR Wins. Their enemies suffered heavy losses!"]]
 void commandEvent(const vector<string> &args)
 {
 	COMMAND_CHECK_WRITING_STATE
@@ -1189,22 +1235,17 @@ void commandEvent(const vector<string> &args)
 
 #pragma endregion
 
-void initialize_logger(bool forcelog = false, int verb_level = 0) {
-	bool file_exists = forcelog;
-	if (std::ifstream(LOG_NAME))
-		file_exists = true;
+void initialize_logger(int verb_level = 0) {
+    fs::path logName = getAndCreateLogDirectory();
+    fs::path logNameExt = logName;
+    logName += "/"; logName += "ocap-main.%datetime{%Y%M%d_%H%m%s}.log"; logName.make_preferred();
+    logNameExt += "/"; logNameExt += "ocap-ext.%datetime{%Y%M%d_%H%m%s}.log"; logNameExt.make_preferred();
 
 	el::Configurations defaultConf;
 	defaultConf.setToDefault();
-	if (!file_exists) {
-		defaultConf.setGlobally(el::ConfigurationType::Enabled, "false");
-		defaultConf.setGlobally(el::ConfigurationType::ToFile, "false");
-	}
-	else {
-		defaultConf.setGlobally(el::ConfigurationType::ToFile, "true");
-		defaultConf.setGlobally(el::ConfigurationType::Enabled, "true");
-		defaultConf.setGlobally(el::ConfigurationType::Filename, LOG_NAME);
-	}
+    defaultConf.setGlobally(el::ConfigurationType::ToFile, "true");
+    defaultConf.setGlobally(el::ConfigurationType::Enabled, "true");
+    defaultConf.setGlobally(el::ConfigurationType::Filename, logName.string());
 
 	defaultConf.setGlobally(el::ConfigurationType::ToStandardOutput, "false");
 	defaultConf.setGlobally(el::ConfigurationType::Format, "%datetime %thread [%fbase:%line:%func] %level %msg");
@@ -1217,7 +1258,7 @@ void initialize_logger(bool forcelog = false, int verb_level = 0) {
 	el::Configurations externalConf;
 	externalConf.setToDefault();
 	externalConf.setFromBase(&defaultConf);
-	externalConf.setGlobally(el::ConfigurationType::Filename, LOG_NAME_EXT);
+	externalConf.setGlobally(el::ConfigurationType::Filename, logNameExt.string());
 	externalConf.setGlobally(el::ConfigurationType::Format, "%datetime %msg");
 
 	//el::Loggers::reconfigureAllLoggers(defaultConf);
@@ -1233,28 +1274,21 @@ void initialize_logger(bool forcelog = false, int verb_level = 0) {
 
 	el::Loggers::reconfigureLogger(el::Loggers::getLogger("ext", true), externalConf);
 	el::Helpers::validateFileRolling(el::Loggers::getLogger("ext"), el::Level::Info);
-		
+
 	LOG(INFO) << "Logging initialized " << CURRENT_VERSION << " build: " << __TIMESTAMP__;
 	CLOG(INFO, "ext") << "External logging initialized " << CURRENT_VERSION << " build: " << __TIMESTAMP__;
 }
 
 
-extern "C"
-{
-	__declspec (dllexport) void __stdcall RVExtensionVersion(char *output, int outputSize);
-	__declspec (dllexport) void __stdcall RVExtension(char *output, int outputSize, const char *function);
-	__declspec (dllexport) int __stdcall RVExtensionArgs(char *output, int outputSize, const char *function, const char **args, int argsCnt);
-}
-
 void __stdcall RVExtensionVersion(char *output, int outputSize)
 {
-	strncpy_s(output, outputSize, CURRENT_VERSION, _TRUNCATE);
+	strncpy(output, CURRENT_VERSION, outputSize - 1);
 }
 
 void __stdcall RVExtension(char *output, int outputSize, const char *function)
 {
 	LOG(ERROR) << "IN:" << function << " OUT:" << "Error: Not supported call";
-	strncpy_s(output, outputSize, "Error: Not supported call", _TRUNCATE);
+	strncpy(output, "Error: Not supported call", outputSize - 1);
 }
 
 int __stdcall RVExtensionArgs(char *output, int outputSize, const char *function, const char **args, int argsCnt)
@@ -1275,8 +1309,8 @@ int __stdcall RVExtensionArgs(char *output, int outputSize, const char *function
 	try {
 		string str_function(function);
 		vector<string> str_args;
-		
-		for (int i = 0; i < argsCnt; ++i) 
+
+		for (int i = 0; i < argsCnt; ++i)
 		{
 			str_args.push_back(string(args[i]));
 		}
@@ -1291,11 +1325,11 @@ int __stdcall RVExtensionArgs(char *output, int outputSize, const char *function
 		}
 		command_cond.notify_one();
 	}
-	catch (const exception &e) 
+	catch (const exception &e)
 	{
 		LOG(ERROR) << "Exception: " << e.what();
 	}
-	catch (...) 
+	catch (...)
 	{
 		LOG(ERROR) << "Exception: Unknown";
 	}
@@ -1303,19 +1337,9 @@ int __stdcall RVExtensionArgs(char *output, int outputSize, const char *function
 	return res;
 }
 
-class MainStatic final {
-	MainStatic() {
-
-	}
-	~MainStatic() {
-
-	}
 
 
-
-} main_static;
-
-
+#ifdef WIN32
 // Normal Windows DLL junk...
 BOOL APIENTRY DllMain(HMODULE hModule,
 	DWORD  ul_reason_for_call,
@@ -1325,8 +1349,8 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 	switch (ul_reason_for_call)
 	{
 	case DLL_PROCESS_ATTACH: {
-		initialize_logger(true);
-		readWriteConfig(hModule);
+		initialize_logger();
+		readWriteConfig(get_config_path_win(hModule));
 		break;
 	}
 
@@ -1345,3 +1369,18 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 	}
 	return TRUE;
 }
+#else
+struct MainStatic final {
+	MainStatic() {
+		initialize_logger();
+		readWriteConfig();
+
+	}
+	~MainStatic() {
+        if (curl_init)
+			curl_global_cleanup();
+
+	}
+} main_static;
+
+#endif
