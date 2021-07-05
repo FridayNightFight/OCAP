@@ -382,16 +382,62 @@ function test () {
 	// Add marker to map on click
 	map.on("click", function (e) {
 		//console.log(e.latlng);
+		
 		console.log(map.project(e.latlng, mapMaxNativeZoom));
-		var marker = L.circleMarker(e.latlng).addTo(map);
-		marker.setRadius(5);
+
+		brushPattern = {
+			color: "#FF0000",
+			opacity: 1,
+			angle: 45,
+			weight: 2,
+			spaceWeight: 6
+		};
+
+		var brushPatternObj = new L.StripePattern(brushPattern);
+		brushPatternObj.addTo(map)
+
+		shapeOptions = {
+			color: "#FF0000",
+			stroke: true,
+			fill: true,
+			fillPattern: brushPatternObj
+		};
+
+		var circleMarker;
+		circleMarker = L.circle(e.latlng, shapeOptions);
+		L.Util.setOptions(circleMarker, { radius: 20, interactive: false });
+		circleMarker.addTo(map);
+
+
+		let pos = e.latlng;
+		let startX = pos.lat;
+		let startY = pos.lng;
+		let sizeX = 75;
+		let sizeY = 75;
+
+		let pointsRaw = [
+			[startX - sizeX, startY + sizeY], // top left
+			[startX + sizeX, startY + sizeY], // top right
+			[startX + sizeX, startY - sizeY], // bottom right
+			[startX - sizeX, startY - sizeY] // bottom left
+		];
+
+		var sqMarker = L.polygon(pointsRaw, { noClip: true, interactive: false});
+		L.Util.setOptions(sqMarker, shapeOptions);
+		// if (brushPattern) {
+		// 	L.Util.setOptions(sqMarker, { fillPattern: brushPatternObj, fillOpacity: 1.0});
+		// };
+		sqMarker.addTo(map);
+
+		// var marker = L.circleMarker(e.latlng).addTo(map);
+		// marker.setRadius(5);
 	});
 
-	var marker = L.circleMarker(armaToLatLng([2438.21, 820])).addTo(map);
-	marker.setRadius(5);
+	// var marker = L.circleMarker(armaToLatLng([2438.21, 820])).addTo(map);
+	// marker.setRadius(5);
 
-	var marker = L.circleMarker(armaToLatLng([2496.58, 5709.34])).addTo(map);
-	marker.setRadius(5);
+	// var marker = L.circleMarker(armaToLatLng([2496.58, 5709.34])).addTo(map);
+	// marker.setRadius(5);
 };
 
 function dateToTimeString (date) {

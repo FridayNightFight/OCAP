@@ -60,93 +60,158 @@ class Marker {
 		// "Cross"
 		// "Border"
 		// "SolidBorder"
-		this._shapeOptions = null;
-		this._brushPattern = null;
+		this._shapeOptions = {};
+		var brushPattern;
+		
+		// if (["Cross", "Grid", "DiagGrid"].includes(brush)) {
+		// 	var patternShape = new L.PatternPath({ d: 'M10 0 L7 20 L25 20 Z', fill: true});
+		// 	brushPattern = new L.Pattern({
+		// 		patternUnits: "objectBoundingBox",
+		// 		patternContentUnits: "objectBoundingBox",
+		// 		color: this._color,
+		// 		opacity: 1
+		// 	});
+		// 	brushPattern.addShape(patternShape);
+		// } else {
+			brushPattern = new L.StripePattern();
+		// };
+		this._brushPattern = brushPattern;
+		this._brushPatternOptions = null;
 		switch (brush) {
 			case "Solid":
 				this._shapeOptions = {
-						color: this._color,
-						stroke: false,
-						fill: true,
-						fillOpacity: 0.2
+					color: this._color,
+					stroke: false,
+					fill: true,
+					fillOpacity: 0.3
 				};
 				break;
 			case "SolidFull":
 				this._shapeOptions = {
-						color: this._color,
-						stroke: false,
-						fill: true,
-						fillOpacity: 1
+					color: this._color,
+					stroke: false,
+					fill: true,
+					fillOpacity: 1
 				};
 				break;
 			case "Horizontal":
-				this._brushPattern = {
-						color: this._color,
-						opacity: 0.2,
-						angle: 0,
-						weight: 2
+				this._brushPatternOptions = {
+					color: this._color,
+					opacity: 1,
+					angle: 0,
+					weight: 2
 				};
 				this._shapeOptions = {
-						color: this._color,
-						stroke: false,
-						fill: false,
-					};
+					color: this._color,
+					stroke: false,
+					fill: true,
+					fillOpacity: 1
+				};
 				break;
-			case ("Vertical" || "Grid"):
-				this._brushPattern = {
-						color: this._color,
-						opacity: 0.2,
-						angle: 90,
-						weight: 2
+			case "Vertical":
+				this._brushPatternOptions = {
+					color: this._color,
+					opacity: 1,
+					angle: 90,
+					weight: 2
 				};
 				this._shapeOptions = {
-
-						color: this._color,
-						stroke: false,
-						fill: false,
-					};
+					color: this._color,
+					stroke: false,
+					fill: true,
+					fillOpacity: 1
+				};
+				break;
+			case "Grid":
+				this._brushPatternOptions = {
+					color: this._color,
+					opacity: 0.8,
+					angle: 90,
+					weight: 1,
+					spaceWeight: 1
+				};
+				this._shapeOptions = {
+					color: this._color,
+					stroke: false,
+					fill: true,
+					fillOpacity: 1
+				};
 				break;
 			case "FDiagonal":
-				this._brushPattern = {
-						color: this._color,
-						opacity: 0.2,
-						angle: 315,
-						weight: 2,
-						spaceWeight: 6
+				this._brushPatternOptions = {
+					color: this._color,
+					opacity: 1,
+					angle: 315,
+					weight: 2,
+					spaceWeight: 6
 				};
 				this._shapeOptions = {
-						color: this._color,
-						stroke: false,
-						fill: false
-					};
+					color: this._color,
+					stroke: false,
+					fill: true,
+					fillOpacity: 1
+				};
 				break;
-			case ("BDiagonal" || "DiagGrid" || "Cross"):
-				this._brushPattern = {
-						color: this._color,
-						opacity: 0.2,
-						angle: 45,
-						weight: 2,
-						spaceWeight: 6
+			case "BDiagonal":
+				this._brushPatternOptions = {
+					color: this._color,
+					opacity: 1,
+					angle: 45,
+					weight: 2,
+					spaceWeight: 6
 				};
 				this._shapeOptions = {
-						color: this._color,
-						stroke: false,
-						fill: false
-					};
+					color: this._color,
+					stroke: false,
+					fill: true,
+					fillOpacity: 1
+				};
+				break;
+			case "DiagGrid":
+				this._brushPatternOptions = {
+					color: this._color,
+					opacity: 0.8,
+					angle: 45,
+					weight: 1,
+					spaceWeight: 1
+				};
+				this._shapeOptions = {
+					color: this._color,
+					stroke: false,
+					fill: true,
+					fillOpacity: 1,
+				};
+				break;
+			case "Cross":
+				this._brushPatternOptions = {
+					color: this._color,
+					opacity: 0.8,
+					angle: 90,
+					weight: 1,
+					spaceWeight: 1
+				};
+				this._shapeOptions = {
+					color: this._color,
+					stroke: false,
+					fill: true,
+					fillOpacity: 1
+				};
 				break;
 			case "Border":
 				this._shapeOptions = {
-						color: this._color,
-						stroke: true,
-						fill: false
-					};
+					color: this._color,
+					stroke: true,
+					fill: false,
+					fillOpacity: 0
+				};
 				break;
 			case "SolidBorder":
 				this._shapeOptions = {
-						color: this._color,
-						stroke: true,
-						fill: true
-					};
+					color: this._color,
+					stroke: true,
+					fill: true,
+					fillOpacity: 0.3
+				};
 				break;
 			default:
 				break;
@@ -397,19 +462,29 @@ class Marker {
 
 		if (this._shape == "ELLIPSE") {
 			let rad = this._size[0] * 0.015 * window.multiplier;
-			// marker = L.circle(latLng, { radius: rad, color: this._color, opacity: 0.5, fill: true, fillColor: this._color, fillOpacity: 0.2, stroke: false, noClip: true, interactive: false }).addTo(map);
-			marker = L.circle(latLng, { radius: rad, noClip: true, interactive: false });
-			L.Util.setOptions(marker, this._shapeOptions);
-			if (this._brushPattern) {
-				L.Util.setOptions(marker, { fillPattern: new L.StripePattern(this._brushPattern).addTo(map) });
+
+			if (this._brushPatternOptions) {
+				// if (!(["Cross", "Grid", "DiagGrid"].includes(this._brush))) {
+					L.Util.setOptions(this._brushPattern, this._brushPatternOptions);
+				// };
+				this._brushPattern.addTo(map);
+				marker = L.circle(latLng, { radius: rad, noClip: true, interactive: false, fillPattern: this._brushPattern });
+				L.Util.setOptions(marker, this._shapeOptions);
+			} else {
+				marker = L.circle(latLng, { radius: rad, noClip: true, interactive: false, renderer: L.canvas() });
+				L.Util.setOptions(marker, this._shapeOptions);
 			};
 			marker.addTo(map);
 		} else if (this._shape == "RECTANGLE") {
-			// marker = L.polygon(latLng, { color: this._color, opacity: 0.5, fillColor: this._color, fillOpacity: 0.2, stroke: false, noClip: true, interactive: false }).addTo(map);
-			marker = L.polygon(latLng, { noClip: true, interactive: false, renderer: L.canvas() });
-			L.Util.setOptions(marker, this._shapeOptions);
-			if (this._brushPattern) {
-				L.Util.setOptions(marker, { fillPattern: new L.StripePattern(this._brushPattern).addTo(map) });
+			
+			if (this._brushPatternOptions) {
+				L.Util.setOptions(this._brushPattern, this._brushPatternOptions);
+				this._brushPattern.addTo(map);
+				marker = L.polygon(latLng, { noClip: true, interactive: false, fillPattern: this._brushPattern });
+				L.Util.setOptions(marker, this._shapeOptions);
+			} else {
+				marker = L.polygon(latLng, { noClip: true, interactive: false, renderer: L.canvas() });
+				L.Util.setOptions(marker, this._shapeOptions);
 			};
 			marker.addTo(map);
 		} else if (this._shape == "POLYLINE") {
@@ -457,10 +532,19 @@ class Marker {
 
 	setMarkerOpacity (opacity) {
 		if (this._marker != null) {
-			let strokeOpacity = opacity;
+			let strokeOpacity;
+			let fillOpacity;
 			if (opacity > 0) {
 				strokeOpacity = opacity + 0.3;
-			};
+				if (this._shapeOptions) {
+					fillOpacity = this._shapeOptions.fillOpacity;
+				} else {
+					fillOpacity = opacity;
+				};
+			} else {
+				strokeOpacity = 0;
+				fillOpacity = 0;
+			}
 			if (this._shape == "ICON") {
 				this._marker.setOpacity(opacity);
 				let popup = this._marker.getPopup();
@@ -468,9 +552,9 @@ class Marker {
 					popup.getElement().style.opacity = opacity;
 				};
 			} else if (this._shape == "ELLIPSE") {
-				this._marker.setStyle({ opacity: strokeOpacity, fillOpacity: opacity });
+				this._marker.setStyle({ opacity: strokeOpacity, fillOpacity: fillOpacity });
 			} else if (this._shape == "RECTANGLE") {
-				this._marker.setStyle({ opacity: strokeOpacity, fillOpacity: opacity });
+				this._marker.setStyle({ opacity: strokeOpacity, fillOpacity: fillOpacity });
 			} else if (this._shape == "POLYLINE") {
 				this._marker.setStyle({ opacity: opacity });
 			};
