@@ -85,9 +85,8 @@ workflow Convert-IconsToColored {
 				"E60000",
 				"F08231",
 				"FF4C66",
-				"FFFFFF"
+				"FFFFFF",
 				"261C1C",
-				"808080",
 				"BA3B2B",
 				"523836",
 				"D6960D",
@@ -97,15 +96,7 @@ workflow Convert-IconsToColored {
 				"404F9C",
 				"EDB8C9",
 				"EDEBBA",
-				"B13339",
-				"ADBF83",
-				"F08231",
-				"678B9B",
-				"B040A7",
 				"5A595A",
-				"B21A00",
-				"009900",
-				"000000",
 				"B21A00",
 				"009900",
 				"1A1AE6",
@@ -145,7 +136,7 @@ workflow Convert-IconsToColored {
 				# This is for markers with white (FFFFFF) inner color and black borders, such as the vanilla INFANTRY markers.
 				# Basically, anything that isn't all one color and needs special processing only on the default 'white' with transparency.
 				if (
-					$FolderName.Substring(0, 2) -in @("b_", "o_", "n_", "c_") -or
+					$FolderName.Substring(0, 2) -in @("b_", "o_", "n_", "c_", "u_") -or
 					$FolderName.Substring(0, 4) -in @("LIB_n", "LIB_g", "LIB_n", "LIB_o") -or
 					$FolderName -match 'loc_Power' -or
 					$FolderName -match 'respawn' -or
@@ -163,7 +154,9 @@ workflow Convert-IconsToColored {
 					)
 				) {
 					ForEach ($ColorHex in $TargetColors) {
-						if ($ColorHex -ne "FFFFFF") {
+						if ($ColorHex -eq "000000") {
+							Copy-Item ".\FFFFFF.png" ".\000000.png"
+						} elseif ($ColorHex -ne "FFFFFF") {
 							Start-Process cmd -ArgumentList @(
 								"/c",
 								"magick",
