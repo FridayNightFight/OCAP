@@ -478,7 +478,9 @@ class Marker {
 		} else if (this._shape == "RECTANGLE") {
 			
 			if (this._brushPatternOptions) {
+				// if (!(["Cross", "Grid", "DiagGrid"].includes(this._brush))) {
 				L.Util.setOptions(this._brushPattern, this._brushPatternOptions);
+				// };
 				this._brushPattern.addTo(map);
 				marker = L.polygon(latLng, { noClip: true, interactive: false, fillPattern: this._brushPattern });
 				L.Util.setOptions(marker, this._shapeOptions);
