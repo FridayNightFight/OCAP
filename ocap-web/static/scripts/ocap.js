@@ -179,13 +179,14 @@ function initMap () {
 		//maxZoom: mapMaxZoom,
 		zoomControl: false,
 		zoomAnimation: true,
-		scrollWheelZoom: true,
+		scrollWheelZoom: false,
 		fadeAnimation: true,
 		crs: L.CRS.Simple,
 		attributionControl: false,
 		zoomSnap: 0.1,
 		zoomDelta: 1,
-		closePopupOnClick: false
+		closePopupOnClick: false,
+		preferCanvas: false
 	}).setView([0, 0], mapMaxNativeZoom);
 
 	mapPanes = map.getPanes();
@@ -249,7 +250,7 @@ function initMap () {
 		// 	console.log(event);
 		var zoom;
 		if (event.deltaY > 0) { zoom = -0.5 } else { zoom = 0.5 };
-		// map.zoomIn(zoom, { animate: false });
+		map.zoomIn(zoom, { animate: false });
 	});
 
 	map.on("dragstart", function () {

@@ -74,9 +74,9 @@ class Marker {
 				// 	opacity: 1
 				// });
 				// brushPattern.addShape(patternShape);
-				brushPattern = new L.StripePattern();
+				brushPattern = new L.StripePattern({ renderer: L.svg()});
 			} else if (["Horizontal", "Vertical", "FDiagonal", "BDiagonal"].includes(brush)) {
-				brushPattern = new L.StripePattern();
+				brushPattern = new L.StripePattern({ renderer: L.svg()});
 			};
 			this._brushPattern = brushPattern;
 			this._brushPatternOptions = null;
@@ -94,7 +94,7 @@ class Marker {
 						color: this._color,
 						stroke: false,
 						fill: true,
-						fillOpacity: 1
+						fillOpacity: 0.8
 					};
 					break;
 				case "Horizontal":
@@ -270,11 +270,11 @@ class Marker {
 
 			if (this._shape == "ICON") {
 				latLng = armaToLatLng(pos);
-				if (null == alpha) { alpha = 1 };
+				if (null == alpha || alpha == 0) { alpha = 1 };
 				this._createMarker(latLng, dir, alpha);
 			} else if (this._shape == "ELLIPSE") {
 				latLng = armaToLatLng(pos);
-				if (null == alpha) { alpha = 0.2 };
+				if (null == alpha || alpha == 0) { alpha = 0.2 };
 				this._createMarker(latLng, dir, alpha);
 			} else if (this._shape == "RECTANGLE") {
 				let startX = pos[0];
@@ -296,7 +296,7 @@ class Marker {
 				// process rotation around center
 				let pointsRotate = this._rotatePoints(armaToLatLng(pos), points, dir);
 
-				if (null == alpha) { alpha = 0.3 };
+				if (null == alpha || alpha == 0) { alpha = 0.3 };
 
 				this._createMarker(pointsRotate, dir, alpha);
 			} else if (this._shape == "POLYLINE") {
@@ -308,7 +308,7 @@ class Marker {
 				} else {
 					points = armaToLatLng([pos[0], pos[1]])
 				};
-				if (null == alpha) { alpha = 1 };
+				if (null == alpha || alpha == 0) { alpha = 1 };
 				this._createMarker(points, dir, alpha);
 			};
 
@@ -317,13 +317,13 @@ class Marker {
 
 			if (this._shape == "ICON") {
 				latLng = armaToLatLng(pos);
-				if (null == alpha) { alpha = 1 };
+				if (null === alpha || alpha == 0) { alpha = 1 };
 
 				this._marker.setRotationAngle(dir);
 				this._marker.setLatLng(latLng);
 			} else if (this._shape == "ELLIPSE") {
 				latLng = armaToLatLng(pos);
-				if (null == alpha) { alpha = 0.3 };
+				if (null === alpha || alpha == 0) { alpha = 0.3 };
 				
 				// check if update is needed
 				let variance = 0;
@@ -331,16 +331,16 @@ class Marker {
 				variance = variance + Math.abs((Math.abs(curMarkerCenter.lat) - Math.abs(latLng.lat)));
 				variance = variance + Math.abs((Math.abs(curMarkerCenter.lng) - Math.abs(latLng.lng)));
 
-				if (variance > 5) {
+				// if (variance > 5) {
 					this._marker.setLatLng(latLng).redraw();
-				};
+				// };
 			} else if (this._shape == "RECTANGLE") {
 				latLng = armaToLatLng(pos);
 				let startX = pos[0];
 				let startY = pos[1];
 				let sizeX = this._size[0];
 				let sizeY = this._size[1];
-				if (null == alpha) { alpha = 0.3 };
+				if (null === alpha || alpha == 0) { alpha = 0.3 };
 
 				let pointsRaw = [
 					[startX - sizeX, startY + sizeY], // top left
@@ -359,13 +359,13 @@ class Marker {
 				variance = variance + Math.abs((Math.abs(curMarkerCenter.lat) - Math.abs(latLng.lat)));
 				variance = variance + Math.abs((Math.abs(curMarkerCenter.lng) - Math.abs(latLng.lng)));
 
-				if (variance > 5) {
+				// if (variance > 5) {
 					// process rotation around center
 					let pointsRotate = this._rotatePoints(armaToLatLng(pos), points, dir);
 					this._marker.setLatLngs(pointsRotate).redraw();
-				};
+				// };
 			} else if (this._shape == "POLYLINE") {
-				if (null == alpha) { alpha = 1 };
+				if (null === alpha || alpha == 0) { alpha = 1 };
 				// do nothing, polylines can't be moved
 			};
 
@@ -402,14 +402,14 @@ class Marker {
 
 
 	hide () {
-		if (this._isShow == true) {
+		// if (this._isShow == true) {
 			this._isShow = false;
 			this.setMarkerOpacity(0);
-		};
+		// };
 	};
 
 	show (alpha) {
-		if (this._isShow == false) {
+		// if (this._isShow == false) {
 			this._isShow = true;
 			if (this._shape == "ICON") {
 				this.setMarkerOpacity(alpha);
@@ -420,7 +420,7 @@ class Marker {
 			} else if (this._shape == "POLYLINE") {
 				this.setMarkerOpacity(alpha);
 			};
-		};
+		// };
 	};
 
 
@@ -498,7 +498,7 @@ class Marker {
 				marker = L.circle(latLng, { radius: rad, noClip: false, interactive: false, fillPattern: this._brushPattern });
 				L.Util.setOptions(marker, this._shapeOptions);
 			} else {
-				marker = L.circle(latLng, { radius: rad, noClip: false, interactive: false, renderer: L.canvas() });
+				marker = L.circle(latLng, { radius: rad, noClip: false, interactive: false/* , renderer: L.canvas() */ });
 				L.Util.setOptions(marker, this._shapeOptions);
 			};
 			marker.addTo(map);
@@ -507,10 +507,10 @@ class Marker {
 			if (this._brushPattern) {
 				L.Util.setOptions(this._brushPattern, this._brushPatternOptions);
 				this._brushPattern.addTo(map);
-				marker = L.polygon(latLng, { noClip: false, interactive: false, fillPattern: this._brushPattern });
+				marker = L.polygon(latLng, { noClip: false, interactive: false, fillPattern: this._brushPattern});
 				L.Util.setOptions(marker, this._shapeOptions);
 			} else {
-				marker = L.polygon(latLng, { noClip: false, interactive: false, renderer: L.canvas() });
+				marker = L.polygon(latLng, { noClip: false, interactive: false/* , renderer: L.canvas() */ });
 				L.Util.setOptions(marker, this._shapeOptions);
 			};
 			marker.addTo(map);
@@ -519,7 +519,7 @@ class Marker {
 		};
 
 		this._marker = marker;
-		this.show(alpha);
+		// this.show(alpha);
 
 	};
 
@@ -559,13 +559,22 @@ class Marker {
 
 	setMarkerOpacity (opacity) {
 		if (this._marker != null) {
-			let strokeOpacity;
-			let fillOpacity;
+			let strokeOpacity = 1;
+			let fillOpacity = 1;
 			if (opacity > 0) {
-				strokeOpacity = opacity + 0.3;
 				if (this._shapeOptions) {
-					fillOpacity = this._shapeOptions.fillOpacity;
+					if (this._shapeOptions.stroke === true) {
+						strokeOpacity = 1;
+					} else {
+						strokeOpacity = 0;
+					};
+					if (this._shapeOptions.fill === true) {
+						fillOpacity = Math.min(this._shapeOptions.fillOpacity, opacity);
+					} else {
+						fillOpacity = 0;
+					};
 				} else {
+					strokeOpacity = opacity + 0.3;
 					fillOpacity = opacity;
 				};
 			} else {
