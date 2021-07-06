@@ -1,24 +1,24 @@
 /*
 	OCAP - Operation Caputre And Playback
-    Copyright (C) 2016 Jamie Goodson (aka MisterGoodson) (goodsonjamie@yahoo.co.uk)
+	Copyright (C) 2016 Jamie Goodson (aka MisterGoodson) (goodsonjamie@yahoo.co.uk)
 
 	NOTE: This script is written in ES6 and not intended to be used in a live
-    environment. Instead, this script should be transpiled to ES5 for
-    browser compatibility (including Chrome).
+	environment. Instead, this script should be transpiled to ES5 for
+	browser compatibility (including Chrome).
 
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU General Public License
+	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 class Entities {
@@ -26,19 +26,19 @@ class Entities {
 		this._entities = [];
 	};
 
-	add(entity) {
+	add (entity) {
 		this._entities.push(entity);
 	};
 
-	getAll() {
+	getAll () {
 		return this._entities;
 	};
 
-	getById(id) {
+	getById (id) {
 		return this._entities[id]; // Assumes entity IDs are always equal to their index in _entities
 	};
 
-	getAllByName(name) {
+	getAllByName (name) {
 		let matching = [];
 		this._entities.forEach(function (entity) {
 			if (entity.getName().indexOf(name) != -1) {
@@ -89,36 +89,37 @@ var followColour = "#FFA81A";
 var hitColour = "#FF0000";
 var deadColour = "#000000";
 
-function getArguments() {
+
+function getArguments () {
 	let args = new Object();
-	window.location.search.replace("?", "").split("&").forEach(function(s) {
+	window.location.search.replace("?", "").split("&").forEach(function (s) {
 		let values = s.split("=");
 		if (values.length > 1) {
-			 args[values[0]] = values[1].replace(/%20/g, " ");;
+			args[values[0]] = values[1].replace(/%20/g, " ");;
 		}
 	});
 	// console.log(args);
 	return args;
 }
 
-function initOCAP() {
+function initOCAP () {
 	mapDiv = document.getElementById("map");
 	defineIcons();
 	ui = new UI();
 	ui.setModalOpList();
-/*
-	window.addEventListener("keypress", function (event) {
-		switch (event.charCode) {
-			case 32: // Spacebar
-				event.preventDefault(); // Prevent space from scrolling page on some browsers
-				break;
-		};
-	});
-*/
+	/*
+		window.addEventListener("keypress", function (event) {
+			switch (event.charCode) {
+				case 32: // Spacebar
+					event.preventDefault(); // Prevent space from scrolling page on some browsers
+					break;
+			};
+		});
+	*/
 	let args = getArguments();
 	if (args.file) {
 		processOp("data/" + args.file);
-		document.addEventListener("mapInited", function(event) {
+		document.addEventListener("mapInited", function (event) {
 			let args = getArguments();
 			if (args.x && args.y && args.zoom) {
 				let coords = [parseFloat(args.x), parseFloat(args.y)];
@@ -132,7 +133,7 @@ function initOCAP() {
 	}
 };
 
-function setWorld() {
+function setWorld () {
 	let jsonPath = "images/maps/maps.json";
 
 	console.log("Getting worlds from " + jsonPath);
@@ -141,7 +142,7 @@ function setWorld() {
 	});
 };
 
-function getWorldByName(worldName) {
+function getWorldByName (worldName) {
 	console.log("Getting world " + worldName);
 	let map = {};
 	let defaultMap = {
@@ -164,11 +165,11 @@ function getWorldByName(worldName) {
 			ui.showHint(`Error: Map "${worldName}" is not installed`);
 		}
 	});
-	
+
 	return Object.assign(defaultMap, map);
 };
 
-function initMap() {
+function initMap () {
 	var world = getWorldByName(worldName);
 	// Bad 
 	mapMaxNativeZoom = world.maxZoom
@@ -184,7 +185,8 @@ function initMap() {
 		attributionControl: false,
 		zoomSnap: 0.1,
 		zoomDelta: 1,
-		closePopupOnClick: false
+		closePopupOnClick: false,
+		preferCanvas: false
 	}).setView([0, 0], mapMaxNativeZoom);
 
 	mapPanes = map.getPanes();
@@ -238,14 +240,14 @@ function initMap() {
 	// Add custom handling for mousewheel zooming
 	// Prevents map blurring when zooming in too quickly
 	mapDiv.addEventListener("wheel", function (event) {
-		/*		// We pause playback while zooming to prevent icon visual glitches
-				if (!playbackPaused) {
-					playbackPaused = true;
-					setTimeout(function() {
-						playbackPaused = false;
-					}, 250);
-				};*/
-		console.log(event);
+		// We pause playback while zooming to prevent icon visual glitches
+		if (!playbackPaused) {
+			playbackPaused = true;
+			setTimeout(function () {
+				playbackPaused = false;
+			}, 250);
+		};
+		// 	console.log(event);
 		var zoom;
 		if (event.deltaY > 0) { zoom = -0.5 } else { zoom = 0.5 };
 		map.zoomIn(zoom, { animate: false });
@@ -263,14 +265,18 @@ function initMap() {
 	});
 	if (boundaryMarks.length == 4) {
 		let boundaryPoints = boundaryMarks.map(item => armaToLatLng(item._positions[0][1]));
-		boundaryPoints.push(boundaryPoints[0]);
-		L.polyline(boundaryPoints, { color: "#000000", fill: true, fillColor: "#00FF00", fillOpacity: 0.05, interactive: false, noClip: true }).addTo(map);
+		let boundaryPolygon = L.polygon(boundaryPoints, { color: "#000000", fill: false, interactive: false, noClip: true }).addTo(map);
+		map.flyToBounds(boundaryPolygon.getBounds());
+	} else {
+		map.flyToBounds(map.getBounds());
 	};
+
+
 	document.dispatchEvent(new Event("mapInited"));
 	//test();
 };
 
-function createInitialMarkers() {
+function createInitialMarkers () {
 	/*	setTimeout(function() {
 			let svg = marker.getElement().contentDocument;
 			let g = svg.getElementById("layer1");
@@ -288,7 +294,7 @@ function createInitialMarkers() {
 	});
 };
 
-function defineIcons() {
+function defineIcons () {
 	icons = {
 		man: {},
 		ship: {},
@@ -305,6 +311,11 @@ function defineIcons() {
 	};
 
 	let imgPathMan = "images/markers/man/";
+	let imgPathManMG = "images/markers/man/MG/";
+	let imgPathManGL = "images/markers/man/GL/";
+	let imgPathManAT = "images/markers/man/AT/";
+	let imgPathManSniper = "images/markers/man/Sniper/";
+	let imgPathManAA = "images/markers/man/AA/";
 	let imgPathShip = "images/markers/ship/";
 	let imgPathParachute = "images/markers/parachute/";
 	let imgPathHeli = "images/markers/heli/";
@@ -321,6 +332,11 @@ function defineIcons() {
 	let imgs = ["blufor", "opfor", "ind", "civ", "dead", "hit", "follow", "unconscious"];
 	imgs.forEach((img, i) => {
 		icons.man[img] = L.icon({ iconSize: [16, 16], iconUrl: `${imgPathMan}${img}.svg` });
+		// icons.manMG[img] = L.icon({ iconSize: [16, 16], iconUrl: `${imgPathManMG}${img}.svg` });
+		// icons.manGL[img] = L.icon({ iconSize: [16, 16], iconUrl: `${imgPathManGL}${img}.svg` });
+		// icons.manAT[img] = L.icon({ iconSize: [16, 16], iconUrl: `${imgPathManAT}${img}.svg` });
+		// icons.manSniper[img] = L.icon({ iconSize: [16, 16], iconUrl: `${imgPathManSniper}${img}.svg` });
+		// icons.manAA[img] = L.icon({ iconSize: [16, 16], iconUrl: `${imgPathManAA}${img}.svg` });
 		icons.ship[img] = L.icon({ iconSize: [28, 28], iconUrl: `${imgPathShip}${img}.svg` });
 		icons.parachute[img] = L.icon({ iconSize: [20, 20], iconUrl: `${imgPathParachute}${img}.svg` });
 		icons.heli[img] = L.icon({ iconSize: [32, 32], iconUrl: `${imgPathHeli}${img}.svg` });
@@ -335,7 +351,7 @@ function defineIcons() {
 	});
 };
 
-function goFullscreen() {
+function goFullscreen () {
 	if (document.webkitIsFullScreen) {
 		document.webkitExitFullscreen();
 		return;
@@ -353,33 +369,79 @@ function goFullscreen() {
 };
 
 // Converts Arma coordinates [x,y] to LatLng
-function armaToLatLng(coords) {
+function armaToLatLng (coords) {
 	var pixelCoords = [(coords[0] * multiplier) + trim, (imageSize - (coords[1] * multiplier)) + trim];
 	return map.unproject(pixelCoords, mapMaxNativeZoom);
 };
 
 // Returns date object as little endian (day, month, year) string
-function dateToLittleEndianString(date) {
+function dateToLittleEndianString (date) {
 	return (date.getDate() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear());
 };
 
-function test() {
+function test () {
 	// Add marker to map on click
 	map.on("click", function (e) {
 		//console.log(e.latlng);
+		
 		console.log(map.project(e.latlng, mapMaxNativeZoom));
-		var marker = L.circleMarker(e.latlng).addTo(map);
-		marker.setRadius(5);
+
+		brushPattern = {
+			color: "#FF0000",
+			opacity: 1,
+			angle: 45,
+			weight: 2,
+			spaceWeight: 6
+		};
+
+		var brushPatternObj = new L.StripePattern(brushPattern);
+		brushPatternObj.addTo(map)
+
+		shapeOptions = {
+			color: "#FF0000",
+			stroke: true,
+			fill: true,
+			fillPattern: brushPatternObj
+		};
+
+		var circleMarker;
+		circleMarker = L.circle(e.latlng, shapeOptions);
+		L.Util.setOptions(circleMarker, { radius: 20, interactive: false });
+		circleMarker.addTo(map);
+
+
+		let pos = e.latlng;
+		let startX = pos.lat;
+		let startY = pos.lng;
+		let sizeX = 75;
+		let sizeY = 75;
+
+		let pointsRaw = [
+			[startX - sizeX, startY + sizeY], // top left
+			[startX + sizeX, startY + sizeY], // top right
+			[startX + sizeX, startY - sizeY], // bottom right
+			[startX - sizeX, startY - sizeY] // bottom left
+		];
+
+		var sqMarker = L.polygon(pointsRaw, { noClip: true, interactive: false});
+		L.Util.setOptions(sqMarker, shapeOptions);
+		// if (brushPattern) {
+		// 	L.Util.setOptions(sqMarker, { fillPattern: brushPatternObj, fillOpacity: 1.0});
+		// };
+		sqMarker.addTo(map);
+
+		// var marker = L.circleMarker(e.latlng).addTo(map);
+		// marker.setRadius(5);
 	});
 
-	var marker = L.circleMarker(armaToLatLng([2438.21, 820])).addTo(map);
-	marker.setRadius(5);
+	// var marker = L.circleMarker(armaToLatLng([2438.21, 820])).addTo(map);
+	// marker.setRadius(5);
 
-	var marker = L.circleMarker(armaToLatLng([2496.58, 5709.34])).addTo(map);
-	marker.setRadius(5);
+	// var marker = L.circleMarker(armaToLatLng([2496.58, 5709.34])).addTo(map);
+	// marker.setRadius(5);
 };
 
-function dateToTimeString(date) {
+function dateToTimeString (date) {
 	var hours = date.getUTCHours();
 	var minutes = date.getUTCMinutes();
 	var seconds = date.getUTCSeconds();
@@ -406,7 +468,7 @@ function dateToTimeString(date) {
 // Convert time in seconds to a more readable time format
 // e.g. 121 seconds -> 2 minutes
 // e.g. 4860 seconds -> 1 hour, 21 minutes
-function secondsToTimeString(seconds) {
+function secondsToTimeString (seconds) {
 	let mins = Math.round(seconds / 60);
 
 	if (mins < 60) {
@@ -424,12 +486,14 @@ function secondsToTimeString(seconds) {
 };
 
 // Read operation JSON data and create unit objects
-function processOp(filepath) {
+function processOp (filepath) {
 	console.log("Processing operation: (" + filepath + ")...");
 	var time = new Date();
 	fileName = filepath.substr(5, filepath.length);
 	$.getJSON(filepath, function (data) {
 		worldName = data.worldName.toLowerCase();
+		var world = getWorldByName(worldName);
+		var multiplier = world.multiplier;
 		missionName = data.missionName;
 		ui.setMissionName(missionName);
 
@@ -518,16 +582,44 @@ function processOp(filepath) {
 
 		if (data.Markers != null) {
 			data.Markers.forEach(function (markerJSON) {
-				var type = markerJSON[0];
-				var text = markerJSON[1];
-				var startFrame = markerJSON[2];
-				var endFrame = markerJSON[3];
-				var player = entities.getById(markerJSON[4]);
-				var color = markerJSON[5];
-				var side = arrSide[markerJSON[6] + 1];
-				var positions = markerJSON[7];
-				var marker = new Marker(type, text, player, color, startFrame, endFrame, side, positions);
-				markers.push(marker);
+				try {
+					var type = markerJSON[0];
+					var text = markerJSON[1];
+					var startFrame = markerJSON[2];
+					var endFrame = markerJSON[3];
+					var player;
+					if (markerJSON[4] == -1) {
+						player = -1;
+					} else {
+						player = entities.getById(markerJSON[4]);
+					};
+					var color = markerJSON[5];
+					var side = arrSide[markerJSON[6] + 1];
+					var positions = markerJSON[7];
+
+					// backwards compatibility for marker expansion
+					let size = "";
+					let shape = "ICON";
+					let brush = "Solid";
+					if (markerJSON.length > 8) {
+						if (markerJSON[9] == "ICON") {
+							size = markerJSON[8]
+						} else {
+							size = markerJSON[8];//.map(value => value * multiplier);
+						};
+						shape = markerJSON[9];
+					};
+					if (markerJSON.length > 10) {
+						brush = markerJSON[10];
+					};
+
+					if (!(type.includes("zoneTrigger") || type.includes("Empty"))) {
+						var marker = new Marker(type, text, player, color, startFrame, endFrame, side, positions, size, shape, brush);
+						markers.push(marker);
+					}
+				} catch (err) {
+					console.error(`Failed to process ${markerJSON[9]} with text "${markerJSON[1]}"\nError: ${err}`);
+				};
 			});
 		};
 		// Show title side
@@ -536,7 +628,7 @@ function processOp(filepath) {
 		if (showEast) countShowSide++;
 		if (showGuer) countShowSide++;
 		if (showWest) countShowSide++;
-		function showTitleSide(elem, isShow) {
+		function showTitleSide (elem, isShow) {
 			elem = document.getElementById(elem);
 			if (isShow) {
 				elem.style.width = "calc(" + 100 / countShowSide + "% - 2.5px)";
@@ -611,14 +703,14 @@ function processOp(filepath) {
 		initMap();
 		startPlaybackLoop();
 		toggleHitEvents(false);
-		playPause();
+		// playPause();
 		ui.hideModal();
 	}).fail(function (xhr, textStatus, error) {
 		ui.modalBody.innerHTML = `Error: "${filepath}" failed to load.<br/>${error}.`;
 	});
 };
 
-function playPause() {
+function playPause () {
 	playbackPaused = !playbackPaused;
 
 	if (playbackPaused) {
@@ -628,7 +720,7 @@ function playPause() {
 	};
 };
 
-function toggleHitEvents(showHint = true) {
+function toggleHitEvents (showHint = true) {
 	ui.showHitEvents = !ui.showHitEvents;
 
 	let text;
@@ -645,7 +737,7 @@ function toggleHitEvents(showHint = true) {
 	};
 };
 
-function toggleConnectEvents(showHint = true) {
+function toggleConnectEvents (showHint = true) {
 	ui.showConnectEvents = !ui.showConnectEvents;
 
 	let text;
@@ -662,11 +754,11 @@ function toggleConnectEvents(showHint = true) {
 	};
 };
 
-function startPlaybackLoop() {
+function startPlaybackLoop () {
 	var killlines = [];
 	var firelines = [];
 
-	function playbackFunction() {
+	function playbackFunction () {
 
 
 		requestAnimationFrame(() => {
@@ -683,7 +775,7 @@ function startPlaybackLoop() {
 			countGuer = 0;
 			countWest = 0;
 
-			entities.getAll().forEach(function playbackEntity(entity) {
+			entities.getAll().forEach(function playbackEntity (entity) {
 				//console.log(entity);
 				entity.manageFrame(playbackFrame);
 
@@ -691,8 +783,8 @@ function startPlaybackLoop() {
 					// Draw fire line (if enabled)
 					var projectilePos = entity.firedOnFrame(playbackFrame);
 					if (projectilePos != null && ui.firelinesEnabled) {
-						console.log(entity);
-						console.log(`Shooter pos: ${entity.getLatLng()}\nFired event: ${projectilePos} (is null: ${projectilePos == null})`);
+						// console.log(entity);
+						// console.log(`Shooter pos: ${entity.getLatLng()}\nFired event: ${projectilePos} (is null: ${projectilePos == null})`);
 						var line = L.polyline([entity.getLatLng(), armaToLatLng(projectilePos)], {
 							color: entity.getSideColour(),
 							weight: 2,
@@ -707,7 +799,7 @@ function startPlaybackLoop() {
 			ui.updateTitleSide();
 
 			// Display events for this frame (if any)
-			gameEvents.getEvents().forEach(function playbackEvent(event) {
+			gameEvents.getEvents().forEach(function playbackEvent (event) {
 
 				// Check if event is supposed to exist by this point
 				if (event.frameNum <= playbackFrame) {
@@ -749,11 +841,13 @@ function startPlaybackLoop() {
 					ui.removeEvent(event);
 				};
 			});
-			markers.forEach(function playbackMarker(marker) {
+			markers.forEach(function playbackMarker (marker) {
 				if (ui.markersEnable) {
 					marker.manageFrame(playbackFrame);
+					marker.hideMarkerPopup(false);
 				} else {
-					marker.hide();
+					marker.manageFrame(playbackFrame);
+					marker.hideMarkerPopup(true);
 				};
 			});
 			// Handle entityToFollow

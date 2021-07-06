@@ -14,7 +14,7 @@ class CfgPatches
 		name = "OCAP";
 		author = "Dell, Zealot, Kurt, IndigoFox";
 		requiredAddons[] = {"A3_Functions_F","cba_main"};
-		requiredVersion = 2.0;
+		requiredVersion = 2.4;
 		units[] = {};
 		weapons[] = {};
 	};
@@ -46,6 +46,7 @@ class CfgFunctions
 			class trackAceExplPlace{};
 			class trackAceExplLife{};
 			class trackAceRemoteDet{};
+			class getUnitType{};
 		};
 	};
 };

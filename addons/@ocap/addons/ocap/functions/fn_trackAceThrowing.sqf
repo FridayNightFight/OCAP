@@ -93,10 +93,10 @@ trackThrows = ["ace_throwableThrown", {
             _markTextLocal = format["%1", _magDisp];
             _markName = format["Projectile#%1", _int];
 
-			_throwerPosRaw = getPos _unit;
-			_throwerPos = parseSimpleArray (format["[%1,%2]", _throwerPosRaw # 0, _throwerPosRaw # 1]);
+			_throwerPos = getPos _unit;
+			_throwerPos resize 2;
 			
-			["fnf_ocap_handleMarker", ["CREATED", _markName, _unit, _throwerPos, _markerType, "ICON", [1,1], 0, "Solid", _markColor, 1, _markTextLocal]] call CBA_fnc_serverEvent;
+			["ocap_handleMarker", ["CREATED", _markName, _unit, _throwerPos, _markerType, "ICON", [1,1], 0, "Solid", _markColor, 1, _markTextLocal, true]] call CBA_fnc_serverEvent;
 
             private _lastPos = [];
 			waitUntil {
@@ -105,19 +105,19 @@ trackThrows = ["ace_throwableThrown", {
 					true
 				};
 				_lastPos = _pos;
-				["fnf_ocap_handleMarker", ["UPDATED", _markName, _unit, [_pos # 0, _pos # 1]]] call CBA_fnc_serverEvent;
-                sleep 0.2;
+				["ocap_handleMarker", ["UPDATED", _markName, _unit, [_pos # 0, _pos # 1], "", "", "", 0, "", "", 1]] call CBA_fnc_serverEvent;
+                sleep 0.1;
                 false;
 			};
 
             if !((count _lastPos) isEqualTo 0) then {
                 // if (count _lastPos == 3) then {
-                _finalPos = parseSimpleArray (format["[%1,%2]", _lastPos # 0, _lastPos # 1]);
-                ["fnf_ocap_handleMarker", ["UPDATED", _markName, _unit, _finalPos]] call CBA_fnc_serverEvent;
+                _lastPos resize 2;
+                ["ocap_handleMarker", ["UPDATED", _markName, _unit, _lastPos, "", "", "", 0, "", "", 1]] call CBA_fnc_serverEvent;
             };
 
-            sleep 7;
-            ["fnf_ocap_handleMarker", ["DELETED", _markName]] call CBA_fnc_serverEvent;
+            sleep 10;
+            ["ocap_handleMarker", ["DELETED", _markName]] call CBA_fnc_serverEvent;
         };
     };
 }] call CBA_fnc_addEventHandler;

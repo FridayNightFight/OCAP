@@ -50,7 +50,7 @@ class Unit extends Entity {
 		};
 		if (this._name != name) {
 			this._name = name;
-			this._element.textContent = name;
+			this._element.textContent = name + " (" + this.killCount.toString() + ")";
 			this._marker.getPopup()._contentNode.innerHTML = name;
 		};
 	};
@@ -110,7 +110,7 @@ class Unit extends Entity {
 	makeElement(liTarget) { // Make and add element to UI target list
 		let liUnit = document.createElement("li");
 		liUnit.className = "liUnit";
-		liUnit.textContent = this._name;
+		liUnit.textContent = this._name + " (" + this.killCount.toString() + ")";
 		liUnit.addEventListener("click", () => {
 			let marker = this.getMarker();
 			if (marker != null) {

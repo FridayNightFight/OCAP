@@ -175,3 +175,29 @@ class endMissionEvent {
 
 	getElement() { return this._element };
 };
+
+class customEvent {
+	constructor(frameNum, type, msg) {
+		this.frameNum = frameNum;
+		this.timecode = dateToTimeString(new Date(frameNum * frameCaptureDelay));
+		this.type = type;
+		this.msg = msg;
+		this._element = null;
+
+		// Create list element for this event (for later use)
+		var span = document.createElement("span");
+		span.className = "medium";
+		localizable(span, this.type, "", `${this.msg} `);
+
+		var detailsDiv = document.createElement("div");
+		detailsDiv.className = "eventDetails";
+		detailsDiv.textContent = this.timecode;
+
+		var li = document.createElement("li");
+		li.appendChild(span);
+		li.appendChild(detailsDiv);
+		this._element = li;
+	};
+
+	getElement () { return this._element };
+};

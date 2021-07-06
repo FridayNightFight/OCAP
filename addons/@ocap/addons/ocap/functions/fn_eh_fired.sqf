@@ -8,8 +8,8 @@ _ammoSimType = getText(configFile >> "CfgAmmo" >> _ammo >> "simulation");
 
 // bullet handling, cut short
 if (_ammoSimType isEqualTo "shotBullet") then {
-	[_projectile, _firer, _frame, _ammoSimType] spawn {
-		params["_projectile", "_firer", "_frame", "_ammoSimType"];
+	[_projectile, _firer, _frame, _ammoSimType, _ammo] spawn {
+		params["_projectile", "_firer", "_frame", "_ammoSimType", "_ammo"];
 		if (isNull _projectile) then {
 			_projectile = nearestObject [_firer, _ammo];
 		};
@@ -102,7 +102,7 @@ if (_ammoSimType isEqualTo "shotBullet") then {
 
 	_firerPos = getPosATL _firer;
 	_firerPos resize 2;
-	["fnf_ocap_handleMarker", ["CREATED", _markName, _firer, _firerPos, _markerType, "ICON", [1,1], 0, "Solid", _markColor, 1, _markTextLocal]] call CBA_fnc_localEvent;
+	["ocap_handleMarker", ["CREATED", _markName, _firer, _firerPos, _markerType, "ICON", [1,1], 0, "Solid", _markColor, 1, _markTextLocal, true]] call CBA_fnc_localEvent;
 
 	if (isNull _projectile) then {
 		_projectile = nearestObject [_firer, _ammo];
@@ -115,19 +115,20 @@ if (_ammoSimType isEqualTo "shotBullet") then {
 			true
 		};
 		_lastPos = _pos;
-		_pos resize 2;
-		["fnf_ocap_handleMarker", ["UPDATED", _markName, _firer, _pos]] call CBA_fnc_localEvent;
-		// sleep 0.2;
+		// params["_eventType", "_mrk_name", "_mrk_owner", "_pos", "_type", "_shape", "_size", "_dir", "_brush", "_color", "_alpha", "_text", "_forceGlobal"];
+		["ocap_handleMarker", ["UPDATED", _markName, _firer, [_pos # 0, _pos # 1], "", "", "", 0, "", "", 1]] call CBA_fnc_localEvent;
+		sleep 0.1;
 		false;
 	};
 
 	if !((count _lastPos) isEqualTo 0) then {
 	// if (count _lastPos == 3) then {
-		_finalPos resize 2;
-		["fnf_ocap_handleMarker", ["UPDATED", _markName, _firer, _finalPos]] call CBA_fnc_localEvent;
+		_lastPos resize 2;
+		// params["_eventType", "_mrk_name", "_mrk_owner", "_pos", "_type", "_shape", "_size", "_dir", "_brush", "_color", "_alpha", "_text", "_forceGlobal"];
+		["ocap_handleMarker", ["UPDATED", _markName, _firer, _lastPos, "", "", "", 0, "", "", 1]] call CBA_fnc_localEvent;
 	};
-	sleep 7;
+	sleep 10;
 	// deleteMarkerLocal _markName;
 	// };
-	["fnf_ocap_handleMarker", ["DELETED", _markName]] call CBA_fnc_localEvent;
+	["ocap_handleMarker", ["DELETED", _markName]] call CBA_fnc_localEvent;
 };

@@ -29,9 +29,6 @@ OCAP is a **game-changing** Arma 3 addon that allows serverside recording of mis
 * Server based capture - no mods required for clients.
 * See *Detailed Features* for more
 
-## What is the difference from the original?
-Speed! Our version is many times faster due to a new dll and a more rigid handling of the game engine. We can write and send to the dll more than 250 objects in ~0.2 seconds. Due to the streaming in dll during the recording of the game process itself, we do not need to export information at the end of the mission, which eliminates the delay at the end of the mission.
-
 ---
 
 ## Running OCAP
@@ -84,6 +81,10 @@ To end a mission and export capture data, call the following (server-side):
 
 // includes side who won
 [east, "Their enemies suffered heavy losses!"] call ocap_fnc_exportData;
+
+// includes a specific 'tag', which will be filterable in the playback menu.
+// i.e. in playback menu, selecting "PvP" from the dropdown would make this and any other mission tagged "PvP" visible in the search
+[east, "OPFOR triumped over their enemy!", "PvP"] call ocap_fnc_exportData;
 ```
 
 **Tip:** You can use the above function in a trigger.
@@ -106,6 +107,7 @@ if (isServer) then {
 > 1. The `ocap-webserver.exe` executable should be running and able to accept incoming network connections.
 >
 > If the web component is not running, the upload will fail and a local copy of the compressed recording will be saved. Logs are available in the `Arma 3/ocaplog` directory to troubleshoot.
+
 
 ---
 
@@ -154,8 +156,6 @@ ACE3-placed mines and explosives will be tracked from the time they're armed to 
 
 ## Credits
 
-* [3 Commando Brigade](http://www.3commandobrigade.com/) for testing and moral-boosting.
+* [MisterGoodson](https://github.com/jamiegdsn) and the [3 Commando Brigade](http://www.3commandobrigade.com/) for original development and testing.
 * [Leaflet](http://leafletjs.com/) - an awesome JS interactive map library.
-* Maca134 for his tutorial on [writing Arma extensions in C#](http://maca134.co.uk/tutorial/write-an-arma-extension-in-c-sharp-dot-net/).
 * [Bohemia Interactive](https://www.bohemia.net/) for their continued work supporting mods like this with engine and API improvements.
-* [Zealot111](https://github.com/Zealot111) for ongoing Arma extension support

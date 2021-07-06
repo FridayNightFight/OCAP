@@ -14,16 +14,17 @@
 	_markColor = "ColorRed";
 	_markerType = "waypoint";
 	_pos = getPos _explosive;
+	_pos resize 2;
 
-	["fnf_ocap_handleMarker", ["CREATED", _markName, _unit, _pos, _markerType, "ICON", [1,1], 0, "Solid", "ColorRed", 1, _markTextLocal]] call CBA_fnc_serverEvent;
+	["ocap_handleMarker", ["CREATED", _markName, _unit, _pos, _markerType, "ICON", [1,1], 0, "Solid", "ColorRed", 1, _markTextLocal, true]] call CBA_fnc_serverEvent;
 
 	[_markName] spawn {
 		params ["_markName"];
 
-		sleep 7;
-		// [format['["fnf_ocap_handleMarker", ["DELETED", %1]] call CBA_fnc_serverEvent;', _markName]] remoteExec ["hint", 0];
-		// systemChat format['["fnf_ocap_handleMarker", ["DELETED", %1]] call CBA_fnc_serverEvent;', _markName];
-		["fnf_ocap_handleMarker", ["DELETED", _markName]] call CBA_fnc_serverEvent;
+		sleep 10;
+		// [format['["ocap_handleMarker", ["DELETED", %1]] call CBA_fnc_serverEvent;', _markName]] remoteExec ["hint", 0];
+		// systemChat format['["ocap_handleMarker", ["DELETED", %1]] call CBA_fnc_serverEvent;', _markName];
+		["ocap_handleMarker", ["DELETED", _markName]] call CBA_fnc_serverEvent;
 	};
 	true;
 

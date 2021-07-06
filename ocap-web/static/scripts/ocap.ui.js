@@ -318,33 +318,33 @@ class UI {
 	};
 
 	updateTitleSide() {
-		sideCiv.textContent = "CIV\n\r" + countCiv;
-		sideEast.textContent = "OPFOR\n\r" + countEast;
-		sideGuer.textContent = "IND\n\r" + countGuer;
-		sideWest.textContent = "BLUFOR\n\r" + countWest;
+		sideCiv.textContent = "CIV\n\r(" + countCiv + ")";
+		sideEast.textContent = "OPFOR\n\r(" + countEast + ")";
+		sideGuer.textContent = "IND\n\r(" + countGuer + ")";
+		sideWest.textContent = "BLUFOR\n\r(" + countWest + ")";
 	};
 
 	switchSide(side) {
 		this.currentSide = side;
-		this.sideEast.style.backgroundColor = "rgba(255,255,255,0)";
+		this.sideEast.style.backgroundColor = "rgba(255, 183, 38,0.1)";
 		this.listEast.style.display = "none";
-		this.sideWest.style.backgroundColor = "rgba(255,255,255,0)";
+		this.sideWest.style.backgroundColor = "rgba(255, 183, 38,0.1)";
 		this.listWest.style.display = "none";
-		this.sideGuer.style.backgroundColor = "rgba(255,255,255,0)";
+		this.sideGuer.style.backgroundColor = "rgba(255, 183, 38,0.1)";
 		this.listGuer.style.display = "none";
-		this.sideCiv.style.backgroundColor = "rgba(255,255,255,0)";
+		this.sideCiv.style.backgroundColor = "rgba(255, 183, 38,0.1)";
 		this.listCiv.style.display = "none";
 		if (side == "CIV") {
-			this.sideCiv.style.backgroundColor = "rgba(255,255,255,0.23)";
+			this.sideCiv.style.backgroundColor = "rgba(255, 183, 38,0.3)";
 			this.listCiv.style.display = "inline-block";
 		} else if (side == "EAST") {
-			this.sideEast.style.backgroundColor = "rgba(255,255,255,0.23)";
+			this.sideEast.style.backgroundColor = "rgba(255, 183, 38,0.3)";
 			this.listEast.style.display = "inline-block";
 		} else if (side == "WEST") {
-			this.sideWest.style.backgroundColor = "rgba(255,255,255,0.23)";
+			this.sideWest.style.backgroundColor = "rgba(255, 183, 38,0.3)";
 			this.listWest.style.display = "inline-block";
 		} else if (side == "GUER") {
-			this.sideGuer.style.backgroundColor = "rgba(255,255,255,0.23)";
+			this.sideGuer.style.backgroundColor = "rgba(255, 183, 38,0.3)";
 			this.listGuer.style.display = "inline-block";
 		};
 	};
