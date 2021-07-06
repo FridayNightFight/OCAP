@@ -18,25 +18,23 @@
 
 package main
 
+import "C"
 import (
-	"database/sql"
 	"encoding/json"
-	"html/template"
 	"io"
 	"log"
 	"mime"
 	"net/http"
 	"os"
-	"path/filepath"
 	"strings"
+
+	"github.com/OCAPv2/OCAP/src/config"
+	"github.com/OCAPv2/OCAP/src/ocap"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
-var (
-	db            *sql.DB
-	textTemplates *template.Template
-)
+var o *ocap.OCAP
 
 // ResponseWriter Access response to status
 type ResponseWriter struct {
@@ -52,13 +50,12 @@ func (res *ResponseWriter) WriteHeader(code int) {
 
 // OperationGet http header filter operation
 func OperationGet(w http.ResponseWriter, r *http.Request) {
-	op := OperationFilter{
+	ops, err := o.GetByFilter(ocap.OperationFilter{
 		MissionName: r.FormValue("name"),
 		DateOlder:   r.FormValue("older"),
 		DateNewer:   r.FormValue("newer"),
-		Class:       r.FormValue("type"),
-	}
-	ops, err := op.GetByFilter(db)
+		Type:        r.FormValue("type"),
+	})
 	if err != nil {
 		log.Println(err.Error())
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -76,30 +73,14 @@ func OperationGet(w http.ResponseWriter, r *http.Request) {
 // OperationAdd http header add operation only for server
 func OperationAdd(w http.ResponseWriter, r *http.Request) {
 	// Check secret variable
-	if C.Secret != "" && r.FormValue("secret") != C.Secret {
+	if config.C.Secret != "" && r.FormValue("secret") != config.C.Secret {
 		log.Println(r.RemoteAddr, "invalid secret denied access")
 		http.Error(w, "invalid secret denied access", http.StatusForbidden)
 		return
 	}
 
-	// Parser new operation
-	op, err := NewOperation(r)
-	if err != nil {
-		log.Println(err.Error())
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
-
-	// Compress operation
-	err = op.SaveFileAsGZIP("static/data/", r)
-	if err != nil {
-		log.Println(err.Error())
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
-
 	// Insert new line in db
-	_, err = op.Insert(db)
+	_, err := o.Insert(r, "static/data/")
 	if err != nil {
 		log.Println(err.Error())
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -112,7 +93,7 @@ func StaticHandler(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// send home page
 		if r.URL.Path == "/" {
-			err := textTemplates.ExecuteTemplate(w, "index.html", C)
+			err := o.RenderIndex(w)
 			if err != nil {
 				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 				log.Println(err.Error())
@@ -146,42 +127,14 @@ func LoggerRequest(next http.Handler) http.Handler {
 	})
 }
 
-func initTemplates() error {
-	textTemplates = template.New("test")
-	var err error
-	textTemplates, err = textTemplates.ParseGlob(filepath.Join("template", "*.html"))
-	return err
-}
-
-func initDB() error {
-	var err error
-
-	// Connect db
-	if db, err = sql.Open("sqlite3", C.DB); err != nil {
-		return err
-	}
-
-	// Create default database
-	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS operations (
-		id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-		world_name TEXT,
-		mission_name TEXT,
-		mission_duration INTEGER,
-		filename TEXT,
-		'date' TEXT ,
-		'type' TEXT NOT NULL DEFAULT ''
-	)`)
-	return err
-}
-
 func main() {
-	err := readConfig()
+	err := config.ReadConfig()
 	if err != nil {
 		panic(err.Error())
 	}
 
 	// Connecting logger file
-	if C.Logger {
+	if config.C.Logger {
 		loggingFile, err := os.OpenFile("ocap.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 		if err != nil {
 			panic(err)
@@ -190,16 +143,11 @@ func main() {
 		log.SetOutput(io.MultiWriter(os.Stdout, loggingFile))
 	}
 
-	err = initTemplates()
+	o, err = ocap.New()
 	if err != nil {
-		log.Panicln(err.Error())
+		panic(err.Error())
 	}
-
-	err = initDB()
-	if err != nil {
-		log.Panicln(err.Error())
-	}
-	defer db.Close()
+	defer o.Close()
 
 	log.Println("=== Starting server ===")
 
@@ -214,5 +162,5 @@ func main() {
 	mux.HandleFunc("/api/v1/operations/add", OperationAdd)
 	mux.HandleFunc("/api/v1/operations/get", OperationGet)
 
-	http.ListenAndServe(C.Listen, LoggerRequest(mux))
+	http.ListenAndServe(config.C.Listen, LoggerRequest(mux))
 }
