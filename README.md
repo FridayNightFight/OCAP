@@ -2,7 +2,7 @@
 
 # **Operation Capture And Playback (BETA)**
 
-![OCAP Screenshot](https://i.imgur.com/WznMPFP.png)
+![OCAP Screenshot](https://i.imgur.com/vIVW4BD.png)
 
 **[Friday Night Fight Demo](http://aar.fridaynightfight.org/)**
 
@@ -12,7 +12,7 @@
 
 ## What is it?
 
-OCAP is a **game-changing** Arma 3 addon that allows serverside recording of missions in addition to easy playback on an interactive (web-based) map.
+OCAP is a **game-changing** Arma 3 v2.04+ addon that allows serverside recording of missions in addition to easy playback on an interactive (web-based) map.
 
 - Quantify personal and group performance in difficult missions
 - Observe the role your teammates played in the overall battle
@@ -38,7 +38,7 @@ Capture automatically begins when the server reaches the configured minimum play
 ### **Configuration**
 1. Configure `/ocap-web/options.json` with your public-facing IP, port, and a custom secret.
 1. Configure `/addons/@ocap/OcapReplaySaver2.cfg.json` with matching IP/port destination and secret.
-	> *`newServerGameType` is used to "tag" uploaded recordings for better organization*
+	> *`newServerGameType` is used to "tag" uploaded recordings for better organization. this will be the default tag if one isn't provided to the ocap_fnc_exportData command in-game*
 	> *`traceLog` set to `1` will cause the extension to log all calls for debugging purposes*
 1. Configure `userconfig/config.hpp` with desired values
 	> *`ocap_minPlayerCount` determines how many players must be connected before recording begins, useful for avoiding extra recordings of test tessions*
