@@ -65,8 +65,15 @@ _shape
 								_typeSplit == "c_"
 							) then {
 								_mrk_color = "#660080";
-							} else {
-								_mrk_color = "#000000";
+							} else  {
+								if (
+									_color == "ColorUNKNOWN" ||
+									_typeSplit == "u_"
+								) then {
+									_mrk_color = "#B29900";
+								} else {
+									_mrk_color = "#000000";
+								};
 							};
 						};
 					};
