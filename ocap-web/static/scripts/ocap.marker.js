@@ -81,6 +81,7 @@ class Marker {
 			this._brushPattern = brushPattern;
 			this._brushPatternOptions = null;
 			switch (brush) {
+				case "solid":
 				case "Solid":
 					this._shapeOptions = {
 						color: this._color,
@@ -89,6 +90,7 @@ class Marker {
 						fillOpacity: 0.3
 					};
 					break;
+				case "solidfull":
 				case "SolidFull":
 					this._shapeOptions = {
 						color: this._color,
@@ -97,6 +99,7 @@ class Marker {
 						fillOpacity: 0.8
 					};
 					break;
+				case "horizontal":
 				case "Horizontal":
 					this._brushPatternOptions = {
 						color: this._color,
@@ -111,6 +114,7 @@ class Marker {
 						fillOpacity: 1
 					};
 					break;
+				case "vertical":
 				case "Vertical":
 					this._brushPatternOptions = {
 						color: this._color,
@@ -125,6 +129,7 @@ class Marker {
 						fillOpacity: 1
 					};
 					break;
+				case "grid":
 				case "Grid":
 					this._brushPatternOptions = {
 						color: this._color,
@@ -140,6 +145,7 @@ class Marker {
 						fillOpacity: 1
 					};
 					break;
+				case "fdiagonal":
 				case "FDiagonal":
 					this._brushPatternOptions = {
 						color: this._color,
@@ -155,6 +161,7 @@ class Marker {
 						fillOpacity: 1
 					};
 					break;
+				case "bdiagonal":
 				case "BDiagonal":
 					this._brushPatternOptions = {
 						color: this._color,
@@ -170,6 +177,7 @@ class Marker {
 						fillOpacity: 1
 					};
 					break;
+				case "diaggrid":
 				case "DiagGrid":
 					this._brushPatternOptions = {
 						color: this._color,
@@ -185,6 +193,7 @@ class Marker {
 						fillOpacity: 1,
 					};
 					break;
+				case "cross":
 				case "Cross":
 					this._brushPatternOptions = {
 						color: this._color,
@@ -200,6 +209,7 @@ class Marker {
 						fillOpacity: 1
 					};
 					break;
+				case "border":
 				case "Border":
 					this._shapeOptions = {
 						color: this._color,
@@ -208,6 +218,7 @@ class Marker {
 						fillOpacity: 0
 					};
 					break;
+				case "solidborder":
 				case "SolidBorder":
 					this._shapeOptions = {
 						color: this._color,
