@@ -192,7 +192,7 @@ namespace {
         std::string dbInsertUrl = "http://127.0.0.1/data/receive.php?option=dbInsert";
         std::string addFileUrl = "http://127.0.0.1/data/receive.php?option=addFile";
         std::string newUrl = "https://127.0.0.1/api/v1/operations/add";
-        std::string newServerGameType = "tvt";
+        std::string newServerGameType = "TvT";
         std::string newUrlRequestSecret = "pwd1234";
         int newMode = 1;
         int httpRequestTimeout = 120;
