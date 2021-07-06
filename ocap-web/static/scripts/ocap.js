@@ -249,7 +249,7 @@ function initMap () {
 		// 	console.log(event);
 		var zoom;
 		if (event.deltaY > 0) { zoom = -0.5 } else { zoom = 0.5 };
-		// 	map.zoomIn(zoom, { animate: false });
+		// map.zoomIn(zoom, { animate: false });
 	});
 
 	map.on("dragstart", function () {
@@ -702,7 +702,7 @@ function processOp (filepath) {
 		initMap();
 		startPlaybackLoop();
 		toggleHitEvents(false);
-		playPause();
+		// playPause();
 		ui.hideModal();
 	}).fail(function (xhr, textStatus, error) {
 		ui.modalBody.innerHTML = `Error: "${filepath}" failed to load.<br/>${error}.`;

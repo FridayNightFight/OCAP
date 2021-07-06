@@ -155,7 +155,54 @@ workflow Convert-IconsToColored {
 				) {
 					ForEach ($ColorHex in $TargetColors) {
 						if ($ColorHex -eq "000000") {
-							Copy-Item ".\FFFFFF.png" ".\000000.png"
+							switch ($FolderName.Substring(0, 2)) {
+								"o_" {
+									Start-Process cmd -ArgumentList @(
+										"/c",
+										"magick",
+										"FFFFFF.png +write mpr:img",
+										"-alpha off -fuzz 75% -fill ""#800000"" -opaque ""#FFFFFF""",
+										"( mpr:img -alpha extract )",
+										"-alpha off -compose copy_opacity -composite",
+										"000000.png"
+									) -NoNewWindow -Wait
+								}
+								"b_" {
+									Start-Process cmd -ArgumentList @(
+										"/c",
+										"magick",
+										"FFFFFF.png +write mpr:img",
+										"-alpha off -fuzz 75% -fill ""#004C99"" -opaque ""#FFFFFF""",
+										"( mpr:img -alpha extract )",
+										"-alpha off -compose copy_opacity -composite",
+										"000000.png"
+									) -NoNewWindow -Wait
+								}
+								"n_" {
+									Start-Process cmd -ArgumentList @(
+										"/c",
+										"magick",
+										"FFFFFF.png +write mpr:img",
+										"-alpha off -fuzz 75% -fill ""#008000"" -opaque ""#FFFFFF""",
+										"( mpr:img -alpha extract )",
+										"-alpha off -compose copy_opacity -composite",
+										"000000.png"
+									) -NoNewWindow -Wait
+								}
+								"c_" {
+									Start-Process cmd -ArgumentList @(
+										"/c",
+										"magick",
+										"FFFFFF.png +write mpr:img",
+										"-alpha off -fuzz 75% -fill ""#660080"" -opaque ""#FFFFFF""",
+										"( mpr:img -alpha extract )",
+										"-alpha off -compose copy_opacity -composite",
+										"000000.png"
+									) -NoNewWindow -Wait
+								}
+
+								Default { Copy-Item ".\FFFFFF.png" ".\000000.png" }
+							}
 						} elseif ($ColorHex -ne "FFFFFF") {
 							Start-Process cmd -ArgumentList @(
 								"/c",
@@ -168,41 +215,43 @@ workflow Convert-IconsToColored {
 							) -NoNewWindow -Wait
 						}
 					}
-				} else {
-					# Otherwise, we'll just colorize it all, keeping the contrast of black and white but tinting the entire icon because there's no border to worry about.
-					ForEach ($ColorHex in $TargetColors) {
-						if ($ColorHex -ne "FFFFFF") {
-
-							Start-Process cmd -ArgumentList @(
-								"/c",
-								"magick",
-								"FFFFFF.png +write mpr:img",
-								"-alpha off -fuzz 75% -fill ""#$ColorHex"" -opaque ""#FFFFFF"" -colorize 100%",
-								"( mpr:img -alpha extract )",
-								"-alpha off -compose copy_opacity -composite",
-								"$ColorHex.png"
-							) -NoNewWindow -Wait
-						}
-					}
-				}
-			} else {
-	
-				# Otherwise, we'll just colorize it all, keeping the contrast of black and white but tinting the entire icon because there's no border to worry about.
-				ForEach ($ColorHex in $TargetColors) {
-					if ($ColorHex -ne "FFFFFF") {
-
-						Start-Process cmd -ArgumentList @(
-							"/c",
-							"magick",
-							"FFFFFF.png +write mpr:img",
-							"-alpha off -fuzz 75% -fill ""#$ColorHex"" -opaque ""#FFFFFF"" -colorize 100%",
-							"( mpr:img -alpha extract )",
-							"-alpha off -compose copy_opacity -composite",
-							"$ColorHex.png"
-						) -NoNewWindow -Wait
-					}
 				}
 			}
+			# 	} else {
+			# 		# Otherwise, we'll just colorize it all, keeping the contrast of black and white but tinting the entire icon because there's no border to worry about.
+			# 		ForEach ($ColorHex in $TargetColors) {
+			# 			if ($ColorHex -ne "FFFFFF") {
+
+			# 				Start-Process cmd -ArgumentList @(
+			# 					"/c",
+			# 					"magick",
+			# 					"FFFFFF.png +write mpr:img",
+			# 					"-alpha off -fuzz 75% -fill ""#$ColorHex"" -opaque ""#FFFFFF"" -colorize 100%",
+			# 					"( mpr:img -alpha extract )",
+			# 					"-alpha off -compose copy_opacity -composite",
+			# 					"$ColorHex.png"
+			# 				) -NoNewWindow -Wait
+			# 			}
+			# 		}
+			# 	}
+			# } else {
+	
+			# 	# Otherwise, we'll just colorize it all, keeping the contrast of black and white but tinting the entire icon because there's no border to worry about.
+			# 	ForEach ($ColorHex in $TargetColors) {
+			# 		if ($ColorHex -ne "FFFFFF") {
+
+			# 			Start-Process cmd -ArgumentList @(
+			# 				"/c",
+			# 				"magick",
+			# 				"FFFFFF.png +write mpr:img",
+			# 				"-alpha off -fuzz 75% -fill ""#$ColorHex"" -opaque ""#FFFFFF"" -colorize 100%",
+			# 				"( mpr:img -alpha extract )",
+			# 				"-alpha off -compose copy_opacity -composite",
+			# 				"$ColorHex.png"
+			# 			) -NoNewWindow -Wait
+			# 		}
+			# 	}
+			# }
 		}
 	}
 }
