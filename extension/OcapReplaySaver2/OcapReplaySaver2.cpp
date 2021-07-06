@@ -983,7 +983,7 @@ void commandMarkerCreate(const vector<string>& args) {
     //json alpha = args.size() < 13 ? ((shape == "RECTANGLE" || shape == "ELLIPSE") ? json::number_integer_t(20) : json::number_integer_t(100)) : JSON_INT_FROM_ARG(12);
 
     //                                           markerPos                dir                    alpha
-    json coordRecord = json::array({ frameNo, JSON_PARSE_FROM_ARG(10), JSON_INT_FROM_ARG(1) });
+    json coordRecord = json::array({ frameNo, JSON_PARSE_FROM_ARG(10), JSON_FLOAT_FROM_ARG(1) });
     if (args.size() > 12) {
         json alpha = JSON_INT_FROM_ARG(12);
         coordRecord.push_back(alpha);
@@ -1013,7 +1013,7 @@ void commandMarkerMove(const vector<string>& args) {
     COMMAND_CHECK_WRITING_STATE;
     COMMAND_CHECK_INPUT_PARAMETERS3(3, 4, 5);
 
-    json dir = args.size() < 4 ? json::number_integer_t(0) : JSON_INT_FROM_ARG(3);
+    json dir = args.size() < 4 ? json::number_float_t(0) : JSON_FLOAT_FROM_ARG(3);
 
     json mname = JSON_STR_FROM_ARG(0); // имя маркера
     auto it = find_if(j["Markers"].rbegin(), j["Markers"].rend(), [&](const auto& i) { return i[9] == mname; });
