@@ -51,13 +51,9 @@ v 4.2.0.1 2021-07-01 Zealot -1 marker duration fixed
 v 4.2.0.2 2021-07-02 Zealot Added brush parameter
 v 4.3.0.0 2021-07-05 Zealot Many small improvements, linux build
 
-TODO:
-- чтение запись настроек
-
-
 */
 
-#define CURRENT_VERSION "4.3.0.0"
+#define CURRENT_VERSION "4.3.0.1"
 
 #pragma endregion
 
@@ -1148,6 +1144,7 @@ void commandSave(const vector<string>& args) {
     j["endFrame"] = JSON_INT_FROM_ARG(4);
     if (args.size() > 5) {
         j["tags"] = JSON_STR_FROM_ARG(5);
+        config.newServerGameType = json(JSON_STR_FROM_ARG(5)).get<string>();
     }
 
     prepareMarkerFrames(j["endFrame"]);
@@ -1177,15 +1174,17 @@ void commandUpdateUnit(const vector<string>& args)
 
     int id = stoi(args[0]);
     if (!j["entities"][id].is_null()) {
-        j["entities"][id]["positions"].push_back(json::array({
-            JSON_PARSE_FROM_ARG(1),
-            JSON_INT_FROM_ARG(2),
-            JSON_INT_FROM_ARG(3),
-            JSON_INT_FROM_ARG(4),
-            JSON_STR_FROM_ARG(5),
-            JSON_INT_FROM_ARG(6),
-            args.size() < 8 ? json::string_t() : JSON_STR_FROM_ARG(7)
-            }));
+        json pos_update = json::array({
+                   JSON_PARSE_FROM_ARG(1),
+                   JSON_INT_FROM_ARG(2),
+                   JSON_INT_FROM_ARG(3),
+                   JSON_INT_FROM_ARG(4),
+                   JSON_STR_FROM_ARG(5),
+                   JSON_INT_FROM_ARG(6) });
+        if (args.size() > 7)
+            pos_update.push_back(JSON_STR_FROM_ARG(7));
+
+        j["entities"][id]["positions"].push_back(pos_update);
     }
     else {
         LOG(ERROR) << "Incorrect params, no" << id << "entity!";
