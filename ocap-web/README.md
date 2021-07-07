@@ -6,8 +6,7 @@ The configuration file is called `option.json`
 **"title"**: Title used in the web app   
 **"listen"**: Listener for the web server, change to "0.0.0.0:5000" to listen on all interfaces   
 **"secret"**: Secret used for authenticate on record upload   
-**"logger"**: Enables logging to "ocap.log" file   
-**"classes-game"**: Dropdown filter on UI
+**"logger"**: Enables logging to "ocap.log" file
 
 ## Docker
 
@@ -23,12 +22,12 @@ This Project is based on [Golang](https://golang.org/dl/)
 
 ### Windows
 ```bash
-go build -o ocap-webserver.exe .
+go build -o ocap-webserver.exe ./src/web
 ```
 
 ### Linux
 ```
-go build -o ocap-webserver .
+go build -o ocap-webserver ./src/web
 ```
 
 ### Docker

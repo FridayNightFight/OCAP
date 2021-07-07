@@ -1,7 +1,7 @@
 FROM golang:1.16-alpine as builder
 WORKDIR /go/pkg/ocap-web
 COPY . .
-RUN apk add --no-cache alpine-sdk && go build -a -o app .
+RUN apk add --no-cache alpine-sdk && go build -a -o app ./src/web
 
 FROM alpine:3.14
 WORKDIR /usr/local/ocap-web
