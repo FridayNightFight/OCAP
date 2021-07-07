@@ -1,5 +1,5 @@
 #include "script_macros.hpp"
-if (!ocap_capture) exitWith {LOG(["fnc_exportData.sqf called! OCAP don't start."]);};
+if (!ocap_capture) exitWith {LOG(["fnc_exportData.sqf called, but recording hasn't started."]);};
 
 [] spawn {
 	_realyTime = time - ocap_startTime;
@@ -26,8 +26,10 @@ switch (count _this) do {
 if (ocap_needToSave) then {
 	if (!isNil "_tag") then {
 		[":SAVE:", [worldName, briefingName, getMissionConfigValue ["author", ""], ocap_frameCaptureDelay, ocap_endFrameNo, _tag]] call ocap_fnc_extension;
+		LOG(format["Saved recording of mission ""%1"" with tag ""%2""", briefingName, _tag]);
 	} else {
 		[":SAVE:", [worldName, briefingName, getMissionConfigValue ["author", ""], ocap_frameCaptureDelay, ocap_endFrameNo]] call ocap_fnc_extension;
+		LOG(format["Saved recording of mission ""%1"" with default tag", briefingName]);
 	};
 } else {
 	LOG(["ocap_needToSave is set to false. Not saving"]);

@@ -1,3 +1,6 @@
+#include "\userconfig\ocap\config.hpp"
+#include "script_macros.hpp"
+
 ocap_markers_tracked = []; // Markers which we saves into replay
 
 // create CBA event handler to be called on server
@@ -6,34 +9,39 @@ ocap_markers_handle = ["ocap_handleMarker", {
 	params["_eventType", "_mrk_name", "_mrk_owner", "_pos", "_type", "_shape", "_size", "_dir", "_brush", "_color", "_alpha", "_text", "_forceGlobal"];
 
 
-	diag_log text format["OCAPLOG: SERVER: Received data --
-%1 ",_this];
+
 
 	switch (_eventType) do {
 
 		case "CREATED":{
 
-			"debug_console" callExtension (format["OCAPLOG: SERVER: Entered CREATED %1 with details:
-dir: %2
-color: %3
-type: %4
-text: %5
-pos: %6
-size: %7
-shape: %8",
-_mrk_name,
-_dir,
-_color,
-_type,
-_text,
-_pos,
-_size,
-_shape
-]);
+				LOG(format["MARKER:CREATE: Processing marker data --
+%1 ",_this]);
 
-			// if (_mrk in ocap_markers_tracked || _mrk_type == "") exitWith {};
+			private _validate = false;
+			if (_mrk in ocap_markers_tracked) then {
+				LOG(format["MARKER:CREATE: Marker %1 already tracked, exiting", _mrk_name]);
+			} else {
+				private _nameTestArr = [];
+				{
+					if ([_x, _mrk_name] call BIS_fnc_inString) then {
+						_nameTestArr pushBackUnique [_mrk_name, _x];
+					};
+				} forEach ocap_excludeMarkerFromRecord;
+				if (count _nameTestArr > 0) then {
+					LOG(format[
+						"MARKER:CREATE: Marker excluded per config: name ""%1"" matched ""%2"" exclusion",
+						_nameTestArr # 0 # 0,
+						_nameTestArr # 0 # 1
+					]);
+				} else {
+					_validate = true;
+				};
+			};
+			
+			if (_validate) then {
 
-			diag_log text format["OCAPLOG: SERVER: Valid CREATED process of marker from %1 for ""%2""", _mrk_owner, _mrk_name];
+			LOG(format["MARKER:CREATE: Valid CREATED process of marker from ""%1"" for ""%2""", _mrk_owner, _mrk_name]);
 
 			if (_type isEqualTo "") then {_type = "mil_dot"};
 			ocap_markers_tracked pushBackUnique _mrk_name;
@@ -118,33 +126,32 @@ _shape
 
 
 
-			diag_log text format["OCAPLOG: SERVER: Valid CREATED process of %1, sending to extension --
-%2 ", _mrk_name, [_mrk_name, _dir, _type, _text, ocap_captureFrameNo, -1, _mrk_owner, _mrk_color, _size, _sideOfMarker, _pos, _shape, _alpha, _brush]];
+			LOG(format["CREATE:MARKER: Valid CREATED process of ""%1"", sending to extension --
+%2 ", _mrk_name, [_mrk_name, _dir, _type, _text, ocap_captureFrameNo, -1, _mrk_owner, _mrk_color, _size, _sideOfMarker, _pos, _shape, _alpha, _brush]]);
 
 			[":MARKER:CREATE:", [_mrk_name, _dir, _type, _text, ocap_captureFrameNo, -1, _mrk_owner, _mrk_color, _size, _sideOfMarker, _pos, _shape, _alpha, _brush]] call ocap_fnc_extension;
+			};
 
 		};
 
 		case "UPDATED":{
 
-			// diag_log format ["OCAPLOG: SERVER: Enter UPDATED process of %1 from %2 --
-			// %3", _mrk, _mrk_owner, _mrk call BIS_fnc_markerToString];
-
 			if (_mrk_name in ocap_markers_tracked) then {
-				// 				diag_log format ["OCAPLOG: SERVER: Valid UPDATED process of %1, sending to extension --
-				// %2", _mrk, _mrk call BIS_fnc_markerToString];
 				if (isNil "_dir") then {_dir = 0};
+
+				if (ocap_isDebug) then {
+					LOG(format["MARKER:MOVE: Valid UPDATED process of ""%1"", sending to extension --
+%2 ", _mrk_name, [_mrk_name, ocap_captureFrameNo, _pos, _dir, _alpha]]);
+				};
+
 				[":MARKER:MOVE:", [_mrk_name, ocap_captureFrameNo, _pos, _dir, _alpha]] call ocap_fnc_extension;
 			};
 		};
 
 		case "DELETED":{
-			// diag_log format ["OCAPLOG: SERVER: Enter DELETED process of %1 from %2 --
-			// %3", _mrk_info, _mrk_owner, _mrk call BIS_fnc_markerToString];
 
 			if (_mrk_name in ocap_markers_tracked) then {
-				// 				diag_log format ["OCAPLOG: SERVER: Valid DELETED process of %1, sending to extension --
-				// %2", _mrk_info, _mrk call BIS_fnc_markerToString];
+				LOG(format["MARKER:DELETE: Marker ""%1"" deleted", _mrk_name]);
 				[":MARKER:DELETE:", [_mrk_name, ocap_captureFrameNo]] call ocap_fnc_extension;
 				ocap_markers_tracked = ocap_markers_tracked - [_mrk_name];
 			};
@@ -182,13 +189,8 @@ _shape
 				_pos resize 2;
 			};
 
-			diag_log text format["OCAPLOG: Sending data from %1 with param CREATED and name ""%2""", _owner, _marker];
-
-			// "_eventType", "_mrk_name", "_mrk_owner","_pos", "_type", "_shape", "_size", "_dir", "_brush", "_color", "_alpha", "_text", "_forceGlobal"
 			["ocap_handleMarker", ["CREATED", _marker, _owner, _pos, _type, _shape, _size, _dir, _brush, _color, _alpha, _text]] call CBA_fnc_serverEvent;
 		}, _this, 2] call CBA_fnc_waitAndExecute;
-
-		
 	}];
 
 	// handle marker moves/updates
@@ -196,8 +198,6 @@ _shape
 		params["_marker", "_local"];
 
 		if (!_local) exitWith {};
-		diag_log text format["OCAPLOG: Sent data from %1 with param UPDATED and name ""%2""", player, _marker];
-		// "_eventType", "_mrk_name", "_mrk_owner","_pos", "_type", "_shape", "_size", "_dir", "_brush", "_color", "_alpha", "_text", "_forceGlobal"
 		["ocap_handleMarker", ["UPDATED", _marker, player, markerPos _marker, "", "", "", markerDir _marker, "", "", markerAlpha _marker]] call CBA_fnc_serverEvent;
 	}];
 
@@ -206,9 +206,6 @@ _shape
 		params["_marker", "_local"];
 
 		if (!_local) exitWith {};
-		diag_log text format["OCAPLOG: Sent data from %1 with param DELETED and name ""%2""", player, _marker];
-
-		// "_eventType", "_mrk_name", "_mrk_owner","_pos", "_type", "_shape", "_size", "_dir", "_brush", "_color", "_alpha", "_text", "_forceGlobal"
 		["ocap_handleMarker", ["DELETED", _marker, player]] call CBA_fnc_serverEvent;
 	}];
 } remoteExec["call", 0, true];
@@ -220,7 +217,7 @@ _shape
 [
 	{count allPlayers > 0},
 	{
-		_exclude = [
+		private _exclude = [
 			"bis_fnc_moduleCoverMap_0",
 			"bis_fnc_moduleCoverMap_90",
 			"bis_fnc_moduleCoverMap_180",
@@ -232,10 +229,9 @@ _shape
 			"respawn_guerrila",
 			"respawn_civilian"
 		];
-		// _randomizedOwner = allPlayers # 0;
-		_randomizedOwner = objNull;
+
 		{
-			_marker = _x;
+			private _marker = _x;
 			// "Started polling starting markers" remoteExec ["hint", 0];
 			// get intro object markers
 			_pos = markerPos _marker;
@@ -266,19 +262,14 @@ _shape
 				_type = "moduleCoverMap";
 				_colour = "ColorBlack";
 			};
-			// if (["safeMarker", _marker] call BIS_fnc_inString) then {
-			// 	_type = "safeStart";
-			// 	_colour = "ColorBlack";
-			// };
 
 			_forceGlobal = true;
 
 			// "_eventType", "_mrk_name", "_mrk_owner","_pos", "_type", "_shape", "_size", "_dir", "_brush", "_color", "_alpha", "_text", "_forceGlobal"
 			["ocap_handleMarker", ["CREATED", _marker, objNull, _pos, _type, _shape, _size, _dir, _brush, _color, _alpha, _text, _forceGlobal]] call CBA_fnc_localEvent;
 
-			// ["ocap_handleMarker", ["CREATED", _marker, _randomizedOwner, _position, _type, _shape, _size, _dir, _brush, _colour, 1, _text, _forceGlobal]] call CBA_fnc_localEvent;
-			// "debug_console" callExtension (str [_marker, _randomizedOwner, _pos, _type, _shape, _size, _dir, _brush, _color, 1, _text, _forceGlobal] + "#0100");
-
 		} forEach (allMapMarkers);
+
+		LOG(format["GETINITIALMARKERS: Successfully parsed init-scripted and editor-placed markers"]);
 	}
 ] call CBA_fnc_waitUntilAndExecute;

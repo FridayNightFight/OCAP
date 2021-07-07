@@ -86,7 +86,7 @@ while {ocap_capture} do {
 			if !(_x getVariable ["ocap_isInitialised", false]) then {
 				_vehType = typeOf _x;
 				_class = _vehType call _getClass;
-				if ((_class isEqualTo "unknown") || (_vehType in ocap_excludeFromRecord)) exitWith {
+				if ((_class isEqualTo "unknown") || (_vehType in ocap_excludeClassFromRecord)) exitWith {
 					LOG(ARR2("WARNING: vehicle is defined as 'unknown' or exclude:", _vehType));
 					_x setVariable ["ocap_isInitialised", true];
 					_x setVariable ["ocap_exclude", true];

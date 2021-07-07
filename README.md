@@ -45,7 +45,9 @@ Capture automatically begins when the server reaches the configured minimum play
 	>
 	> *`ocap_frameCaptureDelay` sets how frequently the capture of all units and vehicles is run (in seconds)*
 	>
-	> *`ocap_excludeFromRecord` blacklists object classnames that shouldn't be tracked by OCAP*
+	> *`ocap_excludeClassFromRecord` blacklists object classnames that shouldn't be tracked by OCAP*
+	>
+	> *`ocap_excludeMarkerFromRecord` blacklists markers containing any of these strings in their name so they won't be captured -- used primarily for marker framework systems you don't want to include in recordings*
 	>
 	> *`ocap_saveMissionEnded` determines whether or not the recording should be saved automatically when the [`MPEnded`](https://community.bistudio.com/wiki/Arma_3:_Mission_Event_Handlers#MPEnded) event handler fires*
 	>
@@ -153,6 +155,13 @@ ACE3-placed mines and explosives will be tracked from the time they're armed to 
 
 
 ---
+
+## Current Developers
+
+* [IndigoFox](https://github.com/indig0fox) - SQF, Powershell, & JS/Leaflet, enhanced in-game recording & Leaflet playback functionality
+* [Zealot111](https://github.com/Zealot111) - SQF marker framework, C++ extension development and expansion
+* [Fank](https://github.com/Fank) - SQF, JS, Go, Linux build compatibility & DB interface
+* [Tekig](https://github.com/tekig) - SQF foundation & optimization, Go, JS, web optimization and UI
 
 ## Credits
 
