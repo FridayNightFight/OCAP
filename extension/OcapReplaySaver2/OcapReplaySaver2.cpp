@@ -1027,7 +1027,7 @@ void commandMarkerMove(const vector<string>& args) {
     auto coord = find_if((*it)[7].rbegin(), (*it)[7].rend(), [&](const auto& i) { return i[0] == frame; });
     if (coord == (*it)[7].rend()) {
         // такой записи нет
-        LOG(WARNING) << "No marker coord on this frame. Adding new." << coordRecord;
+        LOG(TRACE) << "No marker coord on this frame. Adding new." << coordRecord;
         (*it)[7].push_back(coordRecord);
     }
     else
@@ -1144,7 +1144,7 @@ void commandSave(const vector<string>& args) {
     j["endFrame"] = JSON_INT_FROM_ARG(4);
     if (args.size() > 5) {
         j["tags"] = JSON_STR_FROM_ARG(5);
-        config.newServerGameType = json(JSON_STR_FROM_ARG(5)).get<string>();
+        config.newServerGameType = (json {JSON_STR_FROM_ARG(5)}).get<std::string>();
     }
 
     prepareMarkerFrames(j["endFrame"]);
