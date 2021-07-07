@@ -2,134 +2,167 @@ let _localizable = {
 	"players": {
 		"ru": "Игроки",
 		"en": "Players",
+		"de": "Spieler"
 	},
 	"events": {
 		"ru": "События",
-		"en": "Events"
+		"en": "Events",
+		"de": "Events"
 	},
 	"info": {
 		"ru": "Информация",
-		"en": "Information"
+		"en": "Information",
+		"de": "Information"
 	},
 	"by_killer": {
 		"ru": " был убит ",
-		"en": " killed by "
+		"en": " killed by ",
+		"de": " getötet durch "
 	},
 	"connected": {
 		"ru": "подключился",
-		"en": "connected"
+		"en": "connected",
+		"de": "verbunden"
 	},
 	"disconnected": {
 		"ru": "отключился",
-		"en": "disconnected"
+		"en": "disconnected",
+		"de": "getrennt"
 	},
 	"by_injured": {
 		"ru": " был ранен ",
-		"en": " injured by "
+		"en": " injured by ",
+		"de": " verwundet durch "
 	},
 	"shared": {
 		"ru": "Поделиться",
-		"en": "Shared"
+		"en": "Shared",
+		"de": "Geteilt"
 	},
 	"copy_link": {
 		"ru": "Скопируйте ссылку",
-		"en": "Copy link"
+		"en": "Copy link",
+		"de": "Link kopieren"
 	},
 	"close": {
 		"ru": "Закрыть",
-		"en": "Close"
+		"en": "Close",
+		"de": "Schließen"
 	},
 	"filter": {
 		"ru": "Фильтр",
-		"en": "Filter"
+		"en": "Filter",
+		"de": "Filter"
 	},
 	"shown": {
 		"ru": " показаны",
-		"en": " shown"
+		"en": " shown",
+		"de": " sichtbar"
 	},
 	"hidden": {
 		"ru": " скрыты",
-		"en": " hidden"
+		"en": " hidden",
+		"de": " unsichtbar"
 	},
 	"line_fire": {
 		"ru": "Линии выстрелов",
-		"en": "Shot lines"
+		"en": "Shot lines",
+		"de": "Projektilbahnen"
 	},
 	"nickname": {
 		"ru": "Никнеймы игроков и название техники ",
-		"en": "Player nicknames and vehicle names"
+		"en": "Player nicknames and vehicle names",
+		"de": "Spieler- und Fahrzeugnamen"
 	},
 	"markers": {
 		"ru": "Маркеры",
-		"en": "Markers"
+		"en": "Markers",
+		"de": "Markierungen"
 	},
 	"event_fire": {
 		"ru": "Эвенты попадания",
-		"en": "Hit events"
+		"en": "Hit events",
+		"de": "Treffer"
 	},
 	"event_dis-connected": {
 		"ru": "Эвенты подключения/отключения",
-		"en": "Connects / Disconnects"
+		"en": "Connects / Disconnects",
+		"de": "Verbunden / Getrennt"
 	},
 	"name_missions": {
 		"ru": "Название миссии",
-		"en": "Mission name"
+		"en": "Mission name",
+		"de": "Name der Mission"
 	},
 	"something": {
 		"ru": "кто-то",
-		"en": "something"
+		"en": "something",
+		"de": "etwas"
 	},
 	"select_mission": {
 		"ru": "Выбор миссии",
-		"en": "Select mission"
+		"en": "Select mission",
+		"de": "Wähle Mission"
 	},
 	"mission": {
 		"ru": "Миссия",
-		"en": "Mission"
+		"en": "Mission",
+		"de": "Mission"
 	},
 	"map": {
 		"ru": "Карта",
-		"en": "Map"
+		"en": "Map",
+		"de": "Karte"
 	},
 	"data": {
 		"ru": "Дата",
-		"en": "Date"
+		"en": "Date",
+		"de": "Datum"
 	},
 	"durability": {
 		"ru": "Длительность",
-		"en": "Duration"
+		"en": "Duration",
+		"de": "Dauer"
 	},
 	"tag": {
 		"ru": "Type",
-		"en": "Tag"
+		"en": "Tag",
+		"de": "Tag"
 	},
 	"list_compilation": {
 		"ru": "Составления списка...",
-		"en": "List compilation..."
+		"en": "List compilation...",
+		"de": "Auflisting der Erstellungen..."
 	},
 	"loading": {
 		"ru": "Загрузка...",
-		"en": "Loading..."
+		"en": "Loading...",
+		"de": "Lädt..."
 	},
 	"win": {
 		"ru": "Победа",
-		"en": "Win"
+		"en": "Win",
+		"de": "Gewonnen"
 	},
 	"play-pause": {
 		"ru": "Воспроизвести/пауза: пробел",
-		"en": "Play/pause: space"
+		"en": "Play/pause: space",
+		"de": "Start/Pause: Leertaste"
 	},
 	"show-hide-left-panel": {
 		"ru": "Показать/скрыть левую панель: E",
-		"en": "Show/Hide left panel: E"
+		"en": "Show/Hide left panel: E",
+		"de": "Linkes Fenster Anzeigen/Verstecken: E"
 	},
 	"show-hide-right-panel": {
 		"ru": "Показать/скрыть правую панель: R",
-		"en": "Show/Hide left panel: R"
+		"en": "Show/Hide right panel: R",
+		"de": "Rechtes Fenster Anzeigen/Verstecken: R"
 	},
 	"language": {
 		"ru": "Язык:",
-		"en": "Language:"
+		"en": "Language:",
+		"de": "Sprache:"
 	}
 };
 let localizableElement = [];

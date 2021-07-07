@@ -484,6 +484,7 @@ class UI {
 			<select id="switchLang">
 				<option value="ru"${current_lang == "ru" ? 'selected/' : ''}>Русский</option>
 				<option value="en"${current_lang == "en" ? 'selected/' : ''}>English</option>
+				<option value="de"${current_lang == "de" ? 'selected/' : ''}>Deutsch</option>
 			</select>`;
 		localizable(document.getElementById("keyControl-playPause"), "play-pause");
 		localizable(document.getElementById("keyControl-leftPanel"), "show-hide-left-panel");
