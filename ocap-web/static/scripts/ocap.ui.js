@@ -51,7 +51,6 @@ class UI {
 		this.calendar2 = null;
 		this.filterSubmit = null;
 
-
 		this._init();
 	};
 
@@ -90,7 +89,7 @@ class UI {
 			} else {
 				toggleNicknameButton.style.opacity = 0.5;
 				text = getLocalizable("hidden");
-			};
+			}
 			this.showHint(getLocalizable("nickname") + text);
 		});
 		this.toggleNicknameButton = toggleNicknameButton;
@@ -106,7 +105,7 @@ class UI {
 			} else {
 				toggleFirelinesButton.style.opacity = 0.5;
 				text = getLocalizable("hidden");
-			};
+			}
 
 			this.showHint(getLocalizable("line_fire") + text);
 		});
@@ -124,7 +123,7 @@ class UI {
 			} else {
 				toggleMarkersButton.style.opacity = 0.5;
 				text = getLocalizable("hidden");
-			};
+			}
 
 			this.showHint(getLocalizable("markers") + text);
 		});
@@ -218,7 +217,7 @@ class UI {
 				case 114: // r
 					this.toggleRightPanel();
 					break;
-			};
+			}
 		});
 
 
@@ -314,7 +313,7 @@ class UI {
 			this.leftPanel.style.display = "initial";
 		} else {
 			this.leftPanel.style.display = "none";
-		};
+		}
 	};
 
 	updateTitleSide() {
@@ -346,7 +345,7 @@ class UI {
 		} else if (side == "GUER") {
 			this.sideGuer.style.backgroundColor = "rgba(255, 183, 38,0.3)";
 			this.listGuer.style.display = "inline-block";
-		};
+		}
 	};
 
 	toggleRightPanel() {
@@ -354,7 +353,7 @@ class UI {
 			this.rightPanel.style.display = "initial";
 		} else {
 			this.rightPanel.style.display = "none";
-		};
+		}
 	};
 
 	setModal(modal, modalHeader, modalFilter, modalBody, modalButtons) {
@@ -557,7 +556,7 @@ class UI {
 		// Remove element if not already removed
 		if (el.parentNode != null) {
 			this.eventList.removeChild(el);
-		};
+		}
 	};
 
 	addEvent(event) {
@@ -575,8 +574,8 @@ class UI {
 				setTimeout(() => {
 					el.className = "liEvent reveal";
 				}, 100);
-			};
-		};
+			}
+		}
 
 /*		if (event.type == "hit") {
 			if (this.showHitEvents) {
@@ -629,5 +628,5 @@ class UI {
 			el.style.display = "none";
 		}
 	};
-};
+}
 

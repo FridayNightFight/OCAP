@@ -170,7 +170,7 @@ let current_lang = localStorage.getItem("current_lang");
 if (current_lang == null) {
 	current_lang = (navigator.language || navigator.userLanguage).substr(0, 2);
 	localStorage.setItem("current_lang", current_lang);
-};
+}
 function localizable(elem, lzb, argR = "", argL = "") {
 	var id = elem.dataset.lbId || (elem.dataset.lbId = localizableElement.length);
 	localizableElement[id] = [elem, lzb, argR, argL];
@@ -179,7 +179,7 @@ function localizable(elem, lzb, argR = "", argL = "") {
 		elem.placeholder = argL + text + argR;
 	else
 		elem.innerHTML = argL + text + argR;
-};
+}
 function switchLocalizable(lang) {
 	localStorage.setItem("current_lang", lang);
 	current_lang = lang;
@@ -187,7 +187,7 @@ function switchLocalizable(lang) {
 		if (item.length != 0)
 			localizable(item[0], item[1], item[2], item[3]);
 	});
-};
+}
 function deleteLocalizable(elem) {
 	var id = elem.dataset.lbId;
 	if (id != undefined) {
@@ -196,7 +196,7 @@ function deleteLocalizable(elem) {
 }
 function getLocalizable(lzb) {
 	return _localizable[lzb][current_lang] || _localizable[lzb]["en"] || lzb;
-};
+}
 Array.prototype.slice.call(document.getElementsByTagName("*")).forEach(function(value) {
 	if (value.dataset.lb != undefined) {
 		localizable(value, value.dataset.lb);

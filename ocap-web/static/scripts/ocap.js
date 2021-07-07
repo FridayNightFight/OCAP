@@ -43,7 +43,7 @@ class Entities {
 		this._entities.forEach(function (entity) {
 			if (entity.getName().indexOf(name) != -1) {
 				matching.push(entity);
-			};
+			}
 		});
 		return matching;
 	};
@@ -95,7 +95,7 @@ function getArguments () {
 	window.location.search.replace("?", "").split("&").forEach(function (s) {
 		let values = s.split("=");
 		if (values.length > 1) {
-			args[values[0]] = values[1].replace(/%20/g, " ");;
+			args[values[0]] = values[1].replace(/%20/g, " ");
 		}
 	});
 	// console.log(args);
@@ -131,7 +131,7 @@ function initOCAP () {
 			}
 		}, false);
 	}
-};
+}
 
 function setWorld () {
 	let jsonPath = "images/maps/maps.json";
@@ -140,7 +140,7 @@ function setWorld () {
 	$.getJSON(jsonPath, function (data) {
 		worlds = data;
 	});
-};
+}
 
 function getWorldByName (worldName) {
 	console.log("Getting world " + worldName);
@@ -167,11 +167,11 @@ function getWorldByName (worldName) {
 	});
 
 	return Object.assign(defaultMap, map);
-};
+}
 
 function initMap () {
 	var world = getWorldByName(worldName);
-	// Bad 
+	// Bad
 	mapMaxNativeZoom = world.maxZoom
 	mapMaxZoom = mapMaxNativeZoom + 3
 	// Create map
@@ -197,7 +197,7 @@ function initMap () {
 			ui.hideMarkerPopups = true;
 		} else {
 			ui.hideMarkerPopups = false;
-		};
+		}
 	});
 	console.log("Got world: ");
 	console.log(world);
@@ -234,7 +234,7 @@ function initMap () {
 			case 32: // Spacebar
 				playPause();
 				break;
-		};
+		}
 	});
 
 	// Add custom handling for mousewheel zooming
@@ -246,17 +246,17 @@ function initMap () {
 			setTimeout(function () {
 				playbackPaused = false;
 			}, 250);
-		};
+		}
 		// 	console.log(event);
 		var zoom;
-		if (event.deltaY > 0) { zoom = -0.5 } else { zoom = 0.5 };
+		if (event.deltaY > 0) { zoom = -0.5 } else { zoom = 0.5 }
 		map.zoomIn(zoom, { animate: false });
 	});
 
 	map.on("dragstart", function () {
 		if (entityToFollow != null) {
 			entityToFollow.unfollow();
-		};
+		}
 	});
 
 	createInitialMarkers();
@@ -269,12 +269,12 @@ function initMap () {
 		map.flyToBounds(boundaryPolygon.getBounds());
 	} else {
 		map.flyToBounds(map.getBounds());
-	};
+	}
 
 
 	document.dispatchEvent(new Event("mapInited"));
 	//test();
-};
+}
 
 function createInitialMarkers () {
 	/*	setTimeout(function() {
@@ -290,9 +290,9 @@ function createInitialMarkers () {
 		var pos = entity.getPosAtFrame(0);
 		if (pos != null) { // If unit did exist at start of game
 			entity.createMarker(armaToLatLng(pos));
-		};
+		}
 	});
-};
+}
 
 function defineIcons () {
 	icons = {
@@ -349,7 +349,7 @@ function defineIcons () {
 		icons.staticWeapon[img] = L.icon({ iconSize: [20, 20], iconUrl: `${imgPathStaticWeapon}${img}.svg` });
 		icons.unknown[img] = L.icon({ iconSize: [28, 28], iconUrl: `${imgPathUnknown}${img}.svg` });
 	});
-};
+}
 
 function goFullscreen () {
 	if (document.webkitIsFullScreen) {
@@ -365,25 +365,25 @@ function goFullscreen () {
 		element.webkitRequestFullscreen();
 	} else if (element.msRequestFullscreen) {
 		element.msRequestFullscreen();
-	};
-};
+	}
+}
 
 // Converts Arma coordinates [x,y] to LatLng
 function armaToLatLng (coords) {
 	var pixelCoords = [(coords[0] * multiplier) + trim, (imageSize - (coords[1] * multiplier)) + trim];
 	return map.unproject(pixelCoords, mapMaxNativeZoom);
-};
+}
 
 // Returns date object as little endian (day, month, year) string
 function dateToLittleEndianString (date) {
 	return (date.getDate() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear());
-};
+}
 
 function test () {
 	// Add marker to map on click
 	map.on("click", function (e) {
 		//console.log(e.latlng);
-		
+
 		console.log(map.project(e.latlng, mapMaxNativeZoom));
 
 		brushPattern = {
@@ -439,7 +439,7 @@ function test () {
 
 	// var marker = L.circleMarker(armaToLatLng([2496.58, 5709.34])).addTo(map);
 	// marker.setRadius(5);
-};
+}
 
 function dateToTimeString (date) {
 	var hours = date.getUTCHours();
@@ -459,11 +459,11 @@ function dateToTimeString (date) {
 
 	if (seconds < 10) {
 		string += "0";
-	};
+	}
 	string += seconds;
 
 	return string;
-};
+}
 
 // Convert time in seconds to a more readable time format
 // e.g. 121 seconds -> 2 minutes
@@ -482,8 +482,8 @@ function secondsToTimeString (seconds) {
 		let minUnit = (remainingMins > 1 ? "mins" : "min");
 
 		return `${hours} ${hourUnit}, ${remainingMins} ${minUnit}`;
-	};
-};
+	}
+}
 
 // Read operation JSON data and create unit objects
 function processOp (filepath) {
@@ -536,8 +536,8 @@ function processOp (filepath) {
 					} else {
 						let crew = entry[3];
 						positions.push({ position: pos, direction: dir, alive: alive, crew: crew });
-					};
-				};
+					}
+				}
 			});
 
 			if (type == "unit") {
@@ -548,7 +548,7 @@ function processOp (filepath) {
 				if (group == null) {
 					group = new Group(entityJSON.group, entityJSON.side);
 					groups.addGroup(group);
-				};
+				}
 
 				// Create unit and add to entities list
 				var unit = new Unit(startFrameNum, id, name, group, entityJSON.side, (entityJSON.isPlayer == 1), positions, entityJSON.framesFired);
@@ -571,13 +571,13 @@ function processOp (filepath) {
 						default:
 							showCiv = true;
 							break;
-					};
-				};
+					}
+				}
 			} else {
 				// Create vehicle and add to entities list
 				var vehicle = new Vehicle(startFrameNum, id, entityJSON.class, name, positions);
 				entities.add(vehicle);
-			};
+			}
 		});
 
 		if (data.Markers != null) {
@@ -592,7 +592,7 @@ function processOp (filepath) {
 						player = -1;
 					} else {
 						player = entities.getById(markerJSON[4]);
-					};
+					}
 					var color = markerJSON[5];
 					var side = arrSide[markerJSON[6] + 1];
 					var positions = markerJSON[7];
@@ -606,12 +606,12 @@ function processOp (filepath) {
 							size = markerJSON[8]
 						} else {
 							size = markerJSON[8];//.map(value => value * multiplier);
-						};
+						}
 						shape = markerJSON[9];
-					};
+					}
 					if (markerJSON.length > 10) {
 						brush = markerJSON[10];
-					};
+					}
 
 					if (!(type.includes("zoneTrigger") || type.includes("Empty"))) {
 						var marker = new Marker(type, text, player, color, startFrame, endFrame, side, positions, size, shape, brush);
@@ -619,9 +619,9 @@ function processOp (filepath) {
 					}
 				} catch (err) {
 					console.error(`Failed to process ${markerJSON[9]} with text "${markerJSON[1]}"\nError: ${err}`);
-				};
+				}
 			});
-		};
+		}
 		// Show title side
 		var countShowSide = 0;
 		if (showCiv) countShowSide++;
@@ -665,22 +665,22 @@ function processOp (filepath) {
 						weapon = causedByInfo[1];
 					} else {
 						weapon = "N/A";
-					};
+					}
 					gameEvent = new HitKilledEvent(frameNum, type, causedBy, victim, distance, weapon);
 
 					// TODO: Find out why victim/causedBy can sometimes be null
 					if (causedBy == null || (victim == null)) {
 						console.log(victim);
 						console.log(causedBy);
-					};
+					}
 
 					// Incrememt kill/death count for killer/victim
 					if (type == "killed" && (causedBy != null)) {
 						if (causedBy != victim) {
 							causedBy.killCount++;
-						};
+						}
 						victim.deathCount++;
-					};
+					}
 
 					// Add tick to timeline
 					ui.addTickToTimeline(frameNum);
@@ -691,11 +691,11 @@ function processOp (filepath) {
 				case (type == "endMission"):
 					gameEvent = new endMissionEvent(frameNum, type, eventJSON[2][0], eventJSON[2][1]);
 					break;
-			};
+			}
 			// Add event to gameEvents list
 			if (gameEvent != null) {
 				gameEvents.addEvent(gameEvent);
-			};
+			}
 		});
 
 
@@ -708,7 +708,7 @@ function processOp (filepath) {
 	}).fail(function (xhr, textStatus, error) {
 		ui.modalBody.innerHTML = `Error: "${filepath}" failed to load.<br/>${error}.`;
 	});
-};
+}
 
 function playPause () {
 	playbackPaused = !playbackPaused;
@@ -717,8 +717,8 @@ function playPause () {
 		playPauseButton.style.backgroundPosition = "0 0";
 	} else {
 		playPauseButton.style.backgroundPosition = `-${playPauseButton.offsetWidth}px 0`;
-	};
-};
+	}
+}
 
 function toggleHitEvents (showHint = true) {
 	ui.showHitEvents = !ui.showHitEvents;
@@ -730,12 +730,12 @@ function toggleHitEvents (showHint = true) {
 	} else {
 		ui.filterHitEventsButton.style.opacity = 0.5;
 		text = getLocalizable("hidden");
-	};
+	}
 
 	if (showHint) {
 		ui.showHint(getLocalizable("event_fire") + text);
-	};
-};
+	}
+}
 
 function toggleConnectEvents (showHint = true) {
 	ui.showConnectEvents = !ui.showConnectEvents;
@@ -747,12 +747,12 @@ function toggleConnectEvents (showHint = true) {
 	} else {
 		ui.filterConnectEventsButton.style.opacity = 0.5;
 		text = getLocalizable("hidden");
-	};
+	}
 
 	if (showHint) {
 		ui.showHint(getLocalizable("event_dis-connected") + text);
-	};
-};
+	}
+}
 
 function startPlaybackLoop () {
 	var killlines = [];
@@ -792,8 +792,8 @@ function startPlaybackLoop () {
 						});
 						line.addTo(map);
 						firelines.push(line);
-					};
-				};
+					}
+				}
 			});
 
 			ui.updateTitleSide();
@@ -826,20 +826,20 @@ function startPlaybackLoop () {
 									});
 									line.addTo(map);
 									killlines.push(line);
-								};
-							};
-						};
+								}
+							}
+						}
 
 						// Flash unit's icon
 						if (event.type == "hit") {
 							var victim = event.victim;
 							victim.flashHit();
-						};
-					};
+						}
+					}
 
 				} else {
 					ui.removeEvent(event);
-				};
+				}
 			});
 			markers.forEach(function playbackMarker (marker) {
 				if (ui.markersEnable) {
@@ -848,7 +848,7 @@ function startPlaybackLoop () {
 				} else {
 					marker.manageFrame(playbackFrame);
 					marker.hideMarkerPopup(true);
-				};
+				}
 			});
 			// Handle entityToFollow
 			if (entityToFollow != null) {
@@ -857,21 +857,21 @@ function startPlaybackLoop () {
 					map.setView(armaToLatLng(pos), map.getZoom());
 				} else { // Unit has died or does not exist, unfollow
 					entityToFollow.unfollow();
-				};
-			};
+				}
+			}
 			if (!playbackPaused && !(playbackFrame == endFrame)) {
 				playbackFrame++;
-			};
+			}
 			if (playbackFrame == endFrame) {
 				playbackPaused = true;
 				playPauseButton.style.backgroundPosition = "0 0";
-			};
+			}
 			ui.setMissionCurTime(playbackFrame);
 		});
 
 		// Run timeout again (creating a loop, but with variable intervals)
 		playbackTimeout = setTimeout(playbackFunction, frameCaptureDelay / playbackMultiplier);
-	};
+	}
 
 	var playbackTimeout = setTimeout(playbackFunction, frameCaptureDelay / playbackMultiplier);
-};
+}

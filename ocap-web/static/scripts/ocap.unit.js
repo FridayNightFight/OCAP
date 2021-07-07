@@ -33,7 +33,7 @@ class Unit extends Entity {
 				sideClass = "civ";
 				sideColour = "#650080";
 				break;
-		};
+		}
 
 		this._sideClass = sideClass;
 		this._sideColour = sideColour;
@@ -47,12 +47,12 @@ class Unit extends Entity {
 		let name = position.name;
 		if (position.isPlayer == 0) {
 			name += ' [AI]';
-		};
+		}
 		if (this._name != name) {
 			this._name = name;
 			this._element.textContent = name + " (" + this.killCount.toString() + ")";
 			this._marker.getPopup()._contentNode.innerHTML = name;
-		};
+		}
 	};
 
 	createMarker(latLng) {
@@ -64,7 +64,7 @@ class Unit extends Entity {
 			popup = this._createPopup(this._name);
 		} else {
 			popup = this._createPopup(this._name + " <b>[AI]</b>");
-		};
+		}
 		this._marker.bindPopup(popup).openPopup();
 	};
 
@@ -82,7 +82,7 @@ class Unit extends Entity {
 			this.setMarkerOpacity(0);
 		}/* else {
 			this.setMarkerOpacity(1);
-		}*/;
+		}*/
 	};
 
 	get sideClass() { return this._sideClass };
@@ -93,8 +93,8 @@ class Unit extends Entity {
 		for (let i = 0; i < (this._framesFired.length - 1); i++) {
 			let frameNum = this._framesFired[i][0];
 			let projectilePos = this._framesFired[i][1];
-			if (frameNum == f) { return projectilePos };
-		};
+			if (frameNum == f) { return projectilePos }
+		}
 		return;
 	};
 
@@ -116,7 +116,7 @@ class Unit extends Entity {
 			if (marker != null) {
 				map.setView(marker.getLatLng(), map.getZoom(), { animate: true });
 				this.follow();
-			};
+			}
 		});
 		this.setElement(liUnit);
 		liTarget.appendChild(liUnit);
@@ -141,12 +141,12 @@ class Unit extends Entity {
 				break;
 			default:
 				break;
-		};
+		}
 	};
 
 	addCountList(unit) {
 		let side = unit._side;
-		if (unit._alive != 1) {return}; 
+		if (unit._alive != 1) {return}
 		switch (side) {
 			case "WEST":
 				countWest ++;
@@ -164,4 +164,4 @@ class Unit extends Entity {
 				break;
 		}
 	};
-};
+}

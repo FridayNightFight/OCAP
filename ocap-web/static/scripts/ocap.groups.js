@@ -23,7 +23,7 @@ class Groups {
 		if (this.groups.length == 0) {
 			//console.log("Group does not exist (list empty)!");
 			return;
-		};
+		}
 
 		for (let i = 0; i < this.groups.length; i++) {
 			var group = this.groups[i];
@@ -32,10 +32,10 @@ class Groups {
 			if ((group.getName() == name) && (group.getSide() == side)) {
 				//console.log("Group exists!");
 				return group;
-			};
-		};
+			}
+		}
 
 		//console.log("Group does not exist!");
 		return;
 	};
-};
+}

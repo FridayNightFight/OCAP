@@ -40,7 +40,7 @@ class Group {
 
 	// Add unit to group (if not already added)
 	addUnit(unit) {
-		if (this.units.indexOf(unit) != -1) { return };
+		if (this.units.indexOf(unit) != -1) { return }
 
 		var wasEmpty = this.isEmpty();
 		this.units.push(unit);
@@ -48,7 +48,7 @@ class Group {
 		if (wasEmpty) {
 			this.makeElement(); // Make element for group
 			groups.addGroup(this); // Add self to groups list
-		};
+		}
 
 		// Make element for unit too
 		unit.makeElement(this.getElement());
@@ -56,7 +56,7 @@ class Group {
 
 	updateUnit(unit) {
 		var index = this.units.indexOf(unit);
-		if (index == -1) { return };
+		if (index == -1) { return }
 		this.units.splice(index, 1);
 
 		console.log(this.name + ": update " + unit.GetName());
@@ -65,7 +65,7 @@ class Group {
 	// Remove unit from group (if not already removed)
 	removeUnit(unit) {
 		var index = this.units.indexOf(unit);
-		if (index == -1) { return };
+		if (index == -1) { return }
 
 		this.units.splice(index, 1);
 
@@ -75,7 +75,7 @@ class Group {
 		if (this.isEmpty()) {
 			groups.removeGroup(this); // Remove self from global groups object
 			this.removeElement();
-		};
+		}
 
 		// Remove element for unit too
 		unit.removeElement();
@@ -115,7 +115,7 @@ class Group {
 				countCiv++;
                 ui.listCiv.style.display = 'block';
 				targetList = ui.listCiv;
-		};
+		}
 
 		// Create DOM element
 		var liGroup = document.createElement("li");
@@ -130,4 +130,4 @@ class Group {
 	isEmpty() {
 		return this.units.length == 0;
 	};
-};
+}

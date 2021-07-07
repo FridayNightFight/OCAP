@@ -13,14 +13,14 @@ class GameEvents {
 		this._events.forEach((event) => {
 			if (event.frameNum == f) {
 				events.push(event);
-			};
+			}
 		});
 
 		return events;
 	};
 
 	getEvents() { return this._events };
-};
+}
 
 // TODO: Handle case where victim is a vehicle
 class HitKilledEvent {
@@ -40,13 +40,13 @@ class HitKilledEvent {
 			this.distance = 0;
 			this.weapon = "N/A";
 			this.causedBy = new Unit(null, null, getLocalizable("something"), null, null, null, null); // Dummy unit
-		};
+		}
 
 
 		// === Create UI element for this event (for later use)
 		// Victim
 		var victimSpan = document.createElement("span");
-		if (victim instanceof Unit) { victimSpan.className = this.victim.getSideClass() };
+		if (victim instanceof Unit) { victimSpan.className = this.victim.getSideClass() }
 		victimSpan.className += " bold";
 		victimSpan.textContent = this.victim.getName();
 
@@ -61,10 +61,10 @@ class HitKilledEvent {
 				case "hit":
 					causedBySpan.textContent = this.causedBy.getName() + " (" + (causedBy.killCount) + " kills)";
 					break;
-			};
+			}
 		} else {
 			causedBySpan.textContent = this.causedBy.getName()
-		};
+		}
 		causedBySpan.className += " medium";
 
 		var textSpan = document.createElement("span");
@@ -75,7 +75,7 @@ class HitKilledEvent {
 			case "hit":
 				localizable(textSpan, "by_injured");
 				break;
-		};
+		}
 
 		var detailsDiv = document.createElement("div");
 		detailsDiv.className = "eventDetails";
@@ -99,7 +99,7 @@ class HitKilledEvent {
 			if (latLng == null) {
 				targetFrame = this.frameNum;
 				latLng = this.victim.getLatLngAtFrame(targetFrame);
-			};
+			}
 
 			ui.setMissionCurTime(targetFrame);
 			//map.setView(latLng, map.getZoom());
@@ -110,7 +110,7 @@ class HitKilledEvent {
 	};
 
 	getElement() { return this._element };
-};
+}
 
 class ConnectEvent {
 	constructor(frameNum, type, unitName) {
@@ -136,7 +136,7 @@ class ConnectEvent {
 	};
 
 	getElement() { return this._element };
-};
+}
 // [4639, "endMission", ["EAST", "Offar Factory зазахвачена. Победа Сил РФ."]]
 class endMissionEvent {
 	constructor(frameNum, type, side, msg) {
@@ -165,8 +165,8 @@ class endMissionEvent {
 				case (side == "IND"):
 					span.className = "ind";
 					break;
-			};
-		};
+			}
+		}
 
 		var li = document.createElement("li");
 		li.appendChild(span);
@@ -174,7 +174,7 @@ class endMissionEvent {
 	};
 
 	getElement() { return this._element };
-};
+}
 
 class customEvent {
 	constructor(frameNum, type, msg) {
@@ -200,4 +200,4 @@ class customEvent {
 	};
 
 	getElement () { return this._element };
-};
+}

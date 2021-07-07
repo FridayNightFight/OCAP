@@ -34,13 +34,13 @@ class Entity {
 			return;
 		} else {
 			return this._positions[f].position;
-		};
+		}
 	};
 
 	// Get LatLng at specific frame
 	getLatLngAtFrame(f) {
 		var pos = this.getPosAtFrame(f);
-		if (pos != null) { return armaToLatLng(pos) };
+		if (pos != null) { return armaToLatLng(pos) }
 		return;
 	};
 
@@ -95,17 +95,17 @@ class Entity {
 		if (marker != null) {
 			map.removeLayer(marker);
 			this._marker = null;
-		};
+		}
 	};
 
 	/*	getMarkerEditableGroup() {
 			let doc = this._marker.getElement().contentDocument;
 			return doc.getElementById("editable");
 		};
-	
+
 		setMarkerColour(colour) {
 			let g = this.getMarkerEditableGroup();
-	
+
 			// May be null if not loaded yet
 			if (g != null) {
 				g.style.fill = colour;
@@ -115,10 +115,10 @@ class Entity {
 	setMarkerIcon(icon) {
 		if (this._marker) {
 			this._marker.setIcon(icon);
-		};
+		}
 		if (this._curIcon) {
 			this._curIcon = icon;
-		};
+		}
 	};
 
 	setMarkerOpacity(opacity) {
@@ -127,20 +127,20 @@ class Entity {
 		let popup = this._marker.getPopup();
 		if (popup != null) {
 			popup.getElement().style.opacity = opacity;
-		};
+		}
 	};
 
 	hideMarkerPopup(bool) {
 		let popup = this._marker.getPopup();
-		if (popup == null) { return };
+		if (popup == null) { return }
 
 		let element = popup.getElement();
 		let display = "inherit";
-		if (bool || !ui.nicknameEnable) { display = "none" };
+		if (bool || !ui.nicknameEnable) { display = "none" }
 
 		if (element.style.display != display) {
 			element.style.display = display;
-		};
+		}
 	};
 
 	removeElement() {
@@ -176,7 +176,7 @@ class Entity {
 			this.createMarker(latLng);
 		} else {
 			this._marker.setLatLng(latLng);
-		};
+		}
 
 		// Set direction
 		this._marker.setRotationAngle(this._positions[relativeFrameIndex].direction);
@@ -197,7 +197,7 @@ class Entity {
 			this.removeMarker();
 		} else {
 			this._updateAtFrame(f)
-		};
+		}
 	};
 
 	_flash(icon, framesToSpan) {
@@ -225,7 +225,7 @@ class Entity {
 
 				if (this._curIcon != icon) {
 					this.setMarkerIcon(icon);
-				};
+				}
 				this._tempIcon = (icon);
 				this.setMarkerOpacity(0.4);
 				break;
@@ -234,18 +234,18 @@ class Entity {
 				//console.log(this._marker);
 				if ((!this._lockMarkerIcon) && (this._curIcon != this._realIcon)) {
 					this.setMarkerIcon(this._realIcon);
-				};
+				}
 				this.setMarkerOpacity(1);
 				break;
 			case 2:
 				if ((!this._lockMarkerIcon) && (this._curIcon != this.iconType.unconscious)) {
 					this.setMarkerIcon(this.iconType.unconscious);
-				};
+				}
 				this.setMarkerOpacity(1);
 				break;
 			default:
 				break;
-		};
+		}
 	};
 
 	// Change unit's marker colour (highlight) and set as entity to follow
@@ -273,4 +273,4 @@ class Entity {
 		*/
 		entityToFollow = null;
 	};
-};
+}

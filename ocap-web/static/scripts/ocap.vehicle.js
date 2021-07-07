@@ -39,7 +39,7 @@ class Vehicle extends Entity {
 				break;
 			default:
 				iconType = icons.unknown;
-		};
+		}
 
 		this.iconType = iconType;
 		this._realIcon = iconType.dead;
@@ -57,7 +57,7 @@ class Vehicle extends Entity {
 			if (popup._contentNode != null) {
 				popup._contentNode.style.width = "200px";
 				clearInterval(checkPopupLoad);
-			};
+			}
 		}, 100);
 
 		// Add vehicle name tooltip on marker hover
@@ -90,7 +90,7 @@ class Vehicle extends Entity {
 					content = `${title}<br>${crewString}`;
 				} else {
 					content = `${this._name} ${crewLengthString}`;
-				};
+				}
 
 				// Change vehicle icon depending on driver's side
 				let driverId = crew[0];
@@ -101,14 +101,14 @@ class Vehicle extends Entity {
 				if (this._realIcon != icon) {
 					this.setMarkerIcon(icon);
 					this._realIcon = icon; // Vehicle icon will now remain this colour until a unit of a differet side becomes driver
-				};
-			};
-		};
+				}
+			}
+		}
 		let popupNode = this._marker.getPopup()._contentNode;
 
 		if (popupNode.innerHTML != content) {
 			popupNode.innerHTML = content;
-		};
+		}
 	};
 
 	getCrew() {
@@ -116,7 +116,7 @@ class Vehicle extends Entity {
 	};
 
 	getCrewString() {
-		if (this._crew.length == 0) { return " " };
+		if (this._crew.length == 0) { return " " }
 
 		let str = "";
 		this._crew.forEach(function (unitId) {
@@ -126,7 +126,7 @@ class Vehicle extends Entity {
 			// Only include player names
 			if (unit.isPlayer) {
 				str += (unit.getName() + "<br/>");
-			};
+			}
 			//};
 		});
 		return str;
@@ -139,6 +139,6 @@ class Vehicle extends Entity {
 			return entities.getById(crew[0]).getSideColour();
 		} else {
 			return "black";
-		};
+		}
 	};
-};
+}

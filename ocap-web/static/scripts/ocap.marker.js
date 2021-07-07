@@ -45,10 +45,10 @@ class Marker {
 			this._icon = L.icon({ iconSize: this._size, iconUrl: `images/markers/${type}/${color}.png` });
 		} else {
 			this._icon = null;
-		};
+		}
 
 
-		
+
 		// "Solid" (default)
 		// "SolidFull" (A3 only)
 		// "Horizontal"
@@ -60,7 +60,7 @@ class Marker {
 		// "Cross"
 		// "Border"
 		// "SolidBorder"
-		
+
 		if (!(undefined === brush && undefined === shape)) {
 			this._brush = brush;
 
@@ -77,7 +77,7 @@ class Marker {
 				brushPattern = new L.StripePattern({ renderer: L.svg()});
 			} else if (["Horizontal", "Vertical", "FDiagonal", "BDiagonal"].includes(brush)) {
 				brushPattern = new L.StripePattern({ renderer: L.svg()});
-			};
+			}
 			this._brushPattern = brushPattern;
 			this._brushPatternOptions = null;
 			switch (brush) {
@@ -229,7 +229,7 @@ class Marker {
 					break;
 				default:
 					break;
-			};
+			}
 		} else {
 			this._shapeOptions = {
 				color: this._color,
@@ -237,7 +237,7 @@ class Marker {
 				fill: true,
 				fillOpacity: 0.3
 			};
-		};
+		}
 		this._marker = null;
 		this._isShow = false;
 		this._popup = "";
@@ -263,14 +263,14 @@ class Marker {
 		} else {
 			// this._updateAtFrame(0);
 			this.hide();
-		};
+		}
 		return;
 	};
 
 	_updateAtFrame (f) {
 		let frameData = this._positions[f];
 		let pos = frameData[1];
-		if (pos.length == 1) { pos = pos[0] };
+		if (pos.length == 1) { pos = pos[0] }
 		let dir = frameData[2];
 		let alpha = frameData[3];
 
@@ -281,11 +281,11 @@ class Marker {
 
 			if (this._shape == "ICON") {
 				latLng = armaToLatLng(pos);
-				if (null == alpha || alpha == 0) { alpha = 1 };
+				if (null == alpha || alpha == 0) { alpha = 1 }
 				this._createMarker(latLng, dir, alpha);
 			} else if (this._shape == "ELLIPSE") {
 				latLng = armaToLatLng(pos);
-				if (null == alpha || alpha == 0) { alpha = 0.2 };
+				if (null == alpha || alpha == 0) { alpha = 0.2 }
 				this._createMarker(latLng, dir, alpha);
 			} else if (this._shape == "RECTANGLE") {
 				let startX = pos[0];
@@ -307,7 +307,7 @@ class Marker {
 				// process rotation around center
 				let pointsRotate = this._rotatePoints(armaToLatLng(pos), points, dir);
 
-				if (null == alpha || alpha == 0) { alpha = 0.3 };
+				if (null == alpha || alpha == 0) { alpha = 0.3 }
 
 				this._createMarker(pointsRotate, dir, alpha);
 			} else if (this._shape == "POLYLINE") {
@@ -318,24 +318,24 @@ class Marker {
 					});
 				} else {
 					points = armaToLatLng([pos[0], pos[1]])
-				};
-				if (null == alpha || alpha == 0) { alpha = 1 };
+				}
+				if (null == alpha || alpha == 0) { alpha = 1 }
 				this._createMarker(points, dir, alpha);
-			};
+			}
 
 		} else {
 			// console.debug(`UPDATE AT FRAME: attempting to update marker ${this._name}`)
 
 			if (this._shape == "ICON") {
 				latLng = armaToLatLng(pos);
-				if (null === alpha || alpha == 0) { alpha = 1 };
+				if (null === alpha || alpha == 0) { alpha = 1 }
 
 				this._marker.setRotationAngle(dir);
 				this._marker.setLatLng(latLng);
 			} else if (this._shape == "ELLIPSE") {
 				latLng = armaToLatLng(pos);
-				if (null === alpha || alpha == 0) { alpha = 0.3 };
-				
+				if (null === alpha || alpha == 0) { alpha = 0.3 }
+
 				// check if update is needed
 				let variance = 0;
 				let curMarkerCenter = this._marker._latlng;
@@ -351,7 +351,7 @@ class Marker {
 				let startY = pos[1];
 				let sizeX = this._size[0];
 				let sizeY = this._size[1];
-				if (null === alpha || alpha == 0) { alpha = 0.3 };
+				if (null === alpha || alpha == 0) { alpha = 0.3 }
 
 				let pointsRaw = [
 					[startX - sizeX, startY + sizeY], // top left
@@ -376,12 +376,12 @@ class Marker {
 					this._marker.setLatLngs(pointsRotate).redraw();
 				// };
 			} else if (this._shape == "POLYLINE") {
-				if (null === alpha || alpha == 0) { alpha = 1 };
+				if (null === alpha || alpha == 0) { alpha = 1 }
 				// do nothing, polylines can't be moved
-			};
+			}
 
 			this.show(alpha);
-		};
+		}
 	};
 
 
@@ -401,7 +401,7 @@ class Marker {
 			// done with that point
 			p4 = map.layerPointToLatLng(p4)
 			res.push(p4)
-		};
+		}
 		return res
 	};
 
@@ -430,7 +430,7 @@ class Marker {
 				this.setMarkerOpacity(alpha);
 			} else if (this._shape == "POLYLINE") {
 				this.setMarkerOpacity(alpha);
-			};
+			}
 		// };
 	};
 
@@ -447,7 +447,7 @@ class Marker {
 
 			let interactiveVal = false;
 			let markerCustomText = "";
-			if (this._text) { markerCustomText = this._text };
+			if (this._text) { markerCustomText = this._text }
 			popupText = `${this._text}`;
 			marker = L.marker(latLng, { interactive: interactiveVal }).addTo(map);
 			marker.setIcon(this._icon);
@@ -461,7 +461,7 @@ class Marker {
 			let interactiveVal = false;
 
 			let markerCustomText = "";
-			if (this._text) { markerCustomText = this._text };
+			if (this._text) { markerCustomText = this._text }
 
 			if (
 				// objectives
@@ -489,7 +489,7 @@ class Marker {
 				// all normal player marks
 				interactiveVal = true;
 				popupText = `${this._side} ${this._player.getName()} ${this._text}`;
-			};
+			}
 
 			marker = L.marker(latLng, { interactive: interactiveVal }).addTo(map);
 			marker.setIcon(this._icon);
@@ -498,7 +498,7 @@ class Marker {
 
 			// Set direction
 			marker.setRotationAngle(dir);
-		};
+		}
 
 		if (this._shape == "ELLIPSE") {
 			let rad = this._size[0] * 0.015 * window.multiplier;
@@ -511,7 +511,7 @@ class Marker {
 			} else {
 				marker = L.circle(latLng, { radius: rad, noClip: false, interactive: false/* , renderer: L.canvas() */ });
 				L.Util.setOptions(marker, this._shapeOptions);
-			};
+			}
 			marker.addTo(map);
 		} else if (this._shape == "RECTANGLE") {
 
@@ -523,11 +523,11 @@ class Marker {
 			} else {
 				marker = L.polygon(latLng, { noClip: false, interactive: false/* , renderer: L.canvas() */ });
 				L.Util.setOptions(marker, this._shapeOptions);
-			};
+			}
 			marker.addTo(map);
 		} else if (this._shape == "POLYLINE") {
 			marker = L.polyline(latLng, { color: this._color, opacity: 1, noClip: true, lineCap: 'butt', lineJoin: 'round', interactive: false }).addTo(map);
-		};
+		}
 
 		this._marker = marker;
 		// this.show(alpha);
@@ -558,13 +558,13 @@ class Marker {
 					lastIndex = index - 1;
 				} else {
 					startIndex = index;
-				};
+				}
 			} while (lastLength != (lastIndex - startIndex + 1));
 			return lastIndex;
-		};
+		}
 		if (this._startFrame <= f && this._endFrame == -1) {
 			return this._positions.length - 1;
-		};
+		}
 		return
 	};
 
@@ -578,16 +578,16 @@ class Marker {
 						strokeOpacity = 1;
 					} else {
 						strokeOpacity = 0;
-					};
+					}
 					if (this._shapeOptions.fill === true) {
 						fillOpacity = Math.min(this._shapeOptions.fillOpacity, opacity);
 					} else {
 						fillOpacity = 0;
-					};
+					}
 				} else {
 					strokeOpacity = opacity + 0.3;
 					fillOpacity = opacity;
-				};
+				}
 			} else {
 				strokeOpacity = 0;
 				fillOpacity = 0;
@@ -597,36 +597,36 @@ class Marker {
 				let popup = this._marker.getPopup();
 				if (popup != null) {
 					popup.getElement().style.opacity = opacity;
-				};
+				}
 			} else if (this._shape == "ELLIPSE") {
 				this._marker.setStyle({ opacity: strokeOpacity, fillOpacity: fillOpacity });
 			} else if (this._shape == "RECTANGLE") {
 				this._marker.setStyle({ opacity: strokeOpacity, fillOpacity: fillOpacity });
 			} else if (this._shape == "POLYLINE") {
 				this._marker.setStyle({ opacity: opacity });
-			};
-		};
+			}
+		}
 	};
 
 	setPopup (popup) {
 		if (this._popup != popup) {
 			this._marker.getPopup()._contentNode.innerHTML = popup;
 			this._popup = popup;
-		};
+		}
 	};
 
 	hideMarkerPopup (bool) {
 		if (this._marker != null) {
 			let popup = this._marker.getPopup();
-			if (popup == null) { return };
+			if (popup == null) { return }
 
 			let element = popup.getElement();
 			let display = "inherit";
-			if (bool) { display = "none" };
+			if (bool) { display = "none" }
 
 			if (element.style.display != display) {
 				element.style.display = display;
-			};
-		};
+			}
+		}
 	};
-};
+}
