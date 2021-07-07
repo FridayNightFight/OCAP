@@ -93,7 +93,7 @@ e.g. Create a trigger that activates once all objectives complete. Then on activ
 if (isServer) then {
 
 	// Saves and uploads the recording to your server
-    [east, "OPFOR has achieved all of their objectives!"] call ocap_fnc_exportData;
+	[east, "OPFOR has achieved all of their objectives!"] call ocap_fnc_exportData;
 
 	// Ends mission for everyone
 	"end1" call BIS_fnc_endMissionServer; 

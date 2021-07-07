@@ -18,8 +18,8 @@ add_library(OcapReplaySaver2 SHARED
   easylogging_setup.h
   easylogging++.cc
   easylogging++.h
-  OcapReplaySaver2.h 
-  OcapReplaySaver2.cpp 
+  OcapReplaySaver2.h
+  OcapReplaySaver2.cpp
   json.hpp
 )
 
