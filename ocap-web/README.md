@@ -10,6 +10,15 @@ The configuration file is called `option.json`
 
 ## Docker
 
+```
+docker run --name ocap-web -d \
+  -v ocap-config:/etc/ocap \
+  -v ocap-records:/usr/local/ocap-web/static/data \
+  -v ocap-maps:/usr/local/ocap-web/static/images/maps \
+  -v ocap-database:/var/lib/ocap \
+  docker pull ghcr.io/ocapv2/web:latest
+```
+
 volumes are available:
 - `/etc/ocap` place here your `option.json`
 - `/usr/local/ocap-web/static/data` store for all uploaded json records
